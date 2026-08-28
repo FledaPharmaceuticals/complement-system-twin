@@ -30,7 +30,7 @@ jobs:
           FLEDA_AI_MONTHLY_BUDGET_USD: "50.00"
         run: |
           set -o pipefail
-          ./run-literature-ingestion.sh \
+          python -m literature_service.ingest \
             --source both \
             --include-abstract \
             --retmax 10 \
