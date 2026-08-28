@@ -1,0 +1,48 @@
+name: Fleda public literature snapshot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out Fleda project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install literature service dependencies
+        run: python -m pip install -r requirements-literature.txt
+
+      - name: Retrieve public metadata and abstracts
+        env:
+          FLEDA_LITERATURE_DB: ${{ runner.temp }}/literature.db
+          FLEDA_AI_MONTHLY_BUDGET_USD: "50.00"
+        run: |
+          set -o pipefail
+          ./run-literature-ingestion.sh \
+            --source both \
+            --include-abstract \
+            --retmax 10 \
+            | tee "$RUNNER_TEMP/ingestion-report.json"
+
+      - name: Upload ingestion report and local snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fleda-literature-snapshot-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/ingestion-report.json
+            ${{ runner.temp }}/literature.db
+          if-no-files-found: warn
+          retention-days: 30

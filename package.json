@@ -1,0 +1,9 @@
+{
+  "name": "fleda-complement-system-twin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:frontend": "node --test tests/literatureService.test.js"
+  }
+}

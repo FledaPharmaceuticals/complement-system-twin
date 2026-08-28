@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Complement System Digital Twin</title>
+    <link rel="stylesheet" href="./src/styles.css">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">FLEDA DIGITAL TWIN PLATFORM</p>
+          <h1>Complement System Digital Twin</h1>
+          <p>
+            A knowledge twin and rule-based simulation sandbox for exploring
+            complement pathways, disease contexts, biomarkers, and drug target
+            interventions.
+          </p>
+        </div>
+        <div class="hero-panel" aria-label="Complement system platform summary">
+          <div class="panel-line"></div>
+          <div class="hero-stat">
+            <strong id="entity-count">0</strong>
+            <span>Seed entities</span>
+          </div>
+          <div class="hero-stat">
+            <strong id="relationship-count">0</strong>
+            <span>Mechanistic relationships</span>
+          </div>
+          <div class="hero-stat">
+            <strong>V1</strong>
+            <span>Knowledge Twin + Rule-Based Simulation</span>
+          </div>
+        </div>
+        <div class="hero-dynamics-preview">
+          <div class="chart-toolbar">
+            <div class="hero-toolbar-header">
+              <div>
+                <p class="eyebrow">Live Dynamics Window</p>
+                <h3>Normal Complement Protein Concentration Baseline</h3>
+              </div>
+              <div class="hero-top-right-controls">
+                <label class="hero-highlight-control">Highlight
+                  <select id="hero-highlight-series">
+                    <option value="none" selected>None</option>
+                    <option value="C3">C3</option>
+                    <option value="C3a">C3a</option>
+                    <option value="C3b">C3b</option>
+                    <option value="Factor B">Factor B</option>
+                    <option value="Factor D">Factor D</option>
+                    <option value="C3bBb">C3bBb</option>
+                    <option value="Factor H">Factor H</option>
+                    <option value="Factor I">Factor I</option>
+                    <option value="C5">C5</option>
+                    <option value="C5a">C5a</option>
+                    <option value="C5b">C5b</option>
+                    <option value="MAC">MAC</option>
+                    <option value="CD59">CD59</option>
+                    <option value="Retinal Complement Activity Proxy">Retinal Complement Activity Proxy</option>
+                    <option value="RPE Stress Proxy">RPE Stress Proxy</option>
+                    <option value="Drusen Formation Risk Proxy">Drusen Formation Risk Proxy</option>
+                  </select>
+                </label>
+                <span class="hero-icon-actions" aria-label="Simulation controls">
+                  <button id="hero-play-chart" class="icon-button" type="button" aria-label="Start simulation" title="Start simulation">▶</button>
+                  <button id="hero-pause-chart" class="icon-button" type="button" aria-label="Pause simulation" title="Pause simulation">Ⅱ</button>
+                  <button id="hero-reset-chart" class="icon-button" type="button" aria-label="Reset zoom" title="Reset zoom">↺</button>
+                </span>
+              </div>
+            </div>
+            <div class="hero-playback-controls">
+              <label>Speed
+                <select id="hero-playback-speed">
+                  <option value="1">1 sec = 1 min</option>
+                  <option value="10" selected>1 sec = 10 min</option>
+                  <option value="30">1 sec = 30 min</option>
+                </select>
+              </label>
+              <label>Disease Scenario
+                <select id="hero-disease-scenario">
+                  <option value="normal" selected>Normal baseline</option>
+                  <option value="PNH">PNH</option>
+                  <option value="aHUS">aHUS</option>
+                  <option value="C3G">C3 glomerulopathy</option>
+                  <option value="AMD">AMD</option>
+                  <option value="sepsis">Sepsis</option>
+                  <option value="cancer microenvironment">Cancer microenvironment</option>
+                </select>
+              </label>
+              <fieldset class="hero-inhibitor-set">
+                <legend>Inhibitors</legend>
+                <label><input type="checkbox" name="heroInterventionTarget" value="c3Inhibitor"> C3</label>
+                <label><input type="checkbox" name="heroInterventionTarget" value="factorBInhibitor"> Factor B</label>
+                <label><input type="checkbox" name="heroInterventionTarget" value="factorDInhibitor"> Factor D</label>
+                <label><input type="checkbox" name="heroInterventionTarget" value="c5Inhibitor"> C5</label>
+                <label><input type="checkbox" name="heroInterventionTarget" value="c5aRInhibitor"> C5aR</label>
+                <label><input type="checkbox" name="heroInterventionTarget" value="cd59Modifier"> CD59 support</label>
+              </fieldset>
+              <label>Strength
+                <input id="hero-intervention-strength" type="range" min="0" max="100" value="70">
+                <output id="hero-intervention-strength-output">70</output>
+              </label>
+              <label class="hero-intervention-time-control">Intervention time
+                <input id="hero-intervention-time" type="range" min="0" max="120" value="60">
+                <output id="hero-intervention-time-output">60 min</output>
+              </label>
+            </div>
+          </div>
+          <div id="hero-dynamics-chart" class="hero-dynamics-chart"></div>
+          <section class="organ-impact-twin" aria-label="Organ impact twin">
+            <div class="organ-body-panel">
+              <div>
+                <p class="eyebrow">Organ Impact Twin</p>
+                <h3>Systemic impact of complement activation</h3>
+              </div>
+              <div class="human-twin" aria-label="Human organ impact map">
+                <div class="human-outline">
+                  <img src="./assets/human-anatomy-twin.png" alt="Digital twin human anatomy interface">
+                  <div class="heartbeat-monitor" aria-label="Heart rhythm monitor">
+                    <div class="heart-rate"><span>♥</span><strong id="organ-heart-rate">72</strong><em>BPM</em></div>
+                    <div class="ecg-viewport" aria-hidden="true">
+                      <div class="ecg-track">
+                        <svg class="ecg-wave" viewBox="0 0 240 56" preserveAspectRatio="none">
+                          <polyline points="0,32 16,32 22,28 28,36 34,31 48,31 54,14 60,44 66,31 86,31 94,26 102,36 110,32 130,32 136,18 142,42 150,31 170,31 178,28 186,35 194,32 214,32 220,16 226,44 234,32 240,32"></polyline>
+                        </svg>
+                        <svg class="ecg-wave" viewBox="0 0 240 56" preserveAspectRatio="none">
+                          <polyline points="0,32 16,32 22,28 28,36 34,31 48,31 54,14 60,44 66,31 86,31 94,26 102,36 110,32 130,32 136,18 142,42 150,31 170,31 178,28 186,35 194,32 214,32 220,16 226,44 234,32 240,32"></polyline>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="organ-pulse-layer" aria-hidden="true">
+                    <span class="organ-zone brain" data-organ-zone="brain"></span>
+                    <span class="organ-zone lung" data-organ-zone="lung"></span>
+                    <span class="organ-zone blood" data-organ-zone="blood"></span>
+                    <span class="organ-zone liver" data-organ-zone="liver"></span>
+                    <span class="organ-zone kidney" data-organ-zone="kidney"></span>
+                    <span class="organ-zone retina" data-organ-zone="retina"></span>
+                    <span class="organ-zone vessels" data-organ-zone="vessels"></span>
+                    <span class="organ-zone skin" data-organ-zone="skin"></span>
+                  </div>
+                  <button class="organ-hotspot brain" data-organ="brain" data-label="Brain / CNS" type="button">Brain</button>
+                  <button class="organ-hotspot lung" data-organ="lung" data-label="Lung" type="button">Lung</button>
+                  <button class="organ-hotspot blood" data-organ="blood" data-label="Blood / RBC" type="button">Blood</button>
+                  <button class="organ-hotspot liver" data-organ="liver" data-label="Liver" type="button">Liver</button>
+                  <button class="organ-hotspot kidney" data-organ="kidney" data-label="Kidney" type="button">Kidney</button>
+                  <button class="organ-hotspot retina" data-organ="retina" data-label="Retina / Eye" type="button">Retina</button>
+                  <button class="organ-hotspot vessels" data-organ="vessels" data-label="Vessels" type="button">Vessels</button>
+                  <button class="organ-hotspot skin" data-organ="skin" data-label="Skin / Joint" type="button">Skin</button>
+                </div>
+              </div>
+            </div>
+            <div class="organ-impact-panel">
+              <div class="organ-panel-header">
+                <span>Current systemic interpretation</span>
+                <strong id="organ-impact-time">0 min</strong>
+              </div>
+              <div id="organ-impact-cards" class="organ-impact-cards"></div>
+              <p id="organ-impact-summary" class="organ-impact-summary"></p>
+            </div>
+          </section>
+          <section id="amd-disease-dashboard" class="amd-dashboard" hidden aria-label="AMD disease dashboard">
+            <div class="amd-dashboard-header">
+              <div>
+                <p class="eyebrow">AMD Disease Context Module</p>
+                <h3>Age-related Macular Degeneration Digital Twin View</h3>
+                <p class="amd-context-note">AMD is modeled as a retina-centered complement-mediated chronic disease state over months, not an acute 120-minute reaction. Systemic cards represent association or pathway relevance, not deterministic organ damage, and AMD does not drive heart-rate changes in this model.</p>
+              </div>
+              <strong id="amd-retinal-score">0/100</strong>
+            </div>
+            <div class="amd-dashboard-grid">
+              <article class="amd-panel">
+                <h4>Retina / Macula Focus</h4>
+                <div id="amd-retina-focus" class="amd-chip-grid"></div>
+              </article>
+              <article class="amd-panel">
+                <h4>Complement Mechanism</h4>
+                <ul id="amd-mechanisms"></ul>
+              </article>
+              <article class="amd-panel">
+                <h4>Body System Relationship</h4>
+                <div id="amd-system-impact" class="amd-system-list"></div>
+              </article>
+              <article class="amd-panel amd-score-panel">
+                <h4>AMD-Specific Outputs</h4>
+                <div id="amd-output-scores" class="amd-output-grid"></div>
+              </article>
+              <article class="amd-panel amd-wide-panel">
+                <h4>Literature Calibration Layer</h4>
+                <p id="amd-calibration-summary" class="amd-summary"></p>
+                <div id="amd-calibration-priors" class="amd-calibration-priors"></div>
+                <details class="amd-evidence-details">
+                  <summary>Curated Evidence Records</summary>
+                  <div id="amd-evidence-records" class="amd-evidence-records"></div>
+                </details>
+                <details class="amd-evidence-details">
+                  <summary>Candidate Calibration Suggestions</summary>
+                  <p class="candidate-calibration-note">These are reviewable hypotheses from curated seeds or local public literature terms. They do not change the formal model.</p>
+                  <p id="amd-calibration-review" class="candidate-calibration-review">Candidate conflict review is pending.</p>
+                  <button id="download-amd-review-package" class="secondary-button" type="button">Download Review Package</button>
+                  <div id="amd-calibration-candidates" class="amd-evidence-records"></div>
+                </details>
+              </article>
+              <article class="amd-panel amd-wide-panel">
+                <h4>Drug Target Simulation Interpretation</h4>
+                <p id="amd-drug-summary"></p>
+                <p id="amd-summary" class="amd-summary"></p>
+                <p id="amd-disclaimer" class="amd-disclaimer"></p>
+              </article>
+            </div>
+          </section>
+          <div class="hero-time-readout">Simulation time: <strong id="hero-time-readout">0 min</strong></div>
+        </div>
+      </section>
+
+      <section id="model-roadmap" class="section maturity-roadmap-section">
+        <div class="section-heading">
+          <p class="eyebrow">Model Maturity & V2 Roadmap</p>
+          <h2>From transparent prototype to calibrated research platform</h2>
+        </div>
+        <div class="maturity-layout">
+          <article class="maturity-card active">
+            <span>Current AMD model</span>
+            <strong>Literature-calibrated prototype</strong>
+            <p>AMD uses curated literature-derived priors, disease-specific organ mapping, and retina-centered chronic progression logic.</p>
+          </article>
+          <article class="maturity-card">
+            <span>Current platform level</span>
+            <strong>Knowledge Twin + Rule-Based Simulation</strong>
+            <p>The engine is transparent and explainable, but not yet calibrated with real biomarker cohorts or experimental datasets.</p>
+          </article>
+          <article class="maturity-card">
+            <span>Clinical boundary</span>
+            <strong>Research visualization only</strong>
+            <p>Outputs are hypothesis-support signals and risk proxies, not diagnosis, patient prediction, or regulated medical software.</p>
+          </article>
+        </div>
+        <div class="model-history-panel">
+          <div>
+            <p class="eyebrow">Versioned Model History</p>
+            <h3>Traceable releases and controlled changes</h3>
+            <p>Candidate suggestions never replace an active model release. A future accepted change will appear as a new version with its evidence chain.</p>
+          </div>
+          <div id="model-history-list" class="model-history-list" aria-live="polite"></div>
+          <div id="model-audit-summary" class="model-audit-summary" aria-live="polite"></div>
+        </div>
+        <div class="roadmap-grid">
+          <article class="roadmap-step done">
+            <span>01</span>
+            <strong>Disease-specific mapping</strong>
+            <p>AMD, PNH, aHUS, and sepsis use different tissue-weight logic so one complement pattern does not imply the same biology everywhere.</p>
+          </article>
+          <article class="roadmap-step done">
+            <span>02</span>
+            <strong>Literature calibration</strong>
+            <p>Structured evidence records produce parameter priors for disease context, pathway activity, and tissue sensitivity.</p>
+          </article>
+          <article class="roadmap-step done">
+            <span>03</span>
+            <strong>Biomarker input panel</strong>
+            <p>Add C3, C4, CH50, AH50, C3a, C5a, sC5b-9, Factor H, Factor I, Factor B, and Factor D to initialize scenarios.</p>
+          </article>
+          <article class="roadmap-step done">
+            <span>04</span>
+            <strong>Drug comparison mode</strong>
+            <p>Compare no intervention, C3 inhibition, C5 inhibition, Factor B/D inhibition, and regulation enhancement side by side.</p>
+          </article>
+          <article class="roadmap-step done">
+            <span>05</span>
+            <strong>Report export</strong>
+            <p>Generate a research report with inputs, assumptions, curves, disease-specific proxy scores, evidence priors, and disclaimer.</p>
+          </article>
+          <article class="roadmap-step done">
+            <span>06</span>
+            <strong>Validation datasets</strong>
+            <p>Compare anonymized aggregate observations with model proxies; future work will add PMID-linked extraction records, laboratory datasets, imaging features, and experimental validation.</p>
+          </article>
+        </div>
+        <div class="data-upgrade-panel">
+          <h3>Data Needed To Upgrade Model Maturity</h3>
+          <div>
+            <span>Complement biomarkers: C3, C4, CH50, AH50, C3a, C5a, sC5b-9</span>
+            <span>Regulators and factors: Factor H, Factor I, Factor B, Factor D, CD55, CD59</span>
+            <span>AMD-specific data: OCT, drusen burden, geographic atrophy, CNV status, RPE stress markers</span>
+            <span>Evidence metadata: PMID, cohort size, sample type, assay method, disease stage, intervention status</span>
+          </div>
+        </div>
+        <details id="biomarker-panel" class="biomarker-panel" open>
+          <summary>
+            <span>
+              <span class="eyebrow">V2 Prototype Feature</span>
+              <strong>Biomarker-Guided Initialization</strong>
+              <em>Enter observed or hypothetical complement biomarkers to estimate pathway activity before running Live Dynamics.</em>
+            </span>
+          </summary>
+          <div class="biomarker-layout">
+            <form id="biomarker-form" class="biomarker-form">
+              <label>C3 <input type="number" name="C3" min="0" step="10" value="5400"><span>nM</span></label>
+              <label>C4 <input type="number" name="C4" min="0" step="10" value="2000"><span>nM</span></label>
+              <label>CH50 <input type="number" name="CH50" min="0" max="120" step="1" value="75"><span>%</span></label>
+              <label>AH50 <input type="number" name="AH50" min="0" max="120" step="1" value="78"><span>%</span></label>
+              <label>C3a <input type="number" name="C3a" min="0" step="1" value="18"><span>relative</span></label>
+              <label>C5a <input type="number" name="C5a" min="0" step="1" value="12"><span>relative</span></label>
+              <label>sC5b-9 <input type="number" name="sC5b9" min="0" step="1" value="10"><span>relative</span></label>
+              <label>Factor H <input type="number" name="FactorH" min="0" step="10" value="3200"><span>nM</span></label>
+              <label>Factor I <input type="number" name="FactorI" min="0" step="5" value="400"><span>nM</span></label>
+              <label>Factor B <input type="number" name="FactorB" min="0" step="10" value="2200"><span>nM</span></label>
+              <label>Factor D <input type="number" name="FactorD" min="0" step="1" value="83"><span>nM</span></label>
+              <div class="biomarker-actions">
+                <button id="estimate-biomarkers" type="button">Estimate Pathway Activity</button>
+                <button id="apply-biomarkers" type="button">Apply to Live Dynamics</button>
+              </div>
+            </form>
+            <div class="biomarker-results">
+              <div id="biomarker-estimate-cards" class="biomarker-estimate-cards"></div>
+              <p id="biomarker-interpretation" class="biomarker-interpretation"></p>
+              <p class="biomarker-disclaimer">This panel is a research initialization aid. It converts biomarker patterns into transparent model priors and does not diagnose disease or predict patient outcomes.</p>
+            </div>
+          </div>
+        </details>
+        <details id="drug-comparison-panel" class="biomarker-panel drug-comparison-panel">
+          <summary>
+            <span>
+              <span class="eyebrow">V2 Prototype Feature</span>
+              <strong>Drug Comparison Mode</strong>
+              <em>Compare transparent pathway proxy outputs across candidate interventions.</em>
+            </span>
+          </summary>
+          <div class="drug-comparison-toolbar">
+            <label>Disease context
+              <select id="drug-comparison-disease">
+                <option value="AMD" selected>AMD</option>
+                <option value="PNH">PNH</option>
+                <option value="aHUS">aHUS</option>
+                <option value="C3G">C3G</option>
+                <option value="sepsis">Sepsis</option>
+              </select>
+            </label>
+            <button id="run-drug-comparison" type="button">Run Comparison</button>
+          </div>
+          <div id="drug-comparison-results" class="drug-comparison-results" aria-live="polite"></div>
+          <p class="biomarker-disclaimer">Comparison values are qualitative research proxies from the active rule model, not efficacy, safety, or treatment recommendations.</p>
+        </details>
+        <details id="validation-dataset-panel" class="biomarker-panel validation-dataset-panel">
+          <summary>
+            <span>
+              <span class="eyebrow">V2 Prototype Feature</span>
+              <strong>Validation Dataset</strong>
+              <em>Compare one anonymized aggregate observation against the active rule-model proxy.</em>
+            </span>
+          </summary>
+          <form id="validation-dataset-form" class="validation-dataset-form">
+            <label>Disease context
+              <select name="diseaseContext">
+                <option value="AMD" selected>AMD</option>
+                <option value="PNH">PNH</option>
+                <option value="aHUS">aHUS</option>
+                <option value="C3G">C3G</option>
+                <option value="sepsis">Sepsis</option>
+              </select>
+            </label>
+            <label>Observed disease activity <input name="diseaseActivityProxy" type="number" min="0" max="100" step="0.1" required></label>
+            <label>Observed C3 activation <input name="c3Activation" type="number" min="0" max="100" step="0.1" required></label>
+            <label>Observed C5a signal <input name="c5aSignal" type="number" min="0" max="100" step="0.1" required></label>
+            <label>Observed MAC formation <input name="macFormation" type="number" min="0" max="100" step="0.1" required></label>
+            <label>Observed infection risk <input name="infectionRisk" type="number" min="0" max="100" step="0.1" required></label>
+            <label class="validation-confirmation"><input name="containsPatientData" type="checkbox"> This dataset contains patient data</label>
+            <label class="validation-confirmation"><input name="containsProductionData" type="checkbox"> This dataset contains production data</label>
+            <button type="submit">Compare Observation</button>
+            <label class="validation-file-input">Or import local JSON
+              <input id="validation-dataset-file" type="file" accept="application/json,.json">
+            </label>
+            <a class="validation-template-link" href="docs/product/validation-intake-template.json" download="fleda-validation-intake-template.json">Download blank JSON template</a>
+          </form>
+          <div id="validation-dataset-results" class="validation-dataset-results" aria-live="polite"></div>
+          <p class="biomarker-disclaimer">Use only anonymized aggregate or public observations. This tool does not accept clinical case details and never uploads the dataset.</p>
+        </details>
+      </section>
+
+      <section id="literature-intelligence" class="section literature-intelligence-section">
+        <div class="literature-section-header">
+          <div class="section-heading">
+            <p class="eyebrow">Literature Intelligence V1</p>
+            <h2>Evidence integration foundation</h2>
+            <p>Local infrastructure for traceable literature evidence, independent AI cross-validation, and controlled model calibration.</p>
+          </div>
+          <button id="refresh-literature-status" class="icon-button literature-refresh" type="button" aria-label="Refresh literature service status" title="Refresh literature service status">↻</button>
+        </div>
+        <div class="literature-status-grid" aria-live="polite">
+          <div class="literature-status-item">
+            <span>Local service</span>
+            <strong id="literature-service-status"><i class="service-status-dot checking"></i>Checking...</strong>
+          </div>
+          <div class="literature-status-item">
+            <span>Evidence database</span>
+            <strong id="literature-database-status">Checking...</strong>
+          </div>
+          <div class="literature-status-item literature-budget-item">
+            <span>Monthly AI budget</span>
+            <strong id="literature-budget-usage">$0.00 / $50.00</strong>
+            <div class="literature-budget-track" aria-hidden="true"><i id="literature-budget-progress"></i></div>
+          </div>
+          <div class="literature-status-item">
+            <span>Data boundary</span>
+            <strong>Standalone Fleda</strong>
+            <em>No GN connections</em>
+          </div>
+        </div>
+        <p id="literature-service-message" class="literature-service-message">Phase 1 is checking the local service. Public PubMed metadata search is available when it is online.</p>
+        <div id="literature-audit-summary" class="literature-audit-summary" aria-label="Evidence catalog audit"></div>
+        <form id="pubmed-search-form" class="pubmed-search-form">
+          <label for="pubmed-search-query">Search public literature</label>
+          <div class="pubmed-search-row">
+            <input id="pubmed-search-query" name="query" type="search" maxlength="240" placeholder="e.g. complement C3 AMD" autocomplete="off">
+            <select id="pubmed-search-source" name="source" aria-label="Public literature source">
+              <option value="pubmed" selected>PubMed</option>
+              <option value="europe_pmc">Europe PMC</option>
+            </select>
+            <select id="pubmed-search-limit" name="retmax" aria-label="Number of PubMed records">
+              <option value="5">5 records</option>
+              <option value="10" selected>10 records</option>
+              <option value="20">20 records</option>
+            </select>
+            <button type="submit" class="primary-button">Search PubMed</button>
+          </div>
+          <label class="pubmed-abstract-option"><input id="pubmed-search-abstracts" type="checkbox"> Include public abstracts for term linking</label>
+          <p id="pubmed-search-status" class="pubmed-search-status" aria-live="polite">Available when the local literature service is online.</p>
+        </form>
+        <details class="local-literature-details">
+          <summary>Saved public PubMed records</summary>
+          <div id="local-literature-records" class="local-literature-records" aria-live="polite"></div>
+        </details>
+        <details class="local-literature-details">
+          <summary>Public protein annotations · UniProtKB</summary>
+          <form id="uniprot-search-form" class="pubmed-search-form">
+            <label for="uniprot-search-query">Search public protein annotations</label>
+            <div class="pubmed-search-row annotation-search-row">
+              <input id="uniprot-search-query" name="query" type="search" maxlength="240" placeholder="e.g. gene_exact:C3" autocomplete="off">
+              <select name="size" aria-label="Number of protein annotations">
+                <option value="5">5 records</option>
+                <option value="10" selected>10 records</option>
+              </select>
+              <button type="submit" class="primary-button">Search UniProt</button>
+            </div>
+            <p id="uniprot-search-status" class="pubmed-search-status" aria-live="polite">Available when the local literature service is online.</p>
+          </form>
+          <div id="local-protein-annotations" class="local-literature-records" aria-live="polite"></div>
+        </details>
+        <details class="local-literature-details">
+          <summary>Public pathway annotations · Reactome</summary>
+          <form id="reactome-pathway-form" class="pubmed-search-form">
+            <label for="reactome-pathway-id">Reactome stable ID</label>
+            <div class="pubmed-search-row annotation-search-row">
+              <input id="reactome-pathway-id" name="stable_id" type="text" maxlength="80" placeholder="e.g. R-HSA-168249" autocomplete="off">
+              <button type="submit" class="primary-button">Load pathway</button>
+            </div>
+            <p id="reactome-search-status" class="pubmed-search-status" aria-live="polite">Available when the local literature service is online.</p>
+          </form>
+          <div id="local-pathway-annotations" class="local-literature-records" aria-live="polite"></div>
+        </details>
+        <details class="local-literature-details">
+          <summary>Unified public knowledge layer</summary>
+          <p class="feedback-note">Records remain separated by source layer and record type. This view is for traceability and review; it does not change formal model parameters.</p>
+          <div id="unified-knowledge-layer" class="local-literature-records" aria-live="polite"></div>
+        </details>
+        <details class="feedback-details">
+          <summary>Provide anonymous research feedback</summary>
+          <p class="feedback-note">This form creates a local JSON file only. Do not include patient identifiers, clinical case details, or production data.</p>
+          <form id="research-feedback-form" class="research-feedback-form">
+            <div class="feedback-grid">
+              <label>Disease context
+                <select name="diseaseContext">
+                  <option value="">Not specified</option>
+                  <option value="AMD">AMD</option>
+                  <option value="PNH">PNH</option>
+                  <option value="aHUS">aHUS</option>
+                  <option value="C3G">C3G</option>
+                  <option value="sepsis">Sepsis</option>
+                </select>
+              </label>
+              <label>Complement component
+                <input name="component" type="text" maxlength="120" placeholder="e.g. C3, C5a, Factor H">
+              </label>
+              <label>Time scale
+                <select name="timeScale">
+                  <option value="">Not specified</option>
+                  <option value="minutes_to_hours">Minutes to hours</option>
+                  <option value="days">Days</option>
+                  <option value="months">Months</option>
+                </select>
+              </label>
+              <label>Parameter adjustment observed
+                <textarea name="parameterAdjustment" maxlength="2000" rows="3"></textarea>
+              </label>
+              <label>Prediction versus observation
+                <textarea name="predictionObservation" maxlength="2000" rows="3"></textarea>
+              </label>
+              <label>Missing mechanism or disease
+                <textarea name="missingMechanism" maxlength="2000" rows="3"></textarea>
+              </label>
+              <label>Supporting literature URL
+                <input name="literatureLink" type="url" maxlength="500" placeholder="https://..."></label>
+            </div>
+            <label class="feedback-confirmation"><input name="confirmedNoSensitiveData" type="checkbox" required> I confirm this feedback contains no patient or production data.</label>
+            <button type="submit" class="secondary-button">Download Anonymous Feedback</button>
+            <p id="research-feedback-status" class="pubmed-search-status" aria-live="polite">Nothing is uploaded automatically.</p>
+          </form>
+        </details>
+      </section>
+
+      <nav class="section-nav" aria-label="Page sections">
+        <a href="#model-roadmap">Roadmap</a>
+        <a href="#literature-intelligence">Literature Intelligence</a>
+        <a href="#pathway-map">Pathway Map</a>
+        <a href="#knowledge">Knowledge Graph</a>
+        <a href="#simulation">Simulation</a>
+        <a href="#dynamics">Advanced Explorer</a>
+        <a href="#disease-panel">Disease Context</a>
+        <a href="#drug-panel">Drug Targets</a>
+      </nav>
+
+      <section id="pathway-map" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Complement Pathway Map</p>
+          <h2>Integrated classical, lectin, alternative, terminal, and regulatory flow</h2>
+        </div>
+        <div class="pathway-canvas">
+          <div class="pathway-column">
+            <div class="pathway-card classical" data-focus="classical">
+              <span>Classical Pathway</span>
+              <strong>Immune complex -> C1q/C1r/C1s -> C4/C2 -> C4b2a</strong>
+            </div>
+            <div class="pathway-card lectin" data-focus="lectin">
+              <span>Lectin Pathway</span>
+              <strong>MBL/Ficolin -> MASP-1/2 -> C4/C2 -> C4b2a</strong>
+            </div>
+            <div class="pathway-card alternative" data-focus="alternative">
+              <span>Alternative Pathway</span>
+              <strong>C3 tick-over -> C3(H2O) -> Factor B/D -> C3bBb</strong>
+            </div>
+          </div>
+          <div class="pathway-spine">
+            <div class="spine-node" data-entity="C3">C3 Cleavage</div>
+            <div class="spine-arrow"></div>
+            <div class="spine-node" data-entity="C5">C5 Cleavage</div>
+            <div class="spine-arrow"></div>
+            <div class="spine-node" data-entity="MAC">C5b-9 / MAC</div>
+          </div>
+          <div class="pathway-column">
+            <div class="pathway-card terminal" data-focus="terminal">
+              <span>Terminal Pathway</span>
+              <strong>C5a inflammatory signal + C5b/C6/C7/C8/C9 MAC formation</strong>
+            </div>
+            <div class="pathway-card regulatory" data-focus="regulatory">
+              <span>Regulatory System</span>
+              <strong>Factor H, Factor I, CD55/DAF, MCP/CD46, CD59</strong>
+            </div>
+            <div class="pathway-card disease" data-focus="disease">
+              <span>Disease Contexts</span>
+              <strong>PNH, aHUS, C3G, AMD, lupus nephritis, sepsis and more</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dynamics" class="section dynamics-section">
+        <details id="advanced-dynamics-details" class="advanced-dynamics-details">
+          <summary>
+            <span>
+              <span class="eyebrow">Advanced Research Mode</span>
+              <strong>Advanced Dynamics Explorer</strong>
+              <em>Optional low-level parameter console for researchers who need direct control over concentrations, pathway activity, time step, and intervention timing.</em>
+            </span>
+          </summary>
+          <div class="dynamics-layout">
+          <form id="dynamics-form" class="control-panel dynamics-controls">
+            <fieldset>
+              <legend>Simulation Settings</legend>
+              <label>Duration
+                <select name="duration">
+                  <option value="10">10 min</option>
+                  <option value="60" selected>60 min</option>
+                  <option value="360">6 h</option>
+                  <option value="1440">24 h</option>
+                  <option value="10080">7 days</option>
+                </select>
+              </label>
+              <label>Time step
+                <select name="timeStep">
+                  <option value="0.25">0.25 min</option>
+                  <option value="1" selected>1 min</option>
+                  <option value="5">5 min</option>
+                  <option value="30">30 min</option>
+                </select>
+              </label>
+              <label>Disease context
+                <select name="diseaseContext">
+                  <option value="normal">Normal</option>
+                  <option value="PNH">PNH</option>
+                  <option value="aHUS">aHUS</option>
+                  <option value="C3G">C3G</option>
+                  <option value="AMD">AMD</option>
+                  <option value="sepsis">Sepsis</option>
+                  <option value="cancer microenvironment">Cancer microenvironment</option>
+                </select>
+              </label>
+              <label class="checkbox-row"><input type="checkbox" name="logScale"> Log scale Y axis</label>
+            </fieldset>
+            <fieldset>
+              <legend>Initial Concentrations</legend>
+              <label>C3 <input type="number" name="C3" min="0" step="10" value="5400"></label>
+              <label>C5 <input type="number" name="C5" min="0" step="5" value="500"></label>
+              <label>Factor B <input type="number" name="FactorB" min="0" step="10" value="2200"></label>
+              <label>Factor D <input type="number" name="FactorD" min="0" step="1" value="83"></label>
+              <label>Factor H <input type="number" name="FactorH" min="0" step="10" value="3200"></label>
+              <label>Factor I <input type="number" name="FactorI" min="0" step="5" value="400"></label>
+              <label>CD55 <input type="number" name="CD55" min="0" step="1" value="85"></label>
+              <label>CD59 <input type="number" name="CD59" min="0" step="1" value="85"></label>
+            </fieldset>
+            <fieldset>
+              <legend>Pathway Activity</legend>
+              <label>Classical <input type="range" name="classical" min="0" max="100" value="35"><output>35</output></label>
+              <label>Lectin <input type="range" name="lectin" min="0" max="100" value="30"><output>30</output></label>
+              <label>Alternative <input type="range" name="alternative" min="0" max="100" value="45"><output>45</output></label>
+              <label>Terminal <input type="range" name="terminal" min="0" max="100" value="45"><output>45</output></label>
+            </fieldset>
+            <fieldset>
+              <legend>Intervention</legend>
+              <label>C3 inhibitor <input type="range" name="c3Inhibitor" min="0" max="100" value="0"><output>0</output></label>
+              <label>Factor B inhibitor <input type="range" name="factorBInhibitor" min="0" max="100" value="0"><output>0</output></label>
+              <label>Factor D inhibitor <input type="range" name="factorDInhibitor" min="0" max="100" value="0"><output>0</output></label>
+              <label>C5 inhibitor <input type="range" name="c5Inhibitor" min="0" max="100" value="0"><output>0</output></label>
+              <label>C5aR inhibitor <input type="range" name="c5aRInhibitor" min="0" max="100" value="0"><output>0</output></label>
+              <label>CD59 modifier <input type="range" name="cd59Modifier" min="0" max="200" value="100"><output>100</output></label>
+              <label>Intervention time <input type="range" name="interventionTime" min="0" max="60" value="20"><output>20</output></label>
+            </fieldset>
+            <fieldset>
+              <legend>Protein Groups</legend>
+              <div class="button-row">
+                <button type="button" data-dynamics-action="all">Select all</button>
+                <button type="button" data-dynamics-action="none">Hide all</button>
+              </div>
+              <div id="dynamics-groups" class="group-filter-list"></div>
+            </fieldset>
+          </form>
+          <div class="dynamics-main">
+            <div class="chart-toolbar">
+              <h3>Complement Concentration Dynamics</h3>
+              <span class="chart-toolbar-actions">
+                <button id="reset-dynamics-zoom" type="button">Reset Zoom</button>
+                <button id="export-simulation-report" class="secondary-button" type="button">Download Research Report</button>
+              </span>
+            </div>
+            <div id="dynamics-chart" class="dynamics-chart"></div>
+            <div class="time-inspector-control">
+              <label>Current time inspector <input id="time-inspector-slider" type="range" min="0" max="60" value="20" step="1"><output>20</output></label>
+            </div>
+            <div class="dynamics-bottom">
+              <div class="event-panel">
+                <p class="eyebrow">Event Timeline</p>
+                <div id="event-timeline"></div>
+              </div>
+              <div class="inspector-panel">
+                <p class="eyebrow">Current Time Inspector</p>
+                <div id="time-inspector"></div>
+              </div>
+              <div class="interpretation-panel">
+                <p class="eyebrow">Biological Interpretation</p>
+                <p id="dynamics-interpretation"></p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="knowledge" class="section two-column">
+        <div>
+          <div class="section-heading">
+            <p class="eyebrow">Knowledge Graph Explorer</p>
+            <h2>Click an entity to inspect relationships, evidence, diseases, and drug targets</h2>
+          </div>
+          <div class="graph-toolbar">
+            <button class="filter-button active" data-filter="all">All</button>
+            <button class="filter-button" data-filter="protein">Proteins</button>
+            <button class="filter-button" data-filter="enzyme_complex">Complexes</button>
+            <button class="filter-button" data-filter="regulator">Regulators</button>
+            <button class="filter-button" data-filter="disease">Diseases</button>
+            <button class="filter-button" data-filter="drug">Drugs</button>
+          </div>
+          <div id="graph" class="graph" aria-label="Complement knowledge graph"></div>
+        </div>
+        <aside id="entity-details" class="details-panel" aria-live="polite"></aside>
+      </section>
+
+      <section id="simulation" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Simulation Console</p>
+          <h2>Rule-based V1 simulation for pathway activity and drug intervention logic</h2>
+        </div>
+        <div class="simulation-grid">
+          <form id="simulation-form" class="control-panel">
+            <fieldset>
+              <legend>Baseline activity</legend>
+              <label>Classical pathway <input type="range" name="classical" min="0" max="100" value="35"><output>35</output></label>
+              <label>Lectin pathway <input type="range" name="lectin" min="0" max="100" value="30"><output>30</output></label>
+              <label>Alternative pathway <input type="range" name="alternative" min="0" max="100" value="45"><output>45</output></label>
+              <label>Terminal pathway <input type="range" name="terminal" min="0" max="100" value="45"><output>45</output></label>
+            </fieldset>
+            <fieldset>
+              <legend>Regulation</legend>
+              <label>Factor H level <input type="range" name="factorH" min="0" max="100" value="80"><output>80</output></label>
+              <label>Factor I level <input type="range" name="factorI" min="0" max="100" value="80"><output>80</output></label>
+              <label>CD55 / DAF level <input type="range" name="cd55" min="0" max="100" value="85"><output>85</output></label>
+              <label>CD59 level <input type="range" name="cd59" min="0" max="100" value="85"><output>85</output></label>
+            </fieldset>
+            <fieldset>
+              <legend>Disease context</legend>
+              <select name="diseaseContext" id="disease-select"></select>
+            </fieldset>
+            <fieldset>
+              <legend>Intervention inhibition</legend>
+              <label>C1s <input type="range" name="c1sInhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>MASP-2 <input type="range" name="masp2Inhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>C3 <input type="range" name="c3Inhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>Factor B <input type="range" name="factorBInhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>Factor D <input type="range" name="factorDInhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>C5 <input type="range" name="c5Inhibition" min="0" max="100" value="0"><output>0</output></label>
+              <label>C5aR <input type="range" name="c5aRInhibition" min="0" max="100" value="0"><output>0</output></label>
+            </fieldset>
+          </form>
+          <div class="results-panel">
+            <div id="result-cards" class="result-cards"></div>
+            <div class="summary-box">
+              <p class="eyebrow">AI-style Summary</p>
+              <p id="simulation-summary"></p>
+            </div>
+            <div class="simulation-traceability" aria-label="Simulation traceability">
+              <span><small>Model version</small><strong id="simulation-model-version">Loading...</strong></span>
+              <span><small>Evidence basis</small><strong id="simulation-evidence-basis">Seed knowledge graph</strong></span>
+              <span><small>Uncertainty</small><strong id="simulation-uncertainty">Qualitative proxy</strong></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="disease-panel" class="section two-column compact">
+        <div>
+          <div class="section-heading">
+            <p class="eyebrow">Disease Context Panel</p>
+            <h2>Mechanisms, biomarkers, targets, and modeling notes</h2>
+          </div>
+          <div id="disease-list" class="list-panel"></div>
+        </div>
+        <aside id="disease-details" class="details-panel"></aside>
+      </section>
+
+      <section id="drug-panel" class="section two-column compact">
+        <div>
+          <div class="section-heading">
+            <p class="eyebrow">Drug Target Intervention Panel</p>
+            <h2>Compare upstream and downstream consequences of complement inhibition</h2>
+          </div>
+          <div id="drug-list" class="list-panel"></div>
+        </div>
+        <aside id="drug-details" class="details-panel"></aside>
+      </section>
+
+      <section class="section evidence-section">
+        <div class="section-heading">
+          <p class="eyebrow">Literature Evidence System</p>
+          <h2>Seed references for pathway modeling, drug targeting, and disease context</h2>
+        </div>
+        <div id="publication-list" class="publication-grid"></div>
+      </section>
+    </main>
+    <script type="module" src="./src/app.js?v=20260827-drug-comparison"></script>
+  </body>
+</html>

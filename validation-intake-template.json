@@ -1,0 +1,28 @@
+{
+  "datasetId": "replace-with-a-unique-dataset-id",
+  "diseaseContext": "AMD",
+  "source": {
+    "sourceType": "publication",
+    "title": "replace-with-publication-or-dataset-title",
+    "sourceLocator": "https://doi.org/replace-me",
+    "retrievedAt": "2026-01-01"
+  },
+  "measurementScale": "normalized_0_100_proxy",
+  "experimentalContext": {
+    "assay": "replace-with-assay-or-measurement-method",
+    "timeScale": "replace-with-time-scale",
+    "units": "normalized_0_100_proxy",
+    "conditions": "replace-with-aggregate experimental conditions"
+  },
+  "observations": [
+    {
+      "diseaseActivityProxy": 0,
+      "c3Activation": 0,
+      "c5aSignal": 0,
+      "macFormation": 0,
+      "infectionRisk": 0
+    }
+  ],
+  "containsPatientData": false,
+  "containsProductionData": false
+}
