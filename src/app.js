@@ -55,7 +55,8 @@ const state = {
     context: null,
     timer: null,
     bpm: 72
-  }
+  },
+  selectedMicrostructureOrgan: null
 };
 
 const evidenceVocabulary = [
@@ -81,6 +82,7 @@ initDrugPanel();
 renderPublications();
 initDynamicsExplorer();
 initHeroDynamicsChart();
+initMicrostructureInteractions();
 initBiomarkerPanel();
 initDrugComparisonPanel();
 initValidationDatasetPanel();
@@ -921,6 +923,30 @@ function initHeroDynamicsChart() {
   });
 }
 
+function initMicrostructureInteractions() {
+  const cards = document.getElementById("organ-impact-cards");
+  document.querySelectorAll(".organ-hotspot").forEach((hotspot) => {
+    hotspot.addEventListener("click", () => {
+      state.selectedMicrostructureOrgan = hotspot.dataset.organ;
+      renderOrganImpactTwin(state.heroPlayback.currentTime);
+    });
+  });
+  cards?.addEventListener("click", (event) => {
+    const card = event.target.closest("[data-micro-organ]");
+    if (!card) return;
+    state.selectedMicrostructureOrgan = card.dataset.microOrgan;
+    renderOrganImpactTwin(state.heroPlayback.currentTime);
+  });
+  cards?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const card = event.target.closest("[data-micro-organ]");
+    if (!card) return;
+    event.preventDefault();
+    state.selectedMicrostructureOrgan = card.dataset.microOrgan;
+    renderOrganImpactTwin(state.heroPlayback.currentTime);
+  });
+}
+
 function initBiomarkerPanel() {
   const form = document.getElementById("biomarker-form");
   if (!form) return;
@@ -1215,9 +1241,11 @@ function renderOrganImpactTwin(time) {
   const impacts = calculateDiseaseSpecificOrganScores(getHeroInterventionControls().disease, values, time);
   document.querySelector(".organ-impact-twin")?.classList.toggle("amd-focus-mode", isAmd);
   const strongest = impacts.reduce((top, item) => item.score > top.score ? item : top, impacts[0]);
+  const selectedImpact = impacts.find((impact) => impact.id === state.selectedMicrostructureOrgan) ?? strongest;
+  state.selectedMicrostructureOrgan = selectedImpact.id;
   document.getElementById("organ-impact-time").textContent = formatHeroTime(time);
   cards.innerHTML = isAmd ? renderAmdOrganImpactCards(impacts) : impacts.map((impact) => `
-    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" style="--organ-color:${impact.color};--score-width:${impact.score}%">
+    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" data-micro-organ="${impact.id}" tabindex="0" role="button" style="--organ-color:${impact.color};--score-width:${impact.score}%">
       <header>
         <strong>${impact.name}</strong>
         <span>${impact.score}/100</span>
@@ -1238,6 +1266,7 @@ function renderOrganImpactTwin(time) {
   });
   if (isAmd) muteUnmappedAmdOrgans(impacts);
   renderHeartRhythm(impacts, values);
+  renderMicrostructureComparison(selectedImpact);
   renderAmdDiseaseDashboard(values, time);
   document.getElementById("organ-impact-summary").textContent =
     isAmd
@@ -1260,7 +1289,7 @@ function renderAmdOrganImpactCards(impacts) {
   const primary = impacts.filter((impact) => !impact.secondary);
   const secondary = impacts.filter((impact) => impact.secondary);
   const renderCard = (impact) => `
-    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" style="--organ-color:${impact.color};--score-width:${impact.score}%">
+    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" data-micro-organ="${impact.id}" tabindex="0" role="button" style="--organ-color:${impact.color};--score-width:${impact.score}%">
       <header>
         <strong>${impact.name}</strong>
         <span>${impact.score}/100</span>
@@ -1279,6 +1308,33 @@ function renderAmdOrganImpactCards(impacts) {
       <div class="organ-impact-cards-inner">${secondary.map(renderCard).join("")}</div>
     </details>
   `;
+}
+
+function renderMicrostructureComparison(impact) {
+  const panels = document.getElementById("microstructure-panels");
+  const selection = document.getElementById("microstructure-selection");
+  if (!panels || !impact) return;
+  const organLabels = {
+    brain: "Brain / CNS", lung: "Lung", blood: "Blood / RBC", liver: "Liver", kidney: "Kidney",
+    retina: "Retina / Macula", vessels: "Vessels", skin: "Skin / Joint", rpe: "RPE", choroid: "Choroid",
+    drusen: "Drusen", "retinal-complement": "Retinal Complement Activity", "geographic-atrophy": "Geographic Atrophy",
+    "neovascular-signal": "Neovascular Signal", "complement-dysregulation": "Complement Dysregulation"
+  };
+  const label = organLabels[impact.id] ?? impact.name;
+  const cells = Array.from({ length: 20 }, (_, index) => `<i class="micro-cell micro-cell-${index % 5}"></i>`).join("");
+  const damage = Math.round(impact.score);
+  panels.innerHTML = `
+    <article class="microstructure-panel normal-microstructure">
+      <header><strong>Normal microstructure</strong><span>Reference pattern</span></header>
+      <div class="microstructure-visual" aria-label="Illustrative normal ${escapeHtml(label)} microstructure">${cells}<b class="micro-vessel"></b></div>
+      <p>Organ or tissue organization is shown as a stable reference proxy.</p>
+    </article>
+    <article class="microstructure-panel impact-microstructure" style="--impact-strength:${damage}%">
+      <header><strong>Impact-state microstructure</strong><span>${damage}/100 signal</span></header>
+      <div class="microstructure-visual" aria-label="Illustrative impact-state ${escapeHtml(label)} microstructure">${cells}<b class="micro-vessel"></b><em class="micro-inflammation"></em></div>
+      <p>${escapeHtml(impact.description)} This visualization is a model proxy.</p>
+    </article>`;
+  selection.textContent = `${label} · ${damage}/100 modeled signal`;
 }
 
 function renderAmdDiseaseDashboard(values, time) {
