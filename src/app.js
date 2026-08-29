@@ -1087,19 +1087,19 @@ function renderHeroDynamicsChart(mode = "baseline", resetZoom = false, visibleUn
     xaxis: {
       title: timeScale.axisTitle,
       gridcolor: "rgba(133,171,233,0.18)",
-      rangeslider: { visible: true, bgcolor: "#111f35", bordercolor: "rgba(133,171,233,0.28)" },
+      fixedrange: true,
       zeroline: false
     },
     yaxis: {
       title: "Concentration / Relative Activity",
       gridcolor: "rgba(133,171,233,0.18)",
-      fixedrange: false,
+      fixedrange: true,
       rangemode: "tozero",
       zeroline: false
     },
     legend: { orientation: "h", y: -0.34, x: 0, font: { size: 11 } },
     hovermode: "x unified",
-    dragmode: "pan",
+    dragmode: false,
     shapes: showInterventionMarker ? [{
       type: "line",
       x0: intervention.time,
@@ -1114,8 +1114,9 @@ function renderHeroDynamicsChart(mode = "baseline", resetZoom = false, visibleUn
   const config = {
     responsive: true,
     displaylogo: false,
-    scrollZoom: true,
-    modeBarButtonsToRemove: ["lasso2d", "select2d"]
+    scrollZoom: false,
+    doubleClick: false,
+    displayModeBar: false
   };
   state.heroPlayback.traces = traces;
   state.heroPlayback.layout = layout;
