@@ -932,24 +932,27 @@ function initMicrostructureInteractions() {
   });
   document.querySelectorAll(".organ-hotspot").forEach((hotspot) => {
     hotspot.addEventListener("click", () => {
-      state.selectedMicrostructureOrgan = hotspot.dataset.organ;
-      renderOrganImpactTwin(state.heroPlayback.currentTime);
+      selectMicrostructureOrgan(hotspot.dataset.organ);
     });
   });
   cards?.addEventListener("click", (event) => {
     const card = event.target.closest("[data-micro-organ]");
     if (!card) return;
-    state.selectedMicrostructureOrgan = card.dataset.microOrgan;
-    renderOrganImpactTwin(state.heroPlayback.currentTime);
+    selectMicrostructureOrgan(card.dataset.microOrgan);
   });
   cards?.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     const card = event.target.closest("[data-micro-organ]");
     if (!card) return;
     event.preventDefault();
-    state.selectedMicrostructureOrgan = card.dataset.microOrgan;
-    renderOrganImpactTwin(state.heroPlayback.currentTime);
+    selectMicrostructureOrgan(card.dataset.microOrgan);
   });
+}
+
+function selectMicrostructureOrgan(organId) {
+  state.selectedMicrostructureOrgan = organId;
+  renderOrganImpactTwin(state.heroPlayback.currentTime);
+  document.querySelector(".microstructure-comparison")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function initBiomarkerPanel() {
