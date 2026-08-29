@@ -1131,7 +1131,10 @@ function startHeroPlayback(startAt = 0) {
   pauseHeroPlayback();
   state.heroPlayback.speed = Number(speedSelect?.value ?? state.heroPlayback.speed);
   state.heroPlayback.currentTime = Math.min(startAt || state.heroPlayback.speed, state.heroPlayback.duration);
-  renderHeroDynamicsChart("playback", startAt === 0, state.heroPlayback.currentTime);
+  // Normal baseline playback animates the baseline traces without inventing
+  // acute pathway events. Reaction traces are reserved for active scenarios.
+  const chartMode = getHeroChartModeFromControls();
+  renderHeroDynamicsChart(chartMode === "baseline" ? "baseline" : "playback", startAt === 0, state.heroPlayback.currentTime);
   state.heroPlayback.isPlaying = true;
   startMonitorBeep();
   state.heroPlayback.timer = window.setInterval(() => {
