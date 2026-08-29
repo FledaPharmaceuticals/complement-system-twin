@@ -29,6 +29,7 @@ import { buildSimulationReport } from "./reportExport.js";
 import { createValidationDataset, compareValidationDataset, parseValidationDatasetJson } from "./validationDataset.js";
 import { generateValidationCalibrationCandidates } from "./validationCalibration.js";
 import { preflightValidationIntake } from "./validationIntake.js";
+import { getTissueImageRecord } from "./tissueImageCatalog.js";
 
 const state = {
   entityFilter: "all",
@@ -929,6 +930,7 @@ function initMicrostructureInteractions() {
   const impactTwin = document.querySelector(".organ-impact-twin");
   document.getElementById("microstructure-back")?.addEventListener("click", () => {
     state.selectedMicrostructureOrgan = null;
+    impactTwin?.classList.remove("microstructure-active");
     if (comparison) comparison.hidden = true;
     if (cards) cards.hidden = false;
     const summary = document.getElementById("organ-impact-summary");
@@ -1249,6 +1251,7 @@ function renderOrganImpactTwin(time) {
   const strongest = impacts.reduce((top, item) => item.score > top.score ? item : top, impacts[0]);
   const selectedImpact = impacts.find((impact) => impact.id === state.selectedMicrostructureOrgan);
   if (!selectedImpact) state.selectedMicrostructureOrgan = null;
+  document.querySelector(".organ-impact-twin")?.classList.toggle("microstructure-active", Boolean(selectedImpact));
   document.getElementById("organ-impact-time").textContent = formatHeroTime(time);
   cards.innerHTML = isAmd ? renderAmdOrganImpactCards(impacts) : impacts.map((impact) => `
     <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" data-micro-organ="${impact.id}" tabindex="0" role="button" style="--organ-color:${impact.color};--score-width:${impact.score}%">
@@ -1335,37 +1338,29 @@ function renderMicrostructureComparison(impact) {
     drusen: "Drusen", "retinal-complement": "Retinal Complement Activity", "geographic-atrophy": "Geographic Atrophy",
     "neovascular-signal": "Neovascular Signal", "complement-dysregulation": "Complement Dysregulation"
   };
-  const label = organLabels[impact.id] ?? impact.name;
+  const tissue = getTissueImageRecord(impact.id);
+  const label = organLabels[impact.id] ?? tissue.label ?? impact.name;
   const damage = Math.round(impact.score);
+  const evidenceLinks = tissue.evidence.map((source) =>
+    `<a href="${escapeAttr(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.label)}</a>`
+  ).join("");
   panels.innerHTML = `
     <article class="microstructure-panel normal-microstructure">
-      <header><strong>Normal tissue reference</strong><span>Organ-specific schematic</span></header>
-      <div class="microstructure-visual" aria-label="Illustrative normal ${escapeHtml(label)} tissue schematic">${microstructureArtwork(impact.id, false, damage)}</div>
-      <p>Organ-specific tissue organization is shown as a stable reference proxy.</p>
+      <header><strong>Normal tissue reference</strong><span>Literature-informed model</span></header>
+      <div class="microstructure-visual tissue-image-crop normal-tissue-image" style="--tissue-image:url('${escapeAttr(tissue.image)}')" role="img" aria-label="AI-generated normal ${escapeHtml(label)} tissue model"></div>
+      <p>${escapeHtml(tissue.normal)}</p>
     </article>
     <article class="microstructure-panel impact-microstructure" style="--impact-strength:${damage}%">
-      <header><strong>Impact-state mechanism proxy</strong><span>${damage}/100 signal</span></header>
-      <div class="microstructure-visual" aria-label="Illustrative impact-state ${escapeHtml(label)} tissue schematic">${microstructureArtwork(impact.id, true, damage)}</div>
-      <p>${escapeHtml(impact.description)} This is an illustrative mechanism proxy, not diagnostic pathology.</p>
-    </article>`;
+      <header><strong>Impact-state tissue model</strong><span>${damage}/100 signal</span></header>
+      <div class="microstructure-visual tissue-image-crop impact-tissue-image" style="--tissue-image:url('${escapeAttr(tissue.image)}')" role="img" aria-label="AI-generated complement impact-state ${escapeHtml(label)} tissue model"></div>
+      <p>${escapeHtml(tissue.impact)}</p>
+    </article>
+    <div class="microstructure-evidence">
+      <span><strong>Evidence basis:</strong> ${escapeHtml(tissue.evidenceLevel)}</span>
+      <span class="microstructure-source-links">${evidenceLinks}</span>
+      <span><strong>Uncertainty:</strong> ${escapeHtml(tissue.uncertainty)}</span>
+    </div>`;
   selection.textContent = `${label} · ${damage}/100 modeled signal`;
-}
-
-function microstructureArtwork(organId, impacted, score) {
-  const accent = impacted ? "#ff6b7a" : "#5be7ff";
-  const secondary = impacted ? "#8b294d" : "#1d6fb0";
-  const opacity = impacted ? Math.max(0.18, score / 100) : 0.18;
-  const common = `fill="none" stroke="${accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
-  const marker = impacted ? `<circle cx="170" cy="82" r="30" fill="${accent}" opacity="${opacity * 0.32}" filter="url(#soft)"/>` : "";
-  const wrap = (content) => `<svg class="tissue-schematic" viewBox="0 0 340 150" role="img" aria-hidden="true"><defs><filter id="soft"><feGaussianBlur stdDeviation="7"/></filter></defs><rect width="340" height="150" rx="8" fill="#031127"/>${marker}${content}</svg>`;
-  if (organId === "brain") return wrap(`<g ${common}><path d="M80 95 C58 60 78 30 112 42 C120 12 166 18 171 48 C202 22 236 48 220 78 C241 105 209 127 184 115 C160 143 124 133 120 110 C99 120 82 111 80 95Z"/><path d="M115 77 C92 59 91 105 123 94 C143 85 143 54 164 59 C187 64 176 103 203 88 M133 47 C138 72 124 80 111 91 M171 48 C158 71 172 81 190 91"/></g><g fill="${secondary}" opacity=".9"><circle cx="115" cy="77" r="5"/><circle cx="164" cy="59" r="5"/><circle cx="203" cy="88" r="5"/></g>`);
-  if (organId === "kidney") return wrap(`<g ${common}><circle cx="170" cy="75" r="42"/><path d="M170 33 C137 43 137 107 170 117 M170 33 C203 43 203 107 170 117"/><path d="M148 52 C170 64 190 48 193 68 C196 88 175 90 166 105 C155 119 143 104 151 89 C158 76 143 69 148 52Z"/><path d="M112 74 H228 M126 51 L214 100 M126 100 L214 51"/></g><g fill="${secondary}" opacity=".72"><circle cx="170" cy="75" r="16"/><circle cx="145" cy="64" r="5"/><circle cx="194" cy="64" r="5"/><circle cx="145" cy="94" r="5"/><circle cx="194" cy="94" r="5"/></g>`);
-  if (organId === "lung") return wrap(`<g ${common}><path d="M168 30 V112 M168 48 L125 42 C91 42 76 75 88 112 C102 125 134 113 159 91 M168 48 L211 42 C245 42 260 75 248 112 C234 125 202 113 177 91"/><path d="M125 54 L103 73 M125 70 L105 96 M211 54 L233 73 M211 70 L231 96"/></g><g fill="${secondary}" opacity=".78"><circle cx="103" cy="73" r="9"/><circle cx="105" cy="96" r="9"/><circle cx="233" cy="73" r="9"/><circle cx="231" cy="96" r="9"/></g>`);
-  if (organId === "blood") return wrap(`<g fill="${secondary}" stroke="${accent}" stroke-width="2"><ellipse cx="72" cy="56" rx="28" ry="17"/><ellipse cx="136" cy="96" rx="28" ry="17"/><ellipse cx="204" cy="55" rx="28" ry="17"/><ellipse cx="270" cy="95" rx="28" ry="17"/><ellipse cx="270" cy="44" rx="20" ry="12"/><ellipse cx="74" cy="108" rx="20" ry="12"/></g><g fill="${accent}" opacity=".55"><ellipse cx="72" cy="56" rx="12" ry="6"/><ellipse cx="136" cy="96" rx="12" ry="6"/><ellipse cx="204" cy="55" rx="12" ry="6"/><ellipse cx="270" cy="95" rx="12" ry="6"/></g>`);
-  if (["retina", "rpe", "choroid", "drusen", "retinal-complement", "geographic-atrophy", "neovascular-signal"].includes(organId)) return wrap(`<g ${common}><path d="M45 40 H295 M45 62 H295 M45 84 H295 M45 106 H295"/><path d="M72 30 V118 M105 30 V118 M138 30 V118 M171 30 V118 M204 30 V118 M237 30 V118 M270 30 V118"/><path d="M45 124 C95 112 125 138 170 124 C215 110 245 137 295 124"/></g><g fill="${secondary}" opacity=".78"><circle cx="86" cy="51" r="6"/><circle cx="153" cy="73" r="6"/><circle cx="220" cy="95" r="6"/></g>`);
-  if (organId === "liver") return wrap(`<g ${common}><path d="M55 34 C120 18 217 20 285 48 C302 57 295 113 263 119 C191 132 104 127 57 105 C39 96 39 48 55 34Z"/><path d="M76 48 L100 108 M105 39 L128 116 M136 35 L156 120 M168 35 L180 120 M200 38 L204 116 M232 42 L228 110 M263 48 L249 103"/><path d="M58 67 H284 M55 89 H280"/></g>`);
-  if (organId === "vessels") return wrap(`<g ${common}><path d="M48 104 C92 72 118 58 157 75 C196 91 216 66 292 40 M48 118 C96 86 120 73 154 90 C196 109 220 82 292 56"/><path d="M82 81 L92 105 M124 67 L134 93 M181 78 L176 103 M232 65 L241 88"/></g>`);
-  return wrap(`<g ${common}><path d="M60 38 H280 V116 H60Z"/><path d="M60 64 H280 M60 90 H280 M95 38 V116 M130 38 V116 M165 38 V116 M200 38 V116 M235 38 V116"/></g>`);
 }
 
 function renderAmdDiseaseDashboard(values, time) {

@@ -289,6 +289,24 @@ h3 { letter-spacing: 0; }
   overflow: visible;
 }
 
+.organ-impact-twin.microstructure-active .organ-body-panel {
+  display: none;
+}
+
+.organ-impact-twin.microstructure-active .organ-impact-panel {
+  padding: 0;
+  border-color: rgba(91, 231, 255, .24);
+  background: transparent;
+}
+
+.organ-impact-twin.microstructure-active .organ-panel-header {
+  display: none;
+}
+
+.organ-impact-twin.microstructure-active .microstructure-comparison {
+  min-height: 500px;
+}
+
 .organ-body-panel h3 {
   margin: 0 0 12px;
   font-size: 18px;
@@ -948,7 +966,7 @@ h3 { letter-spacing: 0; }
 }
 
 .microstructure-comparison {
-  margin-top: 16px;
+  margin-top: 0;
   padding: 18px;
   border: 1px solid rgba(133, 171, 233, .24);
   border-radius: var(--radius);
@@ -973,17 +991,51 @@ h3 { letter-spacing: 0; }
 .microstructure-panel header { display: flex; justify-content: space-between; gap: 10px; color: var(--text); font-size: 12px; }
 .microstructure-panel header span { color: var(--muted); font-size: 11px; }
 .microstructure-panel p { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
-.microstructure-visual { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; min-height: 124px; margin-top: 10px; padding: 18px; overflow: hidden; border: 1px solid rgba(91, 231, 255, .16); border-radius: 6px; background: radial-gradient(circle at 50% 45%, rgba(43, 123, 205, .2), rgba(2, 9, 22, .98) 72%); }
-.micro-cell { position: relative; display: block; aspect-ratio: 1; border: 1px solid rgba(91, 231, 255, .6); border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(205, 248, 255, .86) 0 8%, rgba(74, 164, 255, .52) 10% 44%, rgba(21, 66, 132, .38) 46% 100%); box-shadow: 0 0 10px rgba(55, 163, 255, .28); }
-.micro-cell-1, .micro-cell-4 { transform: scale(.78); }
-.micro-cell-2 { transform: scale(1.14); }
-.micro-vessel { position: absolute; left: 7%; right: 7%; top: 52%; height: 4px; border-top: 1px solid rgba(255, 111, 137, .62); border-bottom: 1px solid rgba(255, 111, 137, .4); transform: rotate(-10deg); opacity: .8; }
-.micro-inflammation { position: absolute; inset: 12% 16%; border: 2px solid rgba(255, 92, 111, calc(.25 + var(--impact-strength) / 240)); border-radius: 42% 58% 50% 46%; background: radial-gradient(circle, rgba(255, 67, 91, calc(var(--impact-strength) / 650)) 0 18%, transparent 60%); filter: blur(2px); }
-.impact-microstructure .micro-cell { filter: saturate(calc(1 + var(--impact-strength) / 70)) hue-rotate(calc(var(--impact-strength) * .12deg)); transform: scale(calc(.84 + var(--impact-strength) / 800)); }
+.microstructure-visual {
+  position: relative;
+  min-height: 260px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(91, 231, 255, .16);
+  border-radius: 6px;
+  background-color: #020916;
+}
+.tissue-image-crop {
+  aspect-ratio: 1 / 1;
+  background-image: var(--tissue-image);
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  box-shadow: inset 0 0 24px rgba(2, 9, 22, .18);
+}
+.normal-tissue-image { background-position: left center; }
+.impact-tissue-image { background-position: right center; }
+.microstructure-evidence {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  padding: 11px 12px;
+  border: 1px solid rgba(91, 231, 255, .14);
+  border-radius: 7px;
+  color: #8fa8ca;
+  background: rgba(3, 14, 31, .72);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.microstructure-evidence strong { color: #c9d8ed; }
+.microstructure-source-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.microstructure-source-links a { color: var(--cyan); text-underline-offset: 3px; }
 .microstructure-disclaimer { margin: 12px 0 0; color: #7f98bd; font-size: 11px; }
 .organ-impact-card[role="button"] { cursor: pointer; }
 .organ-impact-cards[hidden], .organ-impact-summary[hidden] { display: none; }
 .organ-impact-card[role="button"]:hover, .organ-impact-card[role="button"]:focus-visible { border-color: var(--organ-color); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--organ-color), transparent 68%); }
+
+@media (max-width: 760px) {
+  .microstructure-header { flex-direction: column; }
+  .microstructure-header-actions { width: 100%; align-items: flex-start; flex-direction: column; }
+  .microstructure-panels { grid-template-columns: 1fr; }
+  .microstructure-evidence { grid-column: 1; }
+  .microstructure-visual { min-height: 220px; }
+}
 
 .panel-line {
   height: 6px;
