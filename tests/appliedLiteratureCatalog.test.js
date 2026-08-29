@@ -66,3 +66,32 @@ test("experiment literature selection returns disease and mechanism-relevant sou
   assert.ok(sources.some((record) => record.linkedEntities.includes("C3")));
   assert.ok(sources.every((record) => record.formalModelChanged === false));
 });
+
+test("Lambris portfolio records carry PubMed-verified training boundaries", () => {
+  const requiredPmids = ["42063338", "40243098", "39809101", "39666368"];
+  const records = APPLIED_LITERATURE.filter((record) => requiredPmids.includes(record.pmid));
+
+  assert.equal(records.length, requiredPmids.length);
+  for (const record of records) {
+    assert.equal(record.priorityAuthor, true);
+    assert.equal(record.portfolioSource, "https://www.lambris.com/articles/");
+    assert.ok(record.experimentalContext);
+    assert.ok(record.mechanisticClaims.length >= 1);
+    assert.ok(record.candidateEffects.length >= 1);
+    assert.ok(record.transferLimits.length >= 1);
+    assert.equal(record.formalModelChanged, false);
+  }
+});
+
+test("disease-specific conversations exclude incompatible tissue contexts", () => {
+  const sources = selectLiteratureForExperiment({
+    diseaseContext: "sepsis",
+    focus: ["C3", "C5a", "Inflammasome"],
+    intervention: ["c3Inhibitor"]
+  }, 10);
+
+  assert.ok(sources.some((record) => record.pmid === "39809101"));
+  assert.ok(sources.some((record) => record.pmid === "42063338"));
+  assert.ok(!sources.some((record) => record.pmid === "39666368"));
+  assert.ok(!sources.some((record) => record.linkedEntities.includes("AMD")));
+});

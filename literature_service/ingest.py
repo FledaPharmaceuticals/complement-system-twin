@@ -15,6 +15,7 @@ from .pubmed import search_pubmed
 DEFAULT_QUERIES = (
     "complement system 2024:3000[dp]",
     "(Lambris JD[Author]) AND complement",
+    '("Lambris JD"[Author]) AND (complement OR compstatin OR C3 OR C5a) AND 2023:3000[dp]',
     "complement C3",
     "complement C5a MAC",
     "complement Factor H Factor I",

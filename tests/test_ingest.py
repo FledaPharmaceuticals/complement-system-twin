@@ -7,6 +7,7 @@ from literature_service.ingest import DEFAULT_QUERIES, run_ingestion
 def test_default_queries_include_recent_and_lambris_priority_searches():
     assert any("2024:3000[dp]" in query for query in DEFAULT_QUERIES)
     assert any("Lambris JD[Author]" in query for query in DEFAULT_QUERIES)
+    assert any("compstatin" in query and "2023:3000[dp]" in query for query in DEFAULT_QUERIES)
 
 
 def test_run_ingestion_persists_records_and_snapshots(tmp_path):

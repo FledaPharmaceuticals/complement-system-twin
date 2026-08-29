@@ -32,6 +32,7 @@ import { preflightValidationIntake } from "./validationIntake.js";
 import { getTissueImageRecord } from "./tissueImageCatalog.js";
 import { parseExperimentIntent } from "./experimentIntent.js";
 import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
+import { buildEvidenceGuidance } from "./evidenceGuidance.js";
 
 const state = {
   entityFilter: "all",
@@ -123,6 +124,7 @@ function analyzeExperimentDescription() {
     ...(timeScale ? { timeScale } : {})
   });
   plan.evidenceSources = selectLiteratureForExperiment(plan);
+  plan.evidenceGuidance = buildEvidenceGuidance(plan, plan.evidenceSources);
   state.preparedExperimentPlan = plan;
   renderPreparedExperimentPlan(plan);
 }
@@ -169,6 +171,37 @@ function renderPreparedExperimentPlan(plan) {
       `).join("") || "<li>No directly linked catalog source was found. The plan remains a model hypothesis.</li>"}</ol>
       <p>These sources guide candidate assumptions only. They do not automatically modify the active model.</p>
     </div>
+    ${renderEvidenceTrainingSummary(plan.evidenceGuidance)}
+  `;
+}
+
+function renderEvidenceTrainingSummary(guidance) {
+  if (!guidance?.sources?.length) return "";
+  const effects = guidance.candidateEffects.slice(0, 8);
+  const claims = guidance.mechanisticClaims.slice(0, 6);
+  const limits = guidance.transferLimits.slice(0, 6);
+  return `
+    <section class="experiment-training-summary" aria-label="Lambris evidence training summary">
+      <div class="experiment-training-header">
+        <div><span>Lambris evidence synthesis</span><strong>Candidate calibration review</strong></div>
+        <b>Formal model unchanged</b>
+      </div>
+      <div class="experiment-training-grid">
+        <article>
+          <h4>Mechanistic evidence</h4>
+          <ul>${claims.map((claim) => `<li>${escapeHtml(claim.text)} <small>PMID ${claim.pmid}</small></li>`).join("") || "<li>No source-specific claim extracted.</li>"}</ul>
+        </article>
+        <article>
+          <h4>Candidate model effects</h4>
+          <ul>${effects.map((effect) => `<li><strong>${escapeHtml(effect.target)}</strong> <span class="effect-${escapeHtml(effect.direction)}">${escapeHtml(effect.direction)}</span><small>${escapeHtml(effect.basis)} · PMID ${effect.pmid}</small></li>`).join("") || "<li>No directional candidate extracted.</li>"}</ul>
+        </article>
+      </div>
+      <details class="experiment-transfer-limits">
+        <summary>Review context and transfer limits</summary>
+        <ul>${limits.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        <p>${escapeHtml(guidance.reviewRequirement)}</p>
+      </details>
+    </section>
   `;
 }
 
@@ -255,7 +288,9 @@ function renderAppliedLiteratureCatalog() {
         <h4><a href="${record.url}" target="_blank" rel="noreferrer">${escapeHtml(record.title)}</a></h4>
         <p>${escapeHtml(record.authors)} · ${escapeHtml(record.journal)}</p>
         <p class="literature-model-use"><b>Candidate model use:</b> ${escapeHtml(record.modelUse)}</p>
+        ${record.experimentalContext ? `<p class="literature-experimental-context"><b>Experimental context:</b> ${escapeHtml(record.experimentalContext)}</p>` : ""}
         <div class="literature-provenance"><span>PMID ${record.pmid}</span><span>DOI ${escapeHtml(record.doi)}</span><span>Active model unchanged</span></div>
+        ${record.portfolioSource ? `<a class="literature-portfolio-source" href="${record.portfolioSource}" target="_blank" rel="noreferrer">Lambris publication catalog source</a>` : ""}
       </div>
     </article>
   `).join("");

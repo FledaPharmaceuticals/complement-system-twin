@@ -8,7 +8,24 @@ const EVIDENCE_SCORES = Object.freeze({
   commentary: 12
 });
 
-function paper({ pmid, doi, title, authors, year, journal, evidenceType, recognition, linkedEntities, modelUse, priorityAuthor = false }) {
+function paper({
+  pmid,
+  doi,
+  title,
+  authors,
+  year,
+  journal,
+  evidenceType,
+  recognition,
+  linkedEntities,
+  modelUse,
+  priorityAuthor = false,
+  portfolioSource = null,
+  experimentalContext = "",
+  mechanisticClaims = [],
+  candidateEffects = [],
+  transferLimits = []
+}) {
   return Object.freeze({
     id: `pmid:${pmid}`,
     pmid,
@@ -22,6 +39,11 @@ function paper({ pmid, doi, title, authors, year, journal, evidenceType, recogni
     linkedEntities,
     modelUse,
     priorityAuthor,
+    portfolioSource,
+    experimentalContext,
+    mechanisticClaims,
+    candidateEffects,
+    transferLimits,
     url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
     sourceProvider: "PubMed",
     formalModelChanged: false
@@ -29,6 +51,114 @@ function paper({ pmid, doi, title, authors, year, journal, evidenceType, recogni
 }
 
 export const APPLIED_LITERATURE = Object.freeze([
+  paper({
+    pmid: "42063338",
+    doi: "10.1021/acs.jmedchem.6c00832",
+    title: "New Analogs of the Compstatin Family of Clinical Complement Inhibitors with Low Picomolar Target Affinity",
+    authors: "Vogt SA; Lander AJ; Herbine K; et al.",
+    year: 2026,
+    journal: "Journal of Medicinal Chemistry",
+    evidenceType: "mechanistic_study",
+    recognition: 88,
+    linkedEntities: ["C3", "C3b", "Compstatin", "Cp60", "Therapeutics", "PK/PD"],
+    modelUse: "Candidate constraints for compstatin binding, target residence, and proximal C3 inhibition scenarios.",
+    priorityAuthor: true,
+    portfolioSource: "https://www.lambris.com/articles/",
+    experimentalContext: "Structure-activity, in-vitro complement inhibition, and cryo-EM analysis of compstatin analogs.",
+    mechanisticClaims: [
+      "The V3I substitution increased compstatin-family C3 target affinity in the reported analog series.",
+      "Cp60 showed low-picomolar C3 affinity and prolonged target residence in the reported in-vitro system."
+    ],
+    candidateEffects: [
+      { target: "C3 activation", direction: "decrease", basis: "Cp60 proximal C3 binding", numericValue: null },
+      { target: "C3 target residence", direction: "increase", basis: "Cp60 binding kinetics", numericValue: null }
+    ],
+    transferLimits: [
+      "Affinity and structural measurements do not establish a disease-specific clinical dose-response.",
+      "No numeric parameter is transferred without exposure, concentration, and assay harmonization."
+    ]
+  }),
+  paper({
+    pmid: "40243098",
+    doi: "10.1111/imm.13930",
+    title: "Clinical C3 Inhibition With AMY-101 Reveals Novel Insights Into IL-8-Driven Inflammation in COVID-19",
+    authors: "Antoniadou C; Natsi AM; Mastellos DC; et al.",
+    year: 2025,
+    journal: "Immunology",
+    evidenceType: "commentary",
+    recognition: 72,
+    linkedEntities: ["C3", "AMY-101", "IL-8", "Inflammation", "COVID-19", "Therapeutics"],
+    modelUse: "Candidate link between proximal C3 inhibition and IL-8-centered inflammatory interpretation.",
+    priorityAuthor: true,
+    portfolioSource: "https://www.lambris.com/articles/",
+    experimentalContext: "Clinical C3-inhibition report presented as a PubMed-indexed letter.",
+    mechanisticClaims: [
+      "The report associates clinical C3 inhibition with an IL-8-centered inflammatory response context."
+    ],
+    candidateEffects: [
+      { target: "IL-8 inflammatory signal", direction: "decrease", basis: "AMY-101 C3 inhibition context", numericValue: null }
+    ],
+    transferLimits: [
+      "A letter provides lower calibration strength than a controlled comparative trial.",
+      "COVID-19 inflammatory findings cannot be transferred numerically to unrelated diseases."
+    ]
+  }),
+  paper({
+    pmid: "39809101",
+    doi: "10.1016/j.intimp.2024.113701",
+    title: "Cp40-mediated complement C3 inhibition dampens inflammasome activation and inflammatory mediators storm induced by Bitis arietans venom",
+    authors: "Fernandes CD; Silva-de-Franca F; Pohl PC; et al.",
+    year: 2025,
+    journal: "International Immunopharmacology",
+    evidenceType: "mechanistic_study",
+    recognition: 80,
+    linkedEntities: ["C3", "C3a", "C5a", "MAC", "Cp40", "Inflammasome", "IL-8", "IL-1beta", "Sepsis"],
+    modelUse: "Directional candidate effects for proximal C3 inhibition on anaphylatoxins, terminal-complex signal, and inflammasome outputs.",
+    priorityAuthor: true,
+    portfolioSource: "https://www.lambris.com/articles/",
+    experimentalContext: "Venom-stimulated ex-vivo human whole blood with a THP-1 macrophage follow-up model.",
+    mechanisticClaims: [
+      "Venom stimulation increased C3a, C5a, soluble terminal complement complex, and inflammatory mediators in the reported whole-blood model.",
+      "Cp40 C3/C3b inhibition reduced the reported anaphylatoxin, terminal-complex, and inflammasome-associated signals."
+    ],
+    candidateEffects: [
+      { target: "C3a", direction: "decrease", basis: "Cp40 C3/C3b inhibition", numericValue: null },
+      { target: "C5a", direction: "decrease", basis: "Cp40 C3/C3b inhibition", numericValue: null },
+      { target: "MAC", direction: "decrease", basis: "soluble terminal-complex response", numericValue: null },
+      { target: "Inflammasome signal", direction: "decrease", basis: "NLRP3/ASC/caspase-1 response", numericValue: null }
+    ],
+    transferLimits: [
+      "The initiating context is snake venom in ex-vivo whole blood, not a general sepsis or chronic-disease calibration dataset.",
+      "THP-1 cell findings require validation in the tissue and disease context selected by the user."
+    ]
+  }),
+  paper({
+    pmid: "39666368",
+    doi: "10.1158/2326-6066.CIR-24-0250",
+    title: "The C5a/C5aR1 Axis Promotes Migration of Tolerogenic Dendritic Cells to Lymph Nodes, Impairing the Anticancer Immune Response",
+    authors: "Senent Y; Remirez A; Reparaz D; et al.",
+    year: 2025,
+    journal: "Cancer Immunology Research",
+    evidenceType: "mechanistic_study",
+    recognition: 86,
+    linkedEntities: ["Cancer", "C5a", "C5aR1", "Dendritic cells", "Tolerogenic DC migration", "Tumor microenvironment"],
+    modelUse: "Cancer-context candidate mechanism for C5aR1-dependent dendritic-cell migration and immune suppression.",
+    priorityAuthor: true,
+    portfolioSource: "https://www.lambris.com/articles/",
+    experimentalContext: "Human tumor-associated dendritic-cell observations and three syngeneic mouse tumor models.",
+    mechanisticClaims: [
+      "C5aR1 was associated with a tolerogenic phenotype in tumor-associated dendritic-cell populations.",
+      "C5aR1 signaling promoted dendritic-cell migration toward tumor-draining lymph nodes in the reported models."
+    ],
+    candidateEffects: [
+      { target: "Tolerogenic DC migration", direction: "decrease", basis: "C5aR1 inhibition", numericValue: null },
+      { target: "Antitumor immune response", direction: "increase", basis: "C5aR1 inhibition combination context", numericValue: null }
+    ],
+    transferLimits: [
+      "The therapeutic effect was evaluated in combination regimens and cannot be assigned to C5aR1 inhibition alone.",
+      "Preclinical tumor-model results are not a patient-specific efficacy prediction."
+    ]
+  }),
   paper({
     pmid: "40683108",
     doi: "10.1016/j.pharmr.2025.100079",
@@ -142,6 +272,23 @@ export const APPLIED_LITERATURE = Object.freeze([
 ]);
 
 const normalize = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const DISEASE_CONTEXTS = new Set(["amd", "pnh", "ahus", "c3g", "sepsis", "cancer", "covid 19"]);
+const diseaseContextAlias = (value) => ({
+  AMD: "amd",
+  PNH: "pnh",
+  aHUS: "ahus",
+  C3G: "c3g",
+  sepsis: "sepsis",
+  cancer: "cancer",
+  "cancer microenvironment": "cancer"
+})[value] || "";
+
+function isDiseaseCompatible(record, diseaseContext) {
+  const requested = diseaseContextAlias(diseaseContext);
+  if (!requested) return true;
+  const recordContexts = record.linkedEntities.map(normalize).filter((entity) => DISEASE_CONTEXTS.has(entity));
+  return recordContexts.length === 0 || recordContexts.includes(requested);
+}
 
 function relevanceScore(record, entities) {
   const requested = entities.map(normalize).filter(Boolean);
@@ -172,12 +319,14 @@ export function selectLiteratureForExperiment(plan, limit = 5) {
   const interventionEntities = (plan.intervention || []).map((value) => {
     if (/factorD/i.test(value)) return "Factor D";
     if (/factorB/i.test(value)) return "Factor B";
+    if (/c5aR/i.test(value)) return "C5aR1";
     if (/c5/i.test(value)) return "C5";
     if (/c3/i.test(value)) return "C3";
     return value;
   });
   const entities = [plan.diseaseContext, ...(plan.focus || []), ...interventionEntities];
   return rankAppliedLiterature(APPLIED_LITERATURE, { entities })
+    .filter((record) => isDiseaseCompatible(record, plan.diseaseContext))
     .filter((record) => record.ranking.contributions.relevance > 0)
     .slice(0, limit);
 }

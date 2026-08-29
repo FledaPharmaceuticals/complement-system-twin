@@ -44,3 +44,14 @@ test("flags patient identifiers and clinical diagnosis requests", () => {
   assert.equal(plan.canRun, false);
 });
 
+test("recognizes a cancer C5aR1 dendritic-cell experiment", () => {
+  const plan = parseExperimentIntent(
+    "Model a cancer microenvironment with C5aR1-driven tolerogenic dendritic-cell migration over 12 months after C5aR1 inhibition."
+  );
+
+  assert.equal(plan.diseaseContext, "cancer microenvironment");
+  assert.equal(plan.timeScale, "chronic_months");
+  assert.ok(plan.focus.includes("C5aR1"));
+  assert.ok(plan.focus.includes("Dendritic cells"));
+  assert.deepEqual(plan.intervention, ["c5aRInhibitor"]);
+});

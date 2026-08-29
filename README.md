@@ -95,6 +95,16 @@ PubMed sources before enabling a simulation. Running the prepared plan updates
 the existing main dynamics and organ-impact views. It does not call a remote AI
 service, save the prompt, or modify model parameters.
 
+Lambris Evidence Training V1 adds PubMed-verified records discovered through
+the public Lambris publication catalog. Each priority record carries the
+experimental context, source-specific mechanistic claims, directional
+candidate effects, and explicit transfer limits. `src/evidenceGuidance.js`
+combines only the records selected for the experiment and labels every output
+as `candidate_review`. Disease-context compatibility prevents a mechanism from
+one tissue or disease from being presented as primary calibration evidence for
+an unrelated context. Candidate effects remain qualitative unless a later
+review package establishes compatible units, exposure, assay, and validation.
+
 `src/publicEvidenceAdapter.js` provides an offline adapter for PubMed-style
 metadata. It preserves PMID/DOI provenance, infers a conservative evidence
 level from publication type, links only explicitly supplied vocabulary terms,

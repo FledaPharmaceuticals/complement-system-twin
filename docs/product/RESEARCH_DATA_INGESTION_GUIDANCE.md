@@ -234,3 +234,22 @@ No publication, author priority, automated extraction, or conversational
 instruction can directly overwrite the active model. Every accepted change
 must retain the evidence identifiers, parameter difference, validation result,
 review decision, uncertainty, and released model version.
+
+### Lambris Evidence Training V1
+
+The Lambris publication catalog is a discovery source, while PubMed is the
+canonical source for PMID, DOI, title, publication year, article type, and
+public abstract. A selected record may contribute:
+
+- experimental context and biological system;
+- source-specific mechanistic claims;
+- directional candidate effects without invented numeric values;
+- cross-context and study-design transfer limits;
+- a PMID-linked audit trail back to the selected evidence set.
+
+The dialogue engine applies disease-context compatibility before synthesis.
+Disease-neutral mechanism papers may support several scenarios, but a
+disease-specific paper is excluded from a different disease's primary evidence
+set unless a future review explicitly classifies it as cross-context evidence.
+The current implementation performs deterministic local synthesis and does not
+send prompts, abstracts, or research data to an external AI provider.

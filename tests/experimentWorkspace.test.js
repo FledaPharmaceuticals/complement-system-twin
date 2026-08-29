@@ -50,3 +50,14 @@ test("experiment override controls stay inside their sidebar at desktop widths",
   assert.match(controlRule, /max-width:\s*100%/);
   assert.match(controlRule, /min-width:\s*0/);
 });
+
+test("conversation renders Lambris evidence synthesis without promoting the model", async () => {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  const app = await readFile(new URL("src/app.js", root), "utf8");
+
+  assert.match(app, /buildEvidenceGuidance/);
+  assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
+  assert.match(app, /Candidate model effects/);
+  assert.match(app, /Formal model unchanged/);
+  assert.match(html, /app\.js\?v=20260829-lambris-v1/);
+});

@@ -4,12 +4,14 @@ const DISEASE_RULES = [
   ["aHUS", /\b(?:ahus|atypical hemolytic uremic syndrome)\b/i],
   ["C3G", /\b(?:c3g|c3 glomerulopathy|dense deposit disease)\b/i],
   ["sepsis", /\b(?:sepsis|septic|systemic infection)\b/i],
+  ["cancer microenvironment", /\b(?:cancer|tumou?r|neoplasm|tumou?r microenvironment)\b/i],
   ["normal", /\b(?:normal|healthy|physiologic|baseline|control)\b/i]
 ];
 
 const FOCUS_RULES = [
   ["C3", /\bc3(?:a|b|d)?\b/i],
   ["C5", /\bc5(?:a|b)?\b/i],
+  ["C5aR1", /\b(?:c5ar1?|c5a receptor 1)\b/i],
   ["MAC", /\b(?:mac|c5b[- ]?9|membrane attack complex)\b/i],
   ["Factor B", /\b(?:factor b|cfb)\b/i],
   ["Factor D", /\b(?:factor d|cfd)\b/i],
@@ -17,14 +19,16 @@ const FOCUS_RULES = [
   ["RPE", /\b(?:rpe|retinal pigment epithelium)\b/i],
   ["Retina", /\b(?:retina|retinal|macula|macular)\b/i],
   ["Kidney", /\b(?:kidney|renal|glomerul)\w*\b/i],
-  ["RBC", /\b(?:rbc|red blood cell|erythrocyte|hemolysis)\w*\b/i]
+  ["RBC", /\b(?:rbc|red blood cell|erythrocyte|hemolysis)\w*\b/i],
+  ["Dendritic cells", /\b(?:dendritic[- ]cells?|dc migration)\b/i],
+  ["Inflammasome", /\b(?:inflammasome|nlrp3|caspase-1)\b/i]
 ];
 
 const INTERVENTION_RULES = [
   ["factorDInhibitor", /\b(?:factor d|cfd)[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+(?:factor d|cfd)\b/i],
   ["factorBInhibitor", /\b(?:factor b|cfb)[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+(?:factor b|cfb)\b/i],
   ["c3Inhibitor", /\bc3[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+c3\b/i],
-  ["c5aRInhibitor", /\b(?:c5ar|c5a receptor)[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+(?:c5ar|c5a receptor)\b/i],
+  ["c5aRInhibitor", /\b(?:c5ar1?|c5a receptor 1?)[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+(?:c5ar1?|c5a receptor 1?)\b/i],
   ["c5Inhibitor", /\bc5[- ]?(?:inhibit|block)|(?:inhibit|block)\w*\s+c5\b|\b(?:eculizumab|ravulizumab)\b/i],
   ["cd59Modifier", /\bcd59\b/i]
 ];
