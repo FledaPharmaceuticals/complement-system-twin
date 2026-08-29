@@ -59,5 +59,5 @@ test("conversation renders Lambris evidence synthesis without promoting the mode
   assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
   assert.match(app, /Candidate model effects/);
   assert.match(app, /Formal model unchanged/);
-  assert.match(html, /app\.js\?v=20260829-lambris-v1/);
+  assert.match(html, /app\.js\?v=20260829-public-teaching-v2-1/);
 });

@@ -1026,6 +1026,7 @@ h3 { letter-spacing: 0; }
 .microstructure-source-links a { color: var(--cyan); text-underline-offset: 3px; }
 .microstructure-disclaimer { margin: 12px 0 0; color: #7f98bd; font-size: 11px; }
 .organ-impact-card[role="button"] { cursor: pointer; }
+.organ-impact-card.no-tissue-model { cursor: default; }
 .organ-impact-cards[hidden], .organ-impact-summary[hidden] { display: none; }
 .organ-impact-card[role="button"]:hover, .organ-impact-card[role="button"]:focus-visible { border-color: var(--organ-color); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--organ-color), transparent 68%); }
 
@@ -1288,6 +1289,50 @@ h3 { letter-spacing: 0; }
 .experiment-live-result strong { color: var(--cyan); }
 .experiment-live-result p { margin: 6px 0 0; color: var(--muted); line-height: 1.55; }
 .experiment-live-result.is-running { border-color: rgba(91, 231, 255, .42); }
+
+.experiment-endpoint-comparison {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(91, 231, 255, .18);
+}
+
+.comparison-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.comparison-heading span {
+  color: #7f98bd;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.experiment-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.experiment-comparison-grid article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 8px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(133, 171, 233, .18);
+  border-radius: 6px;
+  background: rgba(3, 15, 32, .7);
+}
+
+.experiment-comparison-grid article > span { grid-column: 1 / -1; color: #d9e5f5; font-size: 11px; font-weight: 800; }
+.experiment-comparison-grid article b { color: #fff; font-size: 14px; }
+.experiment-comparison-grid article i { color: #7f98bd; font-size: 9px; font-style: normal; }
+.experiment-comparison-grid article strong { grid-column: 1 / -1; margin-top: 3px; font-size: 12px; }
+.experiment-comparison-grid .delta-down { color: #5be0a6; }
+.experiment-comparison-grid .delta-up { color: #ff7a89; }
 
 .experiment-safety-note {
   margin: 12px 0 0;
@@ -3157,6 +3202,7 @@ select {
   .organ-impact-twin,
   .organ-body-panel,
   .organ-impact-panel { width: 100%; min-width: 0; max-width: 100%; }
+  .experiment-comparison-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 820px) {

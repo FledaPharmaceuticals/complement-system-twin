@@ -27,6 +27,26 @@ V1 includes:
 - AI-style deterministic summary engine without external LLM calls.
 - Placeholder API module and future QSP adapter.
 
+## Deployment Architecture
+
+The GitHub Pages application is the public teaching and research-exploration
+layer. It contains only transparent educational rules, public evidence
+citations, version labels, and non-clinical research proxies. It must not hold
+private calibration parameters, paid-provider credentials, unpublished
+research data, patient data, or the authoritative literature-training store.
+
+The long-term core will run on an independent Fleda-controlled server. That
+service will own the governed model engine, literature ingestion and review,
+parameter versions, validation records, and research databases. The public
+frontend will consume only versioned, access-controlled, de-identified outputs
+through a documented Fleda API contract. Until that service is available, the
+GitHub Pages application remains a self-contained teaching model and does not
+pretend to be the authoritative trained model.
+
+This project must remain isolated from every GN system. It must not connect to
+GN authentication, databases, APIs, customer records, production data, or
+infrastructure credentials.
+
 ## Shared Model Contract
 
 The C3 and Complement System twins are being aligned around a provider-neutral

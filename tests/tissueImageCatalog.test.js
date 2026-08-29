@@ -23,3 +23,8 @@ test("AMD tissue signals share the retina-centered tissue model", () => {
 test("complement dysregulation uses the endothelial tissue model", () => {
   assert.equal(getTissueImageRecord("complement-dysregulation"), tissueImageCatalog.vessels);
 });
+
+test("unknown disease endpoints do not fall back to an unrelated tissue model", () => {
+  assert.equal(getTissueImageRecord("tumor-immune"), null);
+  assert.equal(getTissueImageRecord("dc-migration"), null);
+});

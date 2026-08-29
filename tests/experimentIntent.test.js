@@ -14,6 +14,7 @@ test("prepares a retina-centered chronic AMD experiment", () => {
   assert.ok(plan.focus.includes("C3"));
   assert.ok(plan.focus.includes("RPE"));
   assert.equal(plan.requestedComparison, true);
+  assert.deepEqual(plan.duration, { value: 12, unit: "months" });
   assert.equal(plan.missingInformation.length, 0);
   assert.equal(plan.confidence, "high");
 });
@@ -34,6 +35,7 @@ test("keeps normal baseline free of an acute disease reaction", () => {
   assert.equal(plan.diseaseContext, "normal");
   assert.equal(plan.timeScale, "baseline");
   assert.deepEqual(plan.intervention, []);
+  assert.deepEqual(plan.duration, { value: 120, unit: "minutes" });
   assert.ok(plan.assumptions.some((item) => /baseline/i.test(item)));
 });
 
@@ -54,4 +56,19 @@ test("recognizes a cancer C5aR1 dendritic-cell experiment", () => {
   assert.ok(plan.focus.includes("C5aR1"));
   assert.ok(plan.focus.includes("Dendritic cells"));
   assert.deepEqual(plan.intervention, ["c5aRInhibitor"]);
+});
+
+test("requires an intervention when treated-versus-untreated comparison is requested", () => {
+  const plan = parseExperimentIntent("Compare treated and untreated PNH over 120 minutes.");
+
+  assert.equal(plan.requestedComparison, true);
+  assert.equal(plan.canRun, false);
+  assert.ok(plan.missingInformation.some((item) => /intervention/i.test(item)));
+});
+
+test("rejects a duration unit that conflicts with an explicit time-scale override", () => {
+  const plan = parseExperimentIntent("Model AMD over 120 minutes after Factor D inhibition.", { timeScale: "chronic_months" });
+
+  assert.equal(plan.canRun, false);
+  assert.ok(plan.missingInformation.some((item) => /duration unit/i.test(item)));
 });

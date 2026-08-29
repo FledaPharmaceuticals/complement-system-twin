@@ -89,5 +89,5 @@ export const tissueImageCatalog = {
 export function getTissueImageRecord(organId) {
   if (RETINA_IDS.has(organId)) return tissueImageCatalog.retina;
   if (organId === "complement-dysregulation") return tissueImageCatalog.vessels;
-  return tissueImageCatalog[organId] ?? tissueImageCatalog.skin;
+  return tissueImageCatalog[organId] ?? null;
 }

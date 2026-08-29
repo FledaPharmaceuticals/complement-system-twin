@@ -25,8 +25,8 @@ export function getDynamicsSeriesMeta() {
 
 export function runDynamicsSimulation(input) {
   const profile = diseaseDynamicsProfiles[input.diseaseContext] ?? diseaseDynamicsProfiles.normal;
-  const dt = Math.max(Number(input.timeStep) || 1, 0.01);
-  const duration = Math.max(Number(input.duration) || 60, dt);
+  const duration = Math.max(Number(input.duration) || 60, 0.01);
+  const dt = Math.min(Math.max(Number(input.timeStep) || 1, 0.01), duration);
   const steps = Math.ceil(duration / dt);
   const c = {
     C3: input.initialConcentrations.C3,
@@ -57,9 +57,10 @@ export function runDynamicsSimulation(input) {
   }
 
   for (let i = 0; i <= steps; i += 1) {
-    const time = Number((i * dt).toFixed(4));
+    const time = Number(Math.min(duration, i * dt).toFixed(4));
     rows.push({ time, concentrations: { ...c } });
     if (i === steps) break;
+    const stepDt = Math.min(dt, duration - time);
 
     const activeIntervention = time >= input.interventionTime;
     const inhibitors = activeIntervention ? input.interventions : emptyIntervention();
@@ -79,9 +80,9 @@ export function runDynamicsSimulation(input) {
       c.C3 * 0.035,
       c.C3 * (classicalDrive + lectinDrive + alternativeDrive + amplificationDrive) * c3Remaining
     );
-    c.C3 -= c3CleavageRate * dt;
-    c.C3a += c3CleavageRate * dt * 0.50;
-    c.C3b += c3CleavageRate * dt * 0.50;
+    c.C3 -= c3CleavageRate * stepDt;
+    c.C3a += c3CleavageRate * stepDt * 0.50;
+    c.C3b += c3CleavageRate * stepDt * 0.50;
 
     // C3b + Factor B + Factor D -> C3bBb. Factor D is catalytic, so it is
     // consumed only minimally to create visible but small dynamics.
@@ -89,15 +90,15 @@ export function runDynamicsSimulation(input) {
       c.C3b * 0.20,
       c.C3b * (c.FactorB / 2200) * (c.FactorD / 83) * 0.026 * factorBRemaining * factorDRemaining * profile.c3bBbPersistence
     );
-    c.FactorB -= convertaseFormation * dt * 0.55;
-    c.FactorD -= convertaseFormation * dt * 0.015;
-    c.C3bBb += convertaseFormation * dt;
+    c.FactorB -= convertaseFormation * stepDt * 0.55;
+    c.FactorD -= convertaseFormation * stepDt * 0.015;
+    c.C3bBb += convertaseFormation * stepDt;
 
     // Factor H / Factor I regulation reduces C3b and destabilizes C3bBb.
     const regulationStrength = (c.FactorH / 3200) * (c.FactorI / 400) * profile.regulationMultiplier;
     const c3bRegulation = Math.min(c.C3b, c.C3b * regulationStrength * 0.032);
-    c.C3b -= c3bRegulation * dt;
-    c.C3bBb -= Math.min(c.C3bBb, c.C3bBb * (0.012 + regulationStrength * 0.026) * dt);
+    c.C3b -= c3bRegulation * stepDt;
+    c.C3bBb -= Math.min(c.C3bBb, c.C3bBb * (0.012 + regulationStrength * 0.026) * stepDt);
 
     // C5 cleavage is downstream of C3bBb/C5 convertase and terminal activity.
     const terminalDrive = input.pathwayActivity.terminal / 100 * profile.terminalMultiplier;
@@ -105,16 +106,16 @@ export function runDynamicsSimulation(input) {
       c.C5 * 0.055,
       c.C3bBb * (c.C5 / 500) * terminalDrive * 0.050 * c5Remaining
     );
-    c.C5 -= c5Cleavage * dt;
-    c.C5a += c5Cleavage * dt * 0.50 * profile.c5aMultiplier * remaining(inhibitors.c5aRInhibitor * 0.55);
-    c.C5b += c5Cleavage * dt * 0.50;
+    c.C5 -= c5Cleavage * stepDt;
+    c.C5a += c5Cleavage * stepDt * 0.50 * profile.c5aMultiplier;
+    c.C5b += c5Cleavage * stepDt * 0.50;
 
     const cd55Modifier = 1 + Math.max(0, 80 - cd55) / 130;
     const cd59Level = Math.max(1, c.CD59 * (activeIntervention ? input.interventions.cd59Modifier / 100 : 1));
     const cd59Suppression = Math.max(0.12, Math.min(1.6, 100 / cd59Level));
     const macFormation = Math.min(c.C5b, c.C5b * terminalDrive * cd55Modifier * cd59Suppression * profile.macMultiplier * 0.040);
-    c.C5b -= macFormation * dt;
-    c.MAC += macFormation * dt;
+    c.C5b -= macFormation * stepDt;
+    c.MAC += macFormation * stepDt;
 
     Object.keys(c).forEach((key) => {
       c[key] = Math.max(0, Number.isFinite(c[key]) ? c[key] : 0);

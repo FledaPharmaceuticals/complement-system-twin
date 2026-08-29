@@ -1,11 +1,12 @@
 import { entities, relationships, diseases, drugs, publications } from "./data.js";
 import { runComplementSimulation } from "./simulation.js";
 import { generateComplementTwinSummary } from "./summary.js";
-import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js";
+import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js?v=20260829-public-teaching-v2-1";
 import { generateDynamicsInterpretation, nearestTimePoint } from "./modules/complement-system-twin/dynamics/generateDynamicsInterpretation.js";
 import { generateAmdDiseaseSummary, getAmdDisclaimer } from "./modules/complement-system-twin/dynamics/generateAmdDiseaseSummary.js";
 import { diseaseOrganWeightMatrix } from "./modules/complement-system-twin/disease/organWeightMatrix.js";
 import { rankDiseaseSpecificImpacts } from "./modules/complement-system-twin/disease/diseaseOrganScoring.js";
+import { calculateCancerMicroenvironmentImpacts } from "./modules/complement-system-twin/disease/cancerOutcomeProfile.js?v=20260829-public-teaching-v2-1";
 import { amdLiteratureCalibration, getAmdCalibrationSummary } from "./modules/complement-system-twin/calibration/amdLiteratureCalibration.js";
 import { getLiteratureServiceStatus, getLocalLiteratureRecords, searchPublicPubMed } from "./literatureService.js";
 import { getLocalProteinAnnotations, searchUniProtAnnotations } from "./annotationService.js";
@@ -29,10 +30,11 @@ import { buildSimulationReport } from "./reportExport.js";
 import { createValidationDataset, compareValidationDataset, parseValidationDatasetJson } from "./validationDataset.js";
 import { generateValidationCalibrationCandidates } from "./validationCalibration.js";
 import { preflightValidationIntake } from "./validationIntake.js";
-import { getTissueImageRecord } from "./tissueImageCatalog.js";
-import { parseExperimentIntent } from "./experimentIntent.js";
+import { getTissueImageRecord } from "./tissueImageCatalog.js?v=20260829-public-teaching-v2-1";
+import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-public-teaching-v2-1";
 import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
+import { buildEndpointComparison, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolveResearchHeartRate, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-public-teaching-v2-1";
 
 const state = {
   entityFilter: "all",
@@ -53,7 +55,10 @@ const state = {
     mode: "baseline",
     amdSpecificOutputs: null,
     biomarkerEstimate: null,
-    biomarkerApplied: false
+    biomarkerApplied: false,
+    activeDuration: null,
+    experimentText: "",
+    comparisonRows: []
   },
   monitorAudio: {
     context: null,
@@ -139,6 +144,8 @@ function renderPreparedExperimentPlan(plan) {
     acute_hours: "Minutes to hours",
     chronic_months: "Months to years"
   };
+  const exactDuration = normalizeExperimentDuration(plan.duration, plan.timeScale);
+  const timeLabel = exactDuration ? formatSimulationTime(exactDuration.duration, exactDuration.unit) : labels[plan.timeScale] || plan.timeScale;
   const list = (items, fallback) => items.length ? items.map(escapeHtml).join(", ") : fallback;
   const evidence = plan.evidenceSources || [];
   container.hidden = false;
@@ -152,7 +159,7 @@ function renderPreparedExperimentPlan(plan) {
       <article><span>Disease context</span><strong>${escapeHtml(labels[plan.diseaseContext] || plan.diseaseContext)}</strong></article>
       <article><span>Complement focus</span><strong>${list(plan.focus, "Complete modeled panel")}</strong></article>
       <article><span>Intervention</span><strong>${list(plan.intervention.map(formatInterventionName), "No intervention")}</strong></article>
-      <article><span>Time scale</span><strong>${escapeHtml(labels[plan.timeScale] || plan.timeScale)}</strong></article>
+      <article><span>Time scale</span><strong>${escapeHtml(timeLabel)}</strong></article>
     </div>
     ${renderPlanNotes("Missing information", plan.missingInformation, "missing")}
     ${renderPlanNotes("Explicit assumptions", plan.assumptions, "assumption")}
@@ -228,6 +235,9 @@ function runPreparedExperiment() {
   if (diseaseSelect && [...diseaseSelect.options].some((option) => option.value === plan.diseaseContext)) {
     diseaseSelect.value = plan.diseaseContext;
   }
+  state.heroPlayback.activeDuration = normalizeExperimentDuration(plan.duration, plan.timeScale);
+  state.heroPlayback.experimentText = document.getElementById("experiment-description")?.value || "";
+  state.heroPlayback.comparisonRows = [];
   document.querySelectorAll("input[name='heroInterventionTarget']").forEach((input) => {
     input.checked = plan.diseaseContext !== "normal" && plan.intervention.includes(input.value);
   });
@@ -239,7 +249,7 @@ function runPreparedExperiment() {
   syncHeroTimeScaleControls();
   const interventionTime = document.getElementById("hero-intervention-time");
   if (interventionTime && plan.intervention.length) {
-    interventionTime.value = String(Math.round(Number(interventionTime.max) * 0.5));
+    interventionTime.value = String(Number(interventionTime.max) * 0.5);
     document.getElementById("hero-intervention-time-output").textContent = formatHeroTime(Number(interventionTime.value));
   }
   startHeroPlayback(0);
@@ -257,10 +267,22 @@ function renderExperimentLiveResult(plan) {
   const container = document.getElementById("experiment-live-result");
   if (!container) return;
   const sources = plan.evidenceSources || [];
+  const requestedDuration = state.heroPlayback.activeDuration;
+  const durationText = requestedDuration ? formatSimulationTime(requestedDuration.duration, requestedDuration.unit) : plan.timeScale.replaceAll("_", " ");
+  const comparison = plan.requestedComparison && state.heroPlayback.comparisonRows.length
+    ? `<section class="experiment-endpoint-comparison" aria-label="Treated versus untreated endpoint comparison">
+        <div class="comparison-heading"><strong>Treated vs. untreated endpoint</strong><span>Model output units</span></div>
+        <div class="experiment-comparison-grid">${state.heroPlayback.comparisonRows.map((row) => `
+          <article><span>${escapeHtml(row.signal)}</span><b>${row.untreated}</b><i>Untreated</i><b>${row.treated}</b><i>Treated</i><strong class="${row.delta <= 0 ? "delta-down" : "delta-up"}">${row.delta > 0 ? "+" : ""}${row.delta}</strong></article>
+        `).join("")}</div>
+        <p>Paired teaching-model comparison using identical disease inputs. Values are comparable within each signal only and are not measured concentrations.</p>
+      </section>`
+    : "";
   container.innerHTML = `
     <div class="experiment-result-header"><strong>Simulation running in the main display</strong><span>${escapeHtml(MODEL_VERSION)}</span></div>
-    <p><b>${escapeHtml(plan.diseaseContext)}</b> is being simulated on a <b>${escapeHtml(plan.timeScale.replaceAll("_", " "))}</b> scale with ${plan.intervention.length ? escapeHtml(plan.intervention.map(formatInterventionName).join(", ")) : "no intervention"}.</p>
+    <p><b>${escapeHtml(plan.diseaseContext)}</b> is being simulated for <b>${escapeHtml(durationText)}</b> with ${plan.intervention.length ? escapeHtml(plan.intervention.map(formatInterventionName).join(", ")) : "no intervention"}.</p>
     <p>The curves and organ-impact interpretation above now reflect this prepared scenario. ${sources.length} catalog source${sources.length === 1 ? "" : "s"} support the candidate assumptions.</p>
+    ${comparison}
     <p class="result-boundary">Research proxy, not diagnosis. Evidence-linked suggestions remain candidates until validation and versioned release.</p>
   `;
 }
@@ -1112,13 +1134,25 @@ function initHeroDynamicsChart() {
   });
   controls.forEach((control) => {
     control.addEventListener("change", () => {
+      if (control.id === "hero-disease-scenario") {
+        state.heroPlayback.activeDuration = null;
+        state.heroPlayback.experimentText = "";
+        state.heroPlayback.comparisonRows = [];
+        state.preparedExperimentPlan = null;
+      }
+      if (control.name === "heroInterventionTarget") {
+        state.heroPlayback.comparisonRows = [];
+        state.preparedExperimentPlan = null;
+      }
       syncHeroTimeScaleControls();
       if (state.heroPlayback.isPlaying) {
         startHeroPlayback(state.heroPlayback.currentTime);
+        refreshExperimentResultAfterControlChange();
         return;
       }
       const nextMode = getHeroChartModeFromControls();
       renderHeroDynamicsChart(nextMode, false, nextMode === "baseline" ? null : state.heroPlayback.currentTime);
+      refreshExperimentResultAfterControlChange();
     });
   });
   resetButton?.addEventListener("click", () => {
@@ -1451,13 +1485,14 @@ function renderOrganImpactTwin(time) {
   const isAmd = getHeroInterventionControls().disease === "AMD";
   const impacts = calculateDiseaseSpecificOrganScores(getHeroInterventionControls().disease, values, time);
   document.querySelector(".organ-impact-twin")?.classList.toggle("amd-focus-mode", isAmd);
-  const strongest = impacts.reduce((top, item) => item.score > top.score ? item : top, impacts[0]);
   const selectedImpact = impacts.find((impact) => impact.id === state.selectedMicrostructureOrgan);
   if (!selectedImpact) state.selectedMicrostructureOrgan = null;
   document.querySelector(".organ-impact-twin")?.classList.toggle("microstructure-active", Boolean(selectedImpact));
   document.getElementById("organ-impact-time").textContent = formatHeroTime(time);
-  cards.innerHTML = isAmd ? renderAmdOrganImpactCards(impacts) : impacts.map((impact) => `
-    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" data-micro-organ="${impact.id}" tabindex="0" role="button" style="--organ-color:${impact.color};--score-width:${impact.score}%">
+  cards.innerHTML = isAmd ? renderAmdOrganImpactCards(impacts) : impacts.map((impact) => {
+    const interactive = Boolean(getTissueImageRecord(impact.id));
+    return `
+    <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"} ${interactive ? "" : "no-tissue-model"}" ${interactive ? `data-micro-organ="${impact.id}" tabindex="0" role="button"` : ""} style="--organ-color:${impact.color};--score-width:${impact.score}%">
       <header>
         <strong>${impact.name}</strong>
         <span>${impact.score}/100</span>
@@ -1465,7 +1500,7 @@ function renderOrganImpactTwin(time) {
       <div class="organ-score-bar"><i></i></div>
       <p>${impact.description}</p>
     </article>
-  `).join("");
+  `;}).join("");
   cards.hidden = Boolean(selectedImpact);
   const summary = document.getElementById("organ-impact-summary");
   if (summary) summary.hidden = Boolean(selectedImpact);
@@ -1479,7 +1514,9 @@ function renderOrganImpactTwin(time) {
       element.title = `${impact.name}: ${impact.score}/100`;
     });
   });
-  if (isAmd) muteUnmappedAmdOrgans(impacts);
+  if (isAmd || getHeroInterventionControls().disease === "cancer microenvironment") {
+    muteUnmappedOrganMap(impacts, isAmd ? "Not a primary AMD tissue signal" : "No organ-specific tumor tissue model is assigned");
+  }
   renderHeartRhythm(impacts, values);
   if (selectedImpact) renderMicrostructureComparison(selectedImpact);
   else {
@@ -1487,20 +1524,19 @@ function renderOrganImpactTwin(time) {
     if (comparison) comparison.hidden = true;
   }
   renderAmdDiseaseDashboard(values, time);
-  document.getElementById("organ-impact-summary").textContent =
-    isAmd
-      ? "Dominant predicted impact: Retina / Macula. AMD is modeled as a retina-centered complement-mediated disease state; systemic cards represent association or pathway relevance, not deterministic organ damage."
-      : `Dominant predicted impact: ${strongest.name}. This V1 rule model links complement dynamics to organ-level risk signals, not clinical diagnosis.`;
+  document.getElementById("organ-impact-summary").textContent = isAmd
+    ? "Dominant predicted impact: Retina / Macula. AMD is modeled as a retina-centered complement-mediated disease state; systemic cards represent association or pathway relevance, not deterministic organ damage."
+    : `${summarizeOrganImpact(getHeroInterventionControls().disease, impacts)} This public teaching model links complement dynamics to research signals, not clinical diagnosis.`;
 }
 
-function muteUnmappedAmdOrgans(impacts) {
+function muteUnmappedOrganMap(impacts, title) {
   const activeIds = new Set(impacts.map((impact) => impact.id));
   document.querySelectorAll("[data-organ], [data-organ-zone]").forEach((element) => {
     const id = element.dataset.organ ?? element.dataset.organZone;
     if (!id || activeIds.has(id)) return;
     element.style.setProperty("--organ-color", "#335b7a");
     if (element.dataset.organ) element.dataset.score = "";
-    element.title = "Not a primary AMD tissue signal";
+    element.title = title;
   });
 }
 
@@ -1534,7 +1570,6 @@ function renderMicrostructureComparison(impact) {
   const selection = document.getElementById("microstructure-selection");
   const comparison = document.querySelector(".microstructure-comparison");
   if (!panels || !impact) return;
-  if (comparison) comparison.hidden = false;
   const organLabels = {
     brain: "Brain / CNS", lung: "Lung", blood: "Blood / RBC", liver: "Liver", kidney: "Kidney",
     retina: "Retina / Macula", vessels: "Vessels", skin: "Skin / Joint", rpe: "RPE", choroid: "Choroid",
@@ -1542,6 +1577,12 @@ function renderMicrostructureComparison(impact) {
     "neovascular-signal": "Neovascular Signal", "complement-dysregulation": "Complement Dysregulation"
   };
   const tissue = getTissueImageRecord(impact.id);
+  if (!tissue) {
+    state.selectedMicrostructureOrgan = null;
+    if (comparison) comparison.hidden = true;
+    return;
+  }
+  if (comparison) comparison.hidden = false;
   const label = organLabels[impact.id] ?? tissue.label ?? impact.name;
   const damage = Math.round(impact.score);
   const evidenceLinks = tissue.evidence.map((source) =>
@@ -1817,20 +1858,15 @@ function renderHeartRhythm(impacts, values) {
   const monitor = document.querySelector(".heartbeat-monitor");
   const human = document.querySelector(".human-outline");
   if (!heartRate || !monitor) return;
-  if (getHeroInterventionControls().disease === "AMD") {
-    const bpm = 72;
-    heartRate.textContent = bpm;
-    state.monitorAudio.bpm = bpm;
-    monitor.style.setProperty("--heartbeat-speed", `${60 / bpm}s`);
-    monitor.style.setProperty("--ecg-speed", "1.45s");
-    monitor.style.setProperty("--heart-color", "#38bdf8");
-    human?.style.setProperty("--heartbeat-speed", `${60 / bpm}s`);
-    human?.style.setProperty("--heart-color", "#38bdf8");
-    return;
-  }
+  const disease = getHeroInterventionControls().disease;
   const vascularImpact = impacts.find((impact) => impact.id === "vessels")?.score ?? 0;
   const inflammation = average(values.C3a, values.C5a);
-  const bpm = Math.round(clamp(68 + vascularImpact * 0.16 + inflammation * 0.10, 58, 112));
+  const bpm = resolveResearchHeartRate({
+    diseaseContext: disease,
+    experimentText: state.heroPlayback.experimentText,
+    vascularImpact,
+    inflammation
+  });
   const speed = clamp(60 / bpm, 0.52, 1.05);
   const color = impactColor(Math.max(vascularImpact, inflammation));
   heartRate.textContent = bpm;
@@ -1890,16 +1926,20 @@ function getHeroTraceValues(time) {
 
 function getHeroTimeScale() {
   const disease = getHeroInterventionControls().disease;
+  const requested = state.heroPlayback.activeDuration;
   const isAmd = disease === "AMD";
+  const isChronic = requested?.unit === "months" || isAmd;
+  const duration = requested?.duration ?? (isChronic ? 24 : 120);
   return {
     isAmd,
-    unit: isAmd ? "months" : "min",
-    unitSingular: isAmd ? "month" : "min",
-    axisTitle: isAmd ? "Chronic progression time (months)" : "Time (minutes)",
-    duration: isAmd ? 24 : 120,
-    timeStep: isAmd ? 0.2 : 1,
-    defaultInterventionTime: isAmd ? 12 : 60,
-    defaultSpeed: isAmd ? 1 : 10
+    isChronic,
+    unit: isChronic ? "months" : "min",
+    unitSingular: isChronic ? "month" : "min",
+    axisTitle: isChronic ? "Chronic progression time (months)" : "Time (minutes)",
+    duration,
+    timeStep: isChronic ? Math.max(0.1, duration / 120) : Math.max(1, duration / 120),
+    defaultInterventionTime: duration * 0.5,
+    defaultSpeed: isChronic ? 1 : 10
   };
 }
 
@@ -1911,18 +1951,18 @@ function syncHeroTimeScaleControls() {
   const interventionLabel = document.querySelector(".hero-intervention-time-control");
   if (speedSelect && speedSelect.dataset.scale !== scale.unit) {
     speedSelect.dataset.scale = scale.unit;
-    speedSelect.innerHTML = scale.isAmd
+    speedSelect.innerHTML = scale.isChronic
       ? `<option value="0.5">1 sec = 0.5 month</option><option value="1" selected>1 sec = 1 month</option><option value="3">1 sec = 3 months</option>`
       : `<option value="1">1 sec = 1 min</option><option value="10" selected>1 sec = 10 min</option><option value="30">1 sec = 30 min</option>`;
   }
-  if (interventionTime && interventionTime.dataset.scale !== scale.unit) {
+  if (interventionTime && (interventionTime.dataset.scale !== scale.unit || Number(interventionTime.max) !== scale.duration)) {
     interventionTime.dataset.scale = scale.unit;
     interventionTime.max = String(scale.duration);
-    interventionTime.step = scale.isAmd ? "0.5" : "1";
+    interventionTime.step = String(Math.min(scale.isChronic ? 0.5 : 1, Math.max(0.01, scale.duration / 20)));
     interventionTime.value = String(scale.defaultInterventionTime);
   }
   if (interventionLabel) {
-    interventionLabel.childNodes[0].textContent = scale.isAmd ? "Intervention month " : "Intervention time ";
+    interventionLabel.childNodes[0].textContent = scale.isChronic ? "Intervention month " : "Intervention time ";
   }
   if (interventionOutput && interventionTime) {
     interventionOutput.textContent = formatHeroTime(Number(interventionTime.value));
@@ -1931,15 +1971,17 @@ function syncHeroTimeScaleControls() {
 
 function formatHeroTime(time) {
   const scale = getHeroTimeScale();
-  if (scale.isAmd) {
-    const rounded = Math.round(Number(time) * 10) / 10;
-    return `${rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)} months`;
-  }
-  return `${Math.round(time)} min`;
+  return formatSimulationTime(time, scale.unit);
 }
 
 function calculateDiseaseSpecificOrganScores(diseaseContext, values, time) {
   if (diseaseContext === "AMD") return calculateAmdOrganScores(values);
+  if (diseaseContext === "cancer microenvironment") {
+    const intervention = getHeroInterventionControls();
+    return calculateCancerMicroenvironmentImpacts(values, {
+      c5aRInhibition: intervention.targets.includes("c5aRInhibitor") ? intervention.strength : 0
+    }).map((impact) => ({ ...impact, color: impactColor(impact.score) }));
+  }
   return calculateOrganImpacts(values, time);
 }
 
@@ -2177,7 +2219,9 @@ function heroBaselineTraces() {
   const names = ["C3", "C3a", "C3b", "Factor B", "Factor D", "C3bBb", "Factor H", "Factor I", "C5", "C5a", "C5b", "MAC", "CD59"];
   const colors = ["#4aa3ff", "#6ee7ff", "#8a7dff", "#5be0a6", "#b5e853", "#f6c85f", "#ffbe76", "#ff9f7a", "#ff7ab6", "#ff5d6c", "#c778ff", "#ffffff", "#9fb4ff"];
   const baselines = [82, 14, 18, 70, 52, 10, 76, 64, 58, 12, 9, 7, 78];
-  const x = Array.from({ length: 121 }, (_, i) => i);
+  const scale = getHeroTimeScale();
+  const steps = 120;
+  const x = Array.from({ length: steps + 1 }, (_, i) => i * scale.duration / steps);
   return names.map((name, index) => ({
     x,
     y: x.map((t) => baselines[index] + Math.sin(t / (8 + index) + index) * (1.2 + (index % 3) * 0.5)),
@@ -2185,7 +2229,7 @@ function heroBaselineTraces() {
     type: "scatter",
     name,
     line: { color: colors[index], width: ["MAC", "C3bBb"].includes(name) ? 3.5 : 2.2 },
-    hovertemplate: `${name}<br>Time: %{x:.1f} min<br>Relative concentration: %{y:.2f}<extra></extra>`
+    hovertemplate: `${name}<br>Time: %{x:.1f} ${scale.unit}<br>Relative concentration: %{y:.2f}<extra></extra>`
   }));
 }
 
@@ -2218,6 +2262,21 @@ function heroReactionTraces() {
     interventions
   };
   const result = runDynamicsSimulation(input);
+  if (state.preparedExperimentPlan?.requestedComparison && intervention.targets.length) {
+    const untreatedResult = runDynamicsSimulation({
+      ...input,
+      interventions: { c3Inhibitor: 0, factorBInhibitor: 0, factorDInhibitor: 0, c5Inhibitor: 0, c5aRInhibitor: 0, cd59Modifier: 100 }
+    });
+    const comparisonInputs = prepareEndpointComparisonInputs({
+      untreated: getSimulationEndpointValues(untreatedResult),
+      treated: getSimulationEndpointValues(result),
+      targets: intervention.targets,
+      strength: intervention.strength
+    });
+    state.heroPlayback.comparisonRows = buildEndpointComparison(comparisonInputs);
+  } else {
+    state.heroPlayback.comparisonRows = [];
+  }
   state.heroPlayback.amdSpecificOutputs = result.amdSpecificOutputs;
   return result.series.map((series) => {
     const max = Math.max(...series.data.map((point) => point.value), 1);
@@ -2231,6 +2290,27 @@ function heroReactionTraces() {
       hovertemplate: `${series.name}<br>Time: %{x:.1f} ${timeScale.unit}<br>Relative concentration: %{y:.2f}<extra></extra>`
     };
   });
+}
+
+function refreshExperimentResultAfterControlChange() {
+  const container = document.getElementById("experiment-live-result");
+  if (state.preparedExperimentPlan) {
+    renderExperimentLiveResult(state.preparedExperimentPlan);
+    return;
+  }
+  if (container) {
+    container.innerHTML = `<div class="experiment-result-header"><strong>Manual teaching controls active</strong><span>${escapeHtml(MODEL_VERSION)}</span></div><p>The main curves and research-signal cards reflect the current controls. Analyze the description again to create a new evidence-linked experiment plan.</p>`;
+  }
+}
+
+function getSimulationEndpointValues(result) {
+  const selected = new Set(["C3a", "C3b", "C5a", "MAC", "C3bBb"]);
+  return Object.fromEntries(result.series
+    .filter((series) => selected.has(series.name))
+    .map((series) => {
+      const values = series.data.map((point) => point.value);
+      return [series.name, values.at(-1)];
+    }));
 }
 
 function getHeroDiseasePreset(disease) {

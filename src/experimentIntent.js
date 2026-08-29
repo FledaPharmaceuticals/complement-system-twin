@@ -1,3 +1,5 @@
+import { normalizeExperimentDuration } from "./experimentRuntime.js?v=20260829-public-teaching-v2-1";
+
 const DISEASE_RULES = [
   ["AMD", /\b(?:amd|age[- ]related macular degeneration|macular degeneration)\b/i],
   ["PNH", /\b(?:pnh|paroxysmal nocturnal hemoglobinuria)\b/i],
@@ -71,6 +73,10 @@ export function parseExperimentIntent(text = "", options = {}) {
 
   if (diseaseContext === "unknown") missingInformation.push("Specify a disease context or normal baseline.");
   if (timeScale === "unknown") missingInformation.push("Specify an acute or chronic simulation time scale.");
+  if (requestedComparison && !intervention.length) missingInformation.push("Specify an intervention for the treated-versus-untreated comparison.");
+  if (duration && timeScale !== "unknown" && !normalizeExperimentDuration(duration, timeScale)) {
+    missingInformation.push("The requested duration unit is incompatible with the selected time scale.");
+  }
   if (diseaseContext === "AMD" && !duration) assumptions.push("AMD uses a retina-centered chronic progression scale measured in months.");
   if (diseaseContext === "normal") assumptions.push("Normal baseline remains physiologic and does not introduce an acute reaction event.");
   if (!intervention.length) assumptions.push("No pharmacologic complement intervention is applied.");
