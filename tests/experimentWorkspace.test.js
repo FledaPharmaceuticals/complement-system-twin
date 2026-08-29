@@ -39,3 +39,14 @@ test("page exposes an applied literature catalog and controlled learning boundar
   assert.match(html, /Lambris/i);
   assert.match(html, /cannot automatically overwrite the active model/i);
 });
+
+test("experiment override controls stay inside their sidebar at desktop widths", async () => {
+  const css = await readFile(new URL("src/styles.css", root), "utf8");
+  const labelRule = css.match(/\.experiment-dialog-controls label\s*\{([^}]*)\}/)?.[1] ?? "";
+  const controlRule = css.match(/\.experiment-dialog-controls select,\s*\n?\.experiment-dialog-controls button\s*\{([^}]*)\}/)?.[1] ?? "";
+
+  assert.match(labelRule, /grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(labelRule, /min-width:\s*0/);
+  assert.match(controlRule, /max-width:\s*100%/);
+  assert.match(controlRule, /min-width:\s*0/);
+});
