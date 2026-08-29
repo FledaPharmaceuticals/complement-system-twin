@@ -926,6 +926,7 @@ function initHeroDynamicsChart() {
 function initMicrostructureInteractions() {
   const cards = document.getElementById("organ-impact-cards");
   const comparison = document.querySelector(".microstructure-comparison");
+  const impactTwin = document.querySelector(".organ-impact-twin");
   document.getElementById("microstructure-back")?.addEventListener("click", () => {
     state.selectedMicrostructureOrgan = null;
     if (comparison) comparison.hidden = true;
@@ -933,17 +934,12 @@ function initMicrostructureInteractions() {
     const summary = document.getElementById("organ-impact-summary");
     if (summary) summary.hidden = false;
   });
-  document.querySelectorAll(".organ-hotspot").forEach((hotspot) => {
-    hotspot.addEventListener("click", () => {
-      selectMicrostructureOrgan(hotspot.dataset.organ);
-    });
+  impactTwin?.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-organ], [data-micro-organ]");
+    if (!target) return;
+    selectMicrostructureOrgan(target.dataset.microOrgan ?? target.dataset.organ);
   });
-  cards?.addEventListener("click", (event) => {
-    const card = event.target.closest("[data-micro-organ]");
-    if (!card) return;
-    selectMicrostructureOrgan(card.dataset.microOrgan);
-  });
-  cards?.addEventListener("keydown", (event) => {
+  impactTwin?.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     const card = event.target.closest("[data-micro-organ]");
     if (!card) return;

@@ -461,6 +461,7 @@ h3 { letter-spacing: 0; }
   height: 1px;
   background: linear-gradient(90deg, var(--organ-color), rgba(91, 231, 255, .08));
   box-shadow: 0 0 8px var(--organ-color);
+  cursor: pointer;
 }
 
 .organ-hotspot::after {
@@ -479,6 +480,7 @@ h3 { letter-spacing: 0; }
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .organ-hotspot.brain { top: calc(4.8% - 10px); left: 50.2%; --line-width: 184px; }
