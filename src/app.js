@@ -927,8 +927,11 @@ function initMicrostructureInteractions() {
   const cards = document.getElementById("organ-impact-cards");
   const comparison = document.querySelector(".microstructure-comparison");
   document.getElementById("microstructure-back")?.addEventListener("click", () => {
+    state.selectedMicrostructureOrgan = null;
     if (comparison) comparison.hidden = true;
-    cards?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (cards) cards.hidden = false;
+    const summary = document.getElementById("organ-impact-summary");
+    if (summary) summary.hidden = false;
   });
   document.querySelectorAll(".organ-hotspot").forEach((hotspot) => {
     hotspot.addEventListener("click", () => {
@@ -952,7 +955,6 @@ function initMicrostructureInteractions() {
 function selectMicrostructureOrgan(organId) {
   state.selectedMicrostructureOrgan = organId;
   renderOrganImpactTwin(state.heroPlayback.currentTime);
-  document.querySelector(".microstructure-comparison")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function initBiomarkerPanel() {
@@ -1249,8 +1251,8 @@ function renderOrganImpactTwin(time) {
   const impacts = calculateDiseaseSpecificOrganScores(getHeroInterventionControls().disease, values, time);
   document.querySelector(".organ-impact-twin")?.classList.toggle("amd-focus-mode", isAmd);
   const strongest = impacts.reduce((top, item) => item.score > top.score ? item : top, impacts[0]);
-  const selectedImpact = impacts.find((impact) => impact.id === state.selectedMicrostructureOrgan) ?? strongest;
-  state.selectedMicrostructureOrgan = selectedImpact.id;
+  const selectedImpact = impacts.find((impact) => impact.id === state.selectedMicrostructureOrgan);
+  if (!selectedImpact) state.selectedMicrostructureOrgan = null;
   document.getElementById("organ-impact-time").textContent = formatHeroTime(time);
   cards.innerHTML = isAmd ? renderAmdOrganImpactCards(impacts) : impacts.map((impact) => `
     <article class="organ-impact-card ${impact.secondary ? "secondary-association-card" : "primary-signal-card"}" data-micro-organ="${impact.id}" tabindex="0" role="button" style="--organ-color:${impact.color};--score-width:${impact.score}%">
@@ -1262,6 +1264,9 @@ function renderOrganImpactTwin(time) {
       <p>${impact.description}</p>
     </article>
   `).join("");
+  cards.hidden = Boolean(selectedImpact);
+  const summary = document.getElementById("organ-impact-summary");
+  if (summary) summary.hidden = Boolean(selectedImpact);
   impacts.forEach((impact) => {
     const node = document.querySelector(`[data-organ="${impact.id}"]`);
     const zone = document.querySelector(`[data-organ-zone="${impact.id}"]`);
@@ -1274,7 +1279,11 @@ function renderOrganImpactTwin(time) {
   });
   if (isAmd) muteUnmappedAmdOrgans(impacts);
   renderHeartRhythm(impacts, values);
-  renderMicrostructureComparison(selectedImpact);
+  if (selectedImpact) renderMicrostructureComparison(selectedImpact);
+  else {
+    const comparison = document.querySelector(".microstructure-comparison");
+    if (comparison) comparison.hidden = true;
+  }
   renderAmdDiseaseDashboard(values, time);
   document.getElementById("organ-impact-summary").textContent =
     isAmd

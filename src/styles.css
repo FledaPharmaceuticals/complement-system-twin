@@ -448,7 +448,7 @@ h3 { letter-spacing: 0; }
   background: var(--organ-color);
   box-shadow: 0 0 16px var(--organ-color), 0 0 28px color-mix(in srgb, var(--organ-color), transparent 38%);
   font-size: 0;
-  cursor: default;
+  cursor: pointer;
   overflow: visible;
 }
 
@@ -980,6 +980,7 @@ h3 { letter-spacing: 0; }
 .impact-microstructure .micro-cell { filter: saturate(calc(1 + var(--impact-strength) / 70)) hue-rotate(calc(var(--impact-strength) * .12deg)); transform: scale(calc(.84 + var(--impact-strength) / 800)); }
 .microstructure-disclaimer { margin: 12px 0 0; color: #7f98bd; font-size: 11px; }
 .organ-impact-card[role="button"] { cursor: pointer; }
+.organ-impact-cards[hidden], .organ-impact-summary[hidden] { display: none; }
 .organ-impact-card[role="button"]:hover, .organ-impact-card[role="button"]:focus-visible { border-color: var(--organ-color); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--organ-color), transparent 68%); }
 
 .panel-line {
