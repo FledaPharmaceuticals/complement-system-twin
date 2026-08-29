@@ -1,4 +1,4 @@
-import { normalizeExperimentDuration } from "./experimentRuntime.js?v=20260829-public-teaching-v2-1";
+import { normalizeExperimentDuration } from "./experimentRuntime.js?v=20260829-vitals-v2-2";
 
 const DISEASE_RULES = [
   ["AMD", /\b(?:amd|age[- ]related macular degeneration|macular degeneration)\b/i],

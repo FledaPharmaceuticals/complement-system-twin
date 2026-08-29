@@ -384,7 +384,7 @@ h3 { letter-spacing: 0; }
   --heart-color: #38bdf8;
   position: absolute;
   top: 4.8%;
-  left: -48%;
+  left: -51%;
   z-index: 4;
   width: 42%;
   min-width: 180px;
@@ -417,10 +417,52 @@ h3 { letter-spacing: 0; }
   font-size: 11px;
 }
 
+.vital-sign-readouts {
+  display: grid;
+  gap: 3px;
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(91, 231, 255, .16);
+}
+
+.vital-sign-row {
+  display: grid;
+  grid-template-columns: 25px minmax(58px, auto) 1fr;
+  align-items: baseline;
+  gap: 5px;
+  color: #b8c9e7;
+  font-variant-numeric: tabular-nums;
+}
+
+.vital-sign-row span {
+  color: #69d9ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.vital-sign-row strong {
+  color: #eef7ff;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+.vital-sign-row em {
+  font-style: normal;
+  font-size: 9px;
+}
+
+.heartbeat-monitor[data-bp-state="low"] .blood-pressure-row strong,
+.heartbeat-monitor[data-bp-state="high"] .blood-pressure-row strong,
+.heartbeat-monitor[data-rr-state="low"] .respiratory-rate-row strong,
+.heartbeat-monitor[data-rr-state="high"] .respiratory-rate-row strong {
+  color: #fbbf24;
+}
+
 .ecg-viewport {
   width: 100%;
   height: 42px;
-  margin-top: 5px;
+  margin-top: 7px;
   overflow: hidden;
 }
 
@@ -3210,6 +3252,18 @@ select {
 }
 
 @media (max-width: 560px) {
+  .human-twin {
+    min-height: 650px;
+    place-items: start center;
+    padding-top: 158px;
+  }
+  .heartbeat-monitor {
+    top: -150px;
+    left: 50%;
+    width: 200px;
+    min-width: 0;
+    transform: translateX(-50%);
+  }
   .experiment-plan-grid { grid-template-columns: 1fr; }
   .experiment-plan-status,
   .experiment-result-header,

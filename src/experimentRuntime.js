@@ -42,14 +42,65 @@ export function formatSimulationTime(time, unit) {
   return `${display} min`;
 }
 
-export function resolveResearchHeartRate({ diseaseContext, experimentText = "", vascularImpact = 0, inflammation = 0 }) {
-  const text = String(experimentText);
-  if (diseaseContext === "normal") return 72;
-  const stress = Math.max(Number(vascularImpact) || 0, Number(inflammation) || 0);
-  if (/\b(?:bradycardia|slow heart rate)\b/i.test(text)) return Math.round(clamp(64 - stress * 0.12, 42, 64));
-  const hasPositiveDriver = /\b(?:sepsis|septic|systemic infection|fever|febrile|anemia|anaemia|hemoglobin|hypotension|shock|tachycardia|arrhythmia|cardiac stress)\b/i.test(text);
-  if (!hasPositiveDriver) return 72;
-  return Math.round(clamp(72 + stress * 0.22, 58, 112));
+export function resolveResearchVitalSigns({
+  diseaseContext,
+  experimentText = "",
+  vascularImpact = 0,
+  lungImpact = 0,
+  inflammation = 0
+}) {
+  const baseline = { heartRate: 72, systolic: 120, diastolic: 80, respiratoryRate: 16 };
+  if (diseaseContext === "normal") return baseline;
+
+  const text = diseaseContext === "sepsis"
+    ? `${String(experimentText)} sepsis`
+    : String(experimentText);
+  const cardiovascularStress = Math.max(Number(vascularImpact) || 0, Number(inflammation) || 0);
+  const respiratoryStress = Math.max(Number(lungImpact) || 0, Number(inflammation) || 0);
+
+  let heartRate = baseline.heartRate;
+  if (hasAffirmedTerm(text, ["bradycardia", "slow heart rate"])) {
+    heartRate = Math.round(clamp(64 - cardiovascularStress * 0.12, 42, 64));
+  } else if (hasAffirmedTerm(text, [
+    "sepsis", "septic", "systemic infection", "fever", "febrile", "anemia", "anaemia",
+    "low hemoglobin", "hypotension", "shock", "tachycardia", "arrhythmia", "cardiac stress"
+  ])) {
+    heartRate = Math.round(clamp(72 + cardiovascularStress * 0.22, 58, 112));
+  }
+
+  let systolic = baseline.systolic;
+  let diastolic = baseline.diastolic;
+  if (hasAffirmedTerm(text, ["hypertension", "high blood pressure", "elevated blood pressure"])) {
+    systolic = Math.round(clamp(120 + cardiovascularStress * 0.35, 120, 180));
+    diastolic = Math.round(clamp(80 + cardiovascularStress * 0.22, 80, 115));
+  } else if (hasAffirmedTerm(text, [
+    "sepsis", "septic", "systemic infection", "hypotension", "shock", "hemodynamic instability"
+  ])) {
+    systolic = Math.round(clamp(120 - cardiovascularStress * 0.35, 75, 120));
+    diastolic = Math.round(clamp(80 - cardiovascularStress * 0.22, 45, 80));
+  }
+
+  let respiratoryRate = baseline.respiratoryRate;
+  if (hasAffirmedTerm(text, ["bradypnea", "respiratory depression", "slow breathing"])) {
+    respiratoryRate = Math.round(clamp(16 - respiratoryStress * 0.07, 6, 16));
+  } else if (hasAffirmedTerm(text, [
+    "sepsis", "septic", "systemic infection", "fever", "febrile", "hypoxia", "dyspnea",
+    "shortness of breath", "tachypnea", "respiratory distress", "lung injury", "pneumonia"
+  ])) {
+    respiratoryRate = Math.round(clamp(16 + respiratoryStress * 0.12, 16, 32));
+  }
+
+  return { heartRate, systolic, diastolic, respiratoryRate };
+}
+
+export function resolveResearchHeartRate(input) {
+  return resolveResearchVitalSigns(input).heartRate;
+}
+
+export function resolvePlaybackResumeTime({ currentTime = 0, duration = 0 }) {
+  const current = Number(currentTime) || 0;
+  const end = Number(duration) || 0;
+  return current > 0 && current < end ? current : 0;
 }
 
 export function buildEndpointComparison({ untreated = {}, treated = {} }) {
@@ -86,6 +137,25 @@ export function summarizeOrganImpact(diseaseContext, impacts = []) {
 
 function round(value) {
   return Math.round(Number(value) * 10) / 10;
+}
+
+function hasAffirmedTerm(text, terms) {
+  const source = terms
+    .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .sort((a, b) => b.length - a.length)
+    .join("|");
+  const matcher = new RegExp(`\\b(?:${source})\\b`, "gi");
+  for (const match of String(text).matchAll(matcher)) {
+    const prefix = String(text).slice(Math.max(0, match.index - 120), match.index);
+    const clause = prefix.split(/[.;:]/).at(-1) || "";
+    const negations = [...clause.matchAll(/\b(?:no|not|without|denies?|negative for|absence of|free of)\b/gi)];
+    const latestNegation = negations.at(-1);
+    const negated = latestNegation
+      ? !/\b(?:but|however|although|yet|with|has|had|developed|develops|showing|shows|followed by)\b/i.test(clause.slice(latestNegation.index + latestNegation[0].length))
+      : false;
+    if (!negated) return true;
+  }
+  return false;
 }
 
 function clamp(value, min, max) {

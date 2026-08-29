@@ -195,6 +195,13 @@ and other fast complement activation scenarios. AMD does not alter the heart
 rate monitor in V1; heart rate stays at baseline because AMD is not modeled as
 an acute systemic cardiovascular response.
 
+The organ-impact monitor also displays blood pressure and respiratory rate.
+All three vital signs remain at a physiologic teaching baseline unless the
+experiment explicitly supplies an affirmed driver such as anemia, hypotension,
+hypertension, hypoxia, tachypnea, respiratory depression, or systemic sepsis.
+Negated conditions do not activate these changes. Vital-sign outputs are
+deterministic research proxies, not patient monitoring or clinical predictions.
+
 ### AMD Literature Calibration Layer
 
 V1 includes a curated AMD literature calibration scaffold in

@@ -6,7 +6,9 @@ import {
   formatSimulationTime,
   prepareEndpointComparisonInputs,
   normalizeExperimentDuration,
+  resolvePlaybackResumeTime,
   resolveResearchHeartRate,
+  resolveResearchVitalSigns,
   summarizeOrganImpact
 } from "../src/experimentRuntime.js";
 
@@ -36,6 +38,67 @@ test("keeps heart rate physiologic unless the experiment supplies a cardiovascul
   assert.ok(resolveResearchHeartRate({ diseaseContext: "sepsis", experimentText: "sepsis with systemic infection", vascularImpact: 70, inflammation: 70 }) > 72);
   assert.ok(resolveResearchHeartRate({ diseaseContext: "AMD", experimentText: "AMD with fever and tachycardia", vascularImpact: 70, inflammation: 70 }) > 72);
   assert.ok(resolveResearchHeartRate({ diseaseContext: "cancer microenvironment", experimentText: "cancer with bradycardia", vascularImpact: 70, inflammation: 70 }) < 72);
+});
+
+test("does not treat negated physiologic conditions as active drivers", () => {
+  const vitals = resolveResearchVitalSigns({
+    diseaseContext: "PNH",
+    experimentText: "PNH with no anemia, no hypoxia, without fever, and no hemodynamic instability",
+    vascularImpact: 90,
+    lungImpact: 90,
+    inflammation: 90
+  });
+
+  assert.deepEqual(vitals, {
+    heartRate: 72,
+    systolic: 120,
+    diastolic: 80,
+    respiratoryRate: 16
+  });
+
+  assert.deepEqual(resolveResearchVitalSigns({
+    diseaseContext: "PNH",
+    experimentText: "PNH with no anemia, hypoxia, fever, or hemodynamic instability",
+    vascularImpact: 90,
+    lungImpact: 90,
+    inflammation: 90
+  }), {
+    heartRate: 72,
+    systolic: 120,
+    diastolic: 80,
+    respiratoryRate: 16
+  });
+});
+
+test("derives blood pressure and respiratory rate only from affirmed physiologic drivers", () => {
+  const sepsis = resolveResearchVitalSigns({
+    diseaseContext: "sepsis",
+    experimentText: "sepsis with systemic infection, hypotension, and tachypnea",
+    vascularImpact: 80,
+    lungImpact: 75,
+    inflammation: 85
+  });
+  const hypertension = resolveResearchVitalSigns({
+    diseaseContext: "aHUS",
+    experimentText: "aHUS with hypertension",
+    vascularImpact: 70,
+    lungImpact: 20,
+    inflammation: 35
+  });
+
+  assert.ok(sepsis.heartRate > 72);
+  assert.ok(sepsis.systolic < 120);
+  assert.ok(sepsis.diastolic < 80);
+  assert.ok(sepsis.respiratoryRate > 16);
+  assert.ok(hypertension.systolic > 120);
+  assert.ok(hypertension.diastolic > 80);
+  assert.equal(hypertension.respiratoryRate, 16);
+});
+
+test("resumes playback from a paused time and restarts only from the endpoint", () => {
+  assert.equal(resolvePlaybackResumeTime({ currentTime: 40, duration: 120 }), 40);
+  assert.equal(resolvePlaybackResumeTime({ currentTime: 120, duration: 120 }), 0);
+  assert.equal(resolvePlaybackResumeTime({ currentTime: 0, duration: 120 }), 0);
 });
 
 test("builds an explicit treated-versus-untreated endpoint comparison", () => {

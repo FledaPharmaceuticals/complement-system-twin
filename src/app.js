@@ -31,10 +31,10 @@ import { createValidationDataset, compareValidationDataset, parseValidationDatas
 import { generateValidationCalibrationCandidates } from "./validationCalibration.js";
 import { preflightValidationIntake } from "./validationIntake.js";
 import { getTissueImageRecord } from "./tissueImageCatalog.js?v=20260829-public-teaching-v2-1";
-import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-public-teaching-v2-1";
+import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-vitals-v2-2";
 import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
-import { buildEndpointComparison, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolveResearchHeartRate, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-public-teaching-v2-1";
+import { buildEndpointComparison, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-vitals-v2-2";
 
 const state = {
   entityFilter: "all",
@@ -1124,7 +1124,10 @@ function initHeroDynamicsChart() {
     event.preventDefault();
     startHeroPlayback(0);
   });
-  playButton?.addEventListener("click", () => startHeroPlayback(0));
+  playButton?.addEventListener("click", () => startHeroPlayback(resolvePlaybackResumeTime({
+    currentTime: state.heroPlayback.currentTime,
+    duration: state.heroPlayback.duration
+  })));
   pauseButton?.addEventListener("click", () => pauseHeroPlayback());
   interventionStrength?.addEventListener("input", () => {
     document.getElementById("hero-intervention-strength-output").textContent = interventionStrength.value;
@@ -1402,7 +1405,7 @@ function startHeroPlayback(startAt = 0) {
   const speedSelect = document.getElementById("hero-playback-speed");
   pauseHeroPlayback();
   state.heroPlayback.speed = Number(speedSelect?.value ?? state.heroPlayback.speed);
-  state.heroPlayback.currentTime = Math.min(startAt || state.heroPlayback.speed, state.heroPlayback.duration);
+  state.heroPlayback.currentTime = Math.min(startAt > 0 ? startAt : state.heroPlayback.speed, state.heroPlayback.duration);
   // Normal baseline playback animates the baseline traces without inventing
   // acute pathway events. Reaction traces are reserved for active scenarios.
   const chartMode = getHeroChartModeFromControls();
@@ -1517,7 +1520,7 @@ function renderOrganImpactTwin(time) {
   if (isAmd || getHeroInterventionControls().disease === "cancer microenvironment") {
     muteUnmappedOrganMap(impacts, isAmd ? "Not a primary AMD tissue signal" : "No organ-specific tumor tissue model is assigned");
   }
-  renderHeartRhythm(impacts, values);
+  renderVitalSigns(impacts, values);
   if (selectedImpact) renderMicrostructureComparison(selectedImpact);
   else {
     const comparison = document.querySelector(".microstructure-comparison");
@@ -1853,23 +1856,32 @@ function getAmdDrugTargetExplanation(targets) {
   return targets.map((target) => labels[target]).filter(Boolean).join(" ");
 }
 
-function renderHeartRhythm(impacts, values) {
+function renderVitalSigns(impacts, values) {
   const heartRate = document.getElementById("organ-heart-rate");
+  const bloodPressure = document.getElementById("organ-blood-pressure");
+  const respiratoryRate = document.getElementById("organ-respiratory-rate");
   const monitor = document.querySelector(".heartbeat-monitor");
   const human = document.querySelector(".human-outline");
-  if (!heartRate || !monitor) return;
+  if (!heartRate || !bloodPressure || !respiratoryRate || !monitor) return;
   const disease = getHeroInterventionControls().disease;
   const vascularImpact = impacts.find((impact) => impact.id === "vessels")?.score ?? 0;
+  const lungImpact = impacts.find((impact) => impact.id === "lung")?.score ?? 0;
   const inflammation = average(values.C3a, values.C5a);
-  const bpm = resolveResearchHeartRate({
+  const vitals = resolveResearchVitalSigns({
     diseaseContext: disease,
     experimentText: state.heroPlayback.experimentText,
     vascularImpact,
+    lungImpact,
     inflammation
   });
+  const bpm = vitals.heartRate;
   const speed = clamp(60 / bpm, 0.52, 1.05);
   const color = impactColor(Math.max(vascularImpact, inflammation));
   heartRate.textContent = bpm;
+  bloodPressure.textContent = `${vitals.systolic}/${vitals.diastolic}`;
+  respiratoryRate.textContent = vitals.respiratoryRate;
+  monitor.dataset.bpState = vitals.systolic < 100 ? "low" : vitals.systolic > 140 ? "high" : "normal";
+  monitor.dataset.rrState = vitals.respiratoryRate < 12 ? "low" : vitals.respiratoryRate > 20 ? "high" : "normal";
   state.monitorAudio.bpm = bpm;
   monitor.style.setProperty("--heartbeat-speed", `${speed}s`);
   monitor.style.setProperty("--ecg-speed", `${Math.max(0.75, speed * 1.55)}s`);

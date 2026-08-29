@@ -120,6 +120,10 @@
                   <img src="./assets/human-anatomy-twin.png" alt="Digital twin human anatomy interface">
                   <div class="heartbeat-monitor" aria-label="Heart rhythm monitor">
                     <div class="heart-rate"><span>♥</span><strong id="organ-heart-rate">72</strong><em>BPM</em></div>
+                    <div class="vital-sign-readouts" aria-label="Blood pressure and respiratory rate">
+                      <div class="vital-sign-row blood-pressure-row"><span>BP</span><strong id="organ-blood-pressure">120/80</strong><em>mmHg</em></div>
+                      <div class="vital-sign-row respiratory-rate-row"><span>RR</span><strong id="organ-respiratory-rate">16</strong><em>/min</em></div>
+                    </div>
                     <div class="ecg-viewport" aria-hidden="true">
                       <div class="ecg-track">
                         <svg class="ecg-wave" viewBox="0 0 240 56" preserveAspectRatio="none">
@@ -881,6 +885,6 @@
         </div>
       </details>
     </main>
-    <script type="module" src="./src/app.js?v=20260829-public-teaching-v2-1"></script>
+    <script type="module" src="./src/app.js?v=20260829-vitals-v2-2"></script>
   </body>
 </html>
