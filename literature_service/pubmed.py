@@ -138,7 +138,7 @@ def search_pubmed(
     if not 1 <= retmax <= 20:
         raise ValueError("retmax must be between 1 and 20")
 
-    search_url = f"{PUBMED_BASE_URL}/esearch.fcgi?{urlencode({'db': 'pubmed', 'term': query, 'retmode': 'json', 'retmax': retmax})}"
+    search_url = f"{PUBMED_BASE_URL}/esearch.fcgi?{urlencode({'db': 'pubmed', 'term': query, 'retmode': 'json', 'retmax': retmax, 'sort': 'pub date'})}"
     search_payload = fetch_json(search_url)
     if snapshot_sink:
         snapshot_sink(_snapshot("pubmed_esearch", search_url, query, "application/json", search_payload))

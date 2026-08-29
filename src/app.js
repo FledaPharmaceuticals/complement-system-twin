@@ -30,6 +30,8 @@ import { createValidationDataset, compareValidationDataset, parseValidationDatas
 import { generateValidationCalibrationCandidates } from "./validationCalibration.js";
 import { preflightValidationIntake } from "./validationIntake.js";
 import { getTissueImageRecord } from "./tissueImageCatalog.js";
+import { parseExperimentIntent } from "./experimentIntent.js";
+import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
 
 const state = {
   entityFilter: "all",
@@ -57,7 +59,8 @@ const state = {
     timer: null,
     bpm: 72
   },
-  selectedMicrostructureOrgan: null
+  selectedMicrostructureOrgan: null,
+  preparedExperimentPlan: null
 };
 
 const evidenceVocabulary = [
@@ -83,15 +86,180 @@ initDrugPanel();
 renderPublications();
 initDynamicsExplorer();
 initHeroDynamicsChart();
+initExperimentWorkspace();
 initMicrostructureInteractions();
 initBiomarkerPanel();
 initDrugComparisonPanel();
 initValidationDatasetPanel();
 initLiteratureServicePanel();
+initAppliedLiteratureCatalog();
 document.getElementById("model-history-list").innerHTML = renderModelHistory(MODEL_RELEASES);
 renderModelAuditSummary();
 renderEvidenceAudit();
 window.setTimeout(initBiomarkerPanel, 0);
+
+function initExperimentWorkspace() {
+  const description = document.getElementById("experiment-description");
+  const analyzeButton = document.getElementById("analyze-experiment");
+  const runButton = document.getElementById("run-prepared-simulation");
+  if (!description || !analyzeButton || !runButton) return;
+
+  document.querySelectorAll("[data-experiment-example]").forEach((button) => {
+    button.addEventListener("click", () => {
+      description.value = button.dataset.experimentExample || "";
+      description.focus();
+    });
+  });
+  analyzeButton.addEventListener("click", analyzeExperimentDescription);
+  runButton.addEventListener("click", runPreparedExperiment);
+}
+
+function analyzeExperimentDescription() {
+  const text = document.getElementById("experiment-description")?.value || "";
+  const diseaseContext = document.getElementById("experiment-disease-override")?.value || "";
+  const timeScale = document.getElementById("experiment-time-override")?.value || "";
+  const plan = parseExperimentIntent(text, {
+    ...(diseaseContext ? { diseaseContext } : {}),
+    ...(timeScale ? { timeScale } : {})
+  });
+  plan.evidenceSources = selectLiteratureForExperiment(plan);
+  state.preparedExperimentPlan = plan;
+  renderPreparedExperimentPlan(plan);
+}
+
+function renderPreparedExperimentPlan(plan) {
+  const container = document.getElementById("experiment-plan");
+  const runButton = document.getElementById("run-prepared-simulation");
+  if (!container || !runButton) return;
+  const labels = {
+    normal: "Normal baseline",
+    baseline: "Baseline physiology",
+    acute_hours: "Minutes to hours",
+    chronic_months: "Months to years"
+  };
+  const list = (items, fallback) => items.length ? items.map(escapeHtml).join(", ") : fallback;
+  const evidence = plan.evidenceSources || [];
+  container.hidden = false;
+  runButton.disabled = !plan.canRun;
+  container.innerHTML = `
+    <div class="experiment-plan-status">
+      <div><span>Prepared plan</span><strong>${plan.canRun ? "Ready for review" : "More information needed"}</strong></div>
+      <span class="confidence-badge confidence-${escapeHtml(plan.confidence)}">${escapeHtml(plan.confidence)} confidence</span>
+    </div>
+    <div class="experiment-plan-grid">
+      <article><span>Disease context</span><strong>${escapeHtml(labels[plan.diseaseContext] || plan.diseaseContext)}</strong></article>
+      <article><span>Complement focus</span><strong>${list(plan.focus, "Complete modeled panel")}</strong></article>
+      <article><span>Intervention</span><strong>${list(plan.intervention.map(formatInterventionName), "No intervention")}</strong></article>
+      <article><span>Time scale</span><strong>${escapeHtml(labels[plan.timeScale] || plan.timeScale)}</strong></article>
+    </div>
+    ${renderPlanNotes("Missing information", plan.missingInformation, "missing")}
+    ${renderPlanNotes("Explicit assumptions", plan.assumptions, "assumption")}
+    ${renderPlanNotes("Safety boundary", plan.safetyNotes, "safety")}
+    <div class="experiment-evidence-guidance">
+      <div>
+        <span>Evidence-guided candidate calibration</span>
+        <strong>${evidence.length} relevant PubMed source${evidence.length === 1 ? "" : "s"}</strong>
+      </div>
+      <ol>${evidence.map((record) => `
+        <li>
+          <a href="${record.url}" target="_blank" rel="noreferrer">${escapeHtml(record.title)}</a>
+          <small>${record.year} · ${escapeHtml(record.journal)} · PMID ${record.pmid}${record.priorityAuthor ? " · Lambris priority source" : ""}</small>
+          <p>${escapeHtml(record.modelUse)}</p>
+        </li>
+      `).join("") || "<li>No directly linked catalog source was found. The plan remains a model hypothesis.</li>"}</ol>
+      <p>These sources guide candidate assumptions only. They do not automatically modify the active model.</p>
+    </div>
+  `;
+}
+
+function renderPlanNotes(title, items, type) {
+  if (!items?.length) return "";
+  return `<div class="experiment-plan-notes ${type}"><strong>${title}</strong><ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>`;
+}
+
+function formatInterventionName(value) {
+  return ({
+    c3Inhibitor: "C3 inhibition",
+    factorBInhibitor: "Factor B inhibition",
+    factorDInhibitor: "Factor D inhibition",
+    c5Inhibitor: "C5 inhibition",
+    c5aRInhibitor: "C5aR inhibition",
+    cd59Modifier: "CD59 support"
+  })[value] || value;
+}
+
+function runPreparedExperiment() {
+  const plan = state.preparedExperimentPlan;
+  if (!plan?.canRun) return;
+  const diseaseSelect = document.getElementById("hero-disease-scenario");
+  if (diseaseSelect && [...diseaseSelect.options].some((option) => option.value === plan.diseaseContext)) {
+    diseaseSelect.value = plan.diseaseContext;
+  }
+  document.querySelectorAll("input[name='heroInterventionTarget']").forEach((input) => {
+    input.checked = plan.diseaseContext !== "normal" && plan.intervention.includes(input.value);
+  });
+  const highlight = document.getElementById("hero-highlight-series");
+  const highlightValue = getExperimentHighlight(plan.focus);
+  if (highlight && [...highlight.options].some((option) => option.value === highlightValue)) {
+    highlight.value = highlightValue;
+  }
+  syncHeroTimeScaleControls();
+  const interventionTime = document.getElementById("hero-intervention-time");
+  if (interventionTime && plan.intervention.length) {
+    interventionTime.value = String(Math.round(Number(interventionTime.max) * 0.5));
+    document.getElementById("hero-intervention-time-output").textContent = formatHeroTime(Number(interventionTime.value));
+  }
+  startHeroPlayback(0);
+  renderExperimentLiveResult(plan);
+  document.querySelector(".hero-dynamics-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function getExperimentHighlight(focus) {
+  if (focus.includes("RPE")) return "RPE Stress Proxy";
+  if (focus.includes("Retina")) return "Retinal Complement Activity Proxy";
+  return focus.find((item) => ["C3", "C5", "MAC", "Factor B", "Factor D", "Factor H"].includes(item)) || "none";
+}
+
+function renderExperimentLiveResult(plan) {
+  const container = document.getElementById("experiment-live-result");
+  if (!container) return;
+  const sources = plan.evidenceSources || [];
+  container.innerHTML = `
+    <div class="experiment-result-header"><strong>Simulation running in the main display</strong><span>${escapeHtml(MODEL_VERSION)}</span></div>
+    <p><b>${escapeHtml(plan.diseaseContext)}</b> is being simulated on a <b>${escapeHtml(plan.timeScale.replaceAll("_", " "))}</b> scale with ${plan.intervention.length ? escapeHtml(plan.intervention.map(formatInterventionName).join(", ")) : "no intervention"}.</p>
+    <p>The curves and organ-impact interpretation above now reflect this prepared scenario. ${sources.length} catalog source${sources.length === 1 ? "" : "s"} support the candidate assumptions.</p>
+    <p class="result-boundary">Research proxy, not diagnosis. Evidence-linked suggestions remain candidates until validation and versioned release.</p>
+  `;
+}
+
+function initAppliedLiteratureCatalog() {
+  const filter = document.getElementById("literature-catalog-filter");
+  if (!filter) return;
+  filter.addEventListener("change", renderAppliedLiteratureCatalog);
+  renderAppliedLiteratureCatalog();
+}
+
+function renderAppliedLiteratureCatalog() {
+  const container = document.getElementById("literature-catalog-list");
+  const filter = document.getElementById("literature-catalog-filter")?.value || "all";
+  if (!container) return;
+  const entities = filter === "all" || filter === "priority" ? [] : [filter];
+  let records = rankAppliedLiterature(APPLIED_LITERATURE, { entities });
+  if (filter === "priority") records = records.filter((record) => record.priorityAuthor);
+  else if (filter !== "all") records = records.filter((record) => record.ranking.contributions.relevance > 0);
+  container.innerHTML = records.map((record, index) => `
+    <article class="literature-catalog-card">
+      <div class="literature-rank"><span>${String(index + 1).padStart(2, "0")}</span><strong>${record.ranking.score}</strong><small>priority score</small></div>
+      <div class="literature-card-copy">
+        <div class="literature-card-meta"><span>${record.year}</span><span>${escapeHtml(record.evidenceType.replaceAll("_", " "))}</span>${record.priorityAuthor ? "<span class=\"priority-author\">Lambris priority</span>" : ""}</div>
+        <h4><a href="${record.url}" target="_blank" rel="noreferrer">${escapeHtml(record.title)}</a></h4>
+        <p>${escapeHtml(record.authors)} · ${escapeHtml(record.journal)}</p>
+        <p class="literature-model-use"><b>Candidate model use:</b> ${escapeHtml(record.modelUse)}</p>
+        <div class="literature-provenance"><span>PMID ${record.pmid}</span><span>DOI ${escapeHtml(record.doi)}</span><span>Active model unchanged</span></div>
+      </div>
+    </article>
+  `).join("");
+}
 
 function initLiteratureServicePanel() {
   const refreshButton = document.getElementById("refresh-literature-status");

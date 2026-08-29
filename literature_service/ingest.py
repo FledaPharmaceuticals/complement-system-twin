@@ -13,6 +13,8 @@ from .pubmed import search_pubmed
 
 
 DEFAULT_QUERIES = (
+    "complement system 2024:3000[dp]",
+    "(Lambris JD[Author]) AND complement",
     "complement C3",
     "complement C5a MAC",
     "complement Factor H Factor I",

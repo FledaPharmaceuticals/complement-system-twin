@@ -14,6 +14,7 @@ test("generates high-uncertainty AMD candidates from explicit literature terms",
       extractedClaim: "",
       evidenceLevel: "mechanistic",
       uncertainty: "unknown",
+      linkedEntities: ["AMD", "Factor H"],
       parameterPriors: {}
     }]
   });

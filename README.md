@@ -79,6 +79,22 @@ The catalog accepts future normalized public records through its
 `externalRecords` input, keeping imported evidence and existing seed evidence
 queryable through the same interface.
 
+`src/appliedLiteratureCatalog.js` adds a public, PMID-linked applied literature
+directory for the research interface. Its transparent priority score combines
+publication recency, study or review design, curated recognition, direct
+relevance to the selected disease/mechanism, and a small expert-source bonus
+for publications involving John D. Lambris and collaborators. The author bonus
+is visible and deliberately limited: it cannot outrank substantially stronger
+evidence by itself. Each entry states exactly how it may guide a candidate
+model assumption and always carries `formalModelChanged: false`.
+
+The Conversational Experiment Workspace uses this directory after parsing an
+experiment description. It presents disease, focus, intervention, time scale,
+missing information, assumptions, safety boundaries, and the most relevant
+PubMed sources before enabling a simulation. Running the prepared plan updates
+the existing main dynamics and organ-impact views. It does not call a remote AI
+service, save the prompt, or modify model parameters.
+
 `src/publicEvidenceAdapter.js` provides an offline adapter for PubMed-style
 metadata. It preserves PMID/DOI provenance, infers a conservative evidence
 level from publication type, links only explicitly supplied vocabulary terms,
@@ -375,11 +391,19 @@ values. Store future API keys only in a local `.env` or operating-system secret
 store; `.env` is ignored by Git.
 
 For repeatable local collection, run `./run-literature-ingestion.sh`. With no
-arguments it searches a small Fleda complement watchlist; use repeated
+arguments it searches a small Fleda complement watchlist, a recent-publication
+window, and a Lambris author watch; use repeated
 `--query` flags to provide a narrower set, and add `--include-abstract` only
 when public abstracts are needed for local term linking. The runner continues
 after an individual query error and prints a JSON report. A scheduler may call
 this local command later; it never publishes data or changes the formal model.
+
+The default PubMed query is sorted by publication date. Display priority is
+then recalculated locally using the auditable score above. Automatic ingestion
+means "discover and propose", not "self-modify": all extracted claims and
+parameter suggestions remain in the candidate layer until provenance, units,
+experimental context, conflicts, and validation have been reviewed and a new
+model version is explicitly released.
 
 Run `./scripts/verify-local.sh` before reviewing or publishing changes. It
 checks the full Python test suite, literature-service compilation, the blank

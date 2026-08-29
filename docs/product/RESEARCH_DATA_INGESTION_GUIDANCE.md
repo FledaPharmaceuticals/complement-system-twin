@@ -198,3 +198,39 @@ identifier normalization are deterministic and do not infer scientific claims.
 The UniProtKB adapter stores protein annotations separately from publication
 evidence, preserving accession, gene, organism, function text, and retrieval
 time without promoting annotations into model parameters.
+## Applied Literature and Controlled Model Learning
+
+The Complement System Digital Twin maintains an applied literature catalog in
+addition to raw ingestion snapshots. Catalog records must include a PMID or
+equivalent public source locator, title, authors, publication year, evidence
+design, linked disease/components, intended candidate model use, and an
+explicit statement that the formal model was not changed.
+
+Ranking is transparent and reproducible:
+
+1. Recent publications receive a recency contribution.
+2. Randomized trials, consensus records, and comprehensive reviews receive
+   stronger evidence-design contributions than narrative commentary.
+3. Recognized sources receive a bounded curator score.
+4. Direct disease and mechanism matches receive a relevance contribution.
+5. Work involving Dr. John D. Lambris and collaborators receives a small,
+   visible expert-source contribution because of its importance to complement
+   biology and C3 therapeutics. This contribution never substitutes for study
+   design, independent replication, or direct relevance.
+
+The conversational workspace may use ranked sources to explain or propose:
+
+- pathway topology and regulatory relationships;
+- disease-specific tissue weights;
+- intervention targets and directions of effect;
+- plausible parameter ranges with units and experimental context;
+- conflicts, missing measurements, and validation needs.
+
+The automated learning loop stops at a candidate review package:
+
+`public source -> normalized evidence -> rule/AI extraction -> conflict and unit checks -> candidate calibration -> validation -> versioned release`
+
+No publication, author priority, automated extraction, or conversational
+instruction can directly overwrite the active model. Every accepted change
+must retain the evidence identifiers, parameter difference, validation result,
+review decision, uncertainty, and released model version.

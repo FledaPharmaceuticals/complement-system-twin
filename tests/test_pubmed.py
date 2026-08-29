@@ -58,6 +58,7 @@ def test_search_pubmed_default_does_not_fetch_abstracts():
     assert len(records) == 1
     assert len(calls) == 2
     assert records[0]["metadata"]["abstractAvailable"] is False
+    assert "sort=pub+date" in calls[0]
 
 
 def test_search_pubmed_can_attach_public_abstract():

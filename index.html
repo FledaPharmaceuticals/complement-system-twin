@@ -229,6 +229,68 @@
         </div>
       </section>
 
+      <section id="experiment-workspace" class="section experiment-workspace" aria-labelledby="experiment-workspace-title">
+        <div class="experiment-workspace-heading">
+          <div>
+            <p class="eyebrow">Conversational Experiment Workspace</p>
+            <h2 id="experiment-workspace-title">Describe the complement experiment you want to explore</h2>
+            <p>Use disease, complement component, time scale, experimental condition, and intervention details. The system prepares a transparent plan before changing the simulation.</p>
+          </div>
+          <span class="local-analysis-badge">Local rule analysis · no upload</span>
+        </div>
+        <div class="experiment-dialog-layout">
+          <div class="experiment-dialog-main">
+            <label for="experiment-description">Experiment description</label>
+            <textarea id="experiment-description" rows="6" maxlength="3000" placeholder="Example: Model dry AMD with RPE stress, drusen and C3 activation over 12 months after Factor D inhibition. Compare treated and untreated states."></textarea>
+            <div class="experiment-example-row" aria-label="Example experiment prompts">
+              <button type="button" class="experiment-example" data-experiment-example="Model dry AMD with RPE stress, drusen and C3 activation over 12 months after Factor D inhibition. Compare treated and untreated states.">AMD + Factor D</button>
+              <button type="button" class="experiment-example" data-experiment-example="Simulate PNH with terminal complement and RBC hemolysis over 120 minutes after C5 inhibition.">PNH + C5</button>
+              <button type="button" class="experiment-example" data-experiment-example="Run a normal healthy baseline for 120 minutes without treatment.">Normal baseline</button>
+            </div>
+          </div>
+          <aside class="experiment-dialog-controls">
+            <label>Disease override
+              <select id="experiment-disease-override">
+                <option value="">Detect from description</option>
+                <option value="normal">Normal baseline</option>
+                <option value="AMD">AMD</option>
+                <option value="PNH">PNH</option>
+                <option value="aHUS">aHUS</option>
+                <option value="C3G">C3 glomerulopathy</option>
+                <option value="sepsis">Sepsis</option>
+              </select>
+            </label>
+            <label>Time-scale override
+              <select id="experiment-time-override">
+                <option value="">Detect from description</option>
+                <option value="baseline">Baseline</option>
+                <option value="acute_hours">Minutes to hours</option>
+                <option value="chronic_months">Months to years</option>
+              </select>
+            </label>
+            <button id="analyze-experiment" class="primary-button" type="button">Analyze &amp; Prepare</button>
+            <button id="run-prepared-simulation" class="secondary-button" type="button" disabled>Run Prepared Simulation</button>
+          </aside>
+        </div>
+        <div id="experiment-plan" class="experiment-plan" aria-live="polite" hidden></div>
+        <div id="experiment-live-result" class="experiment-live-result" aria-live="polite">
+          <strong>Simulation result</strong>
+          <p>Describe an experiment, review the prepared plan, then run it in the main dynamics and organ-impact display above.</p>
+        </div>
+        <p class="experiment-safety-note"><strong>Research and education use only.</strong> Do not enter patient identifiers, medical records, clinical case details, treatment decisions, or production data. Prepared plans remain in this browser session and are not uploaded.</p>
+      </section>
+
+      <details id="advanced-research-tools" class="advanced-research-tools">
+        <summary>
+          <span>
+            <span class="eyebrow">Optional Research Workspace</span>
+            <strong>Advanced Research Tools</strong>
+            <em>Expand literature intelligence, biomarkers, pathway maps, validation, knowledge graph, and low-level simulation controls.</em>
+          </span>
+          <span class="advanced-tools-action">Expand tools</span>
+        </summary>
+        <div class="advanced-research-content">
+
       <section id="model-roadmap" class="section maturity-roadmap-section">
         <div class="section-heading">
           <p class="eyebrow">Model Maturity & V2 Roadmap</p>
@@ -301,7 +363,7 @@
             <span>Evidence metadata: PMID, cohort size, sample type, assay method, disease stage, intervention status</span>
           </div>
         </div>
-        <details id="biomarker-panel" class="biomarker-panel" open>
+        <details id="biomarker-panel" class="biomarker-panel">
           <summary>
             <span>
               <span class="eyebrow">V2 Prototype Feature</span>
@@ -402,6 +464,31 @@
           </div>
           <button id="refresh-literature-status" class="icon-button literature-refresh" type="button" aria-label="Refresh literature service status" title="Refresh literature service status">↻</button>
         </div>
+        <section id="applied-literature-catalog" class="applied-literature-catalog" aria-labelledby="applied-literature-title">
+          <div class="literature-catalog-heading">
+            <div>
+              <p class="eyebrow">Applied Literature Catalog</p>
+              <h3 id="applied-literature-title">Published evidence used to guide candidate model calibration</h3>
+              <p>Ranking favors recent publications, stronger evidence designs, recognized sources, and relevance to the selected mechanism. Work from Dr. John D. Lambris and collaborators receives a visible expert-source bonus, never a substitute for evidence quality.</p>
+            </div>
+            <label>Catalog view
+              <select id="literature-catalog-filter">
+                <option value="all">All applied literature</option>
+                <option value="priority">Lambris priority sources</option>
+                <option value="AMD">AMD / retina</option>
+                <option value="PNH">PNH / RBC</option>
+                <option value="aHUS">aHUS / kidney</option>
+                <option value="C3G">C3G / kidney</option>
+                <option value="C3">C3-targeted</option>
+              </select>
+            </label>
+          </div>
+          <div id="literature-catalog-list" class="literature-catalog-list" aria-live="polite"></div>
+          <div class="candidate-model-boundary">
+            <strong>Controlled learning boundary</strong>
+            <p>Public literature can generate evidence records and candidate calibration guidance. It cannot automatically overwrite the active model. Promotion requires source verification, unit and context checks, conflict review, validation, and a new versioned release.</p>
+          </div>
+        </section>
         <div class="literature-status-grid" aria-live="polite">
           <div class="literature-status-item">
             <span>Local service</span>
@@ -789,7 +876,9 @@
         </div>
         <div id="publication-list" class="publication-grid"></div>
       </section>
+        </div>
+      </details>
     </main>
-    <script type="module" src="./src/app.js?v=20260829-tissue-models"></script>
+    <script type="module" src="./src/app.js?v=20260829-conversation-v1"></script>
   </body>
 </html>
