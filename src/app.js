@@ -925,6 +925,11 @@ function initHeroDynamicsChart() {
 
 function initMicrostructureInteractions() {
   const cards = document.getElementById("organ-impact-cards");
+  const comparison = document.querySelector(".microstructure-comparison");
+  document.getElementById("microstructure-back")?.addEventListener("click", () => {
+    if (comparison) comparison.hidden = true;
+    cards?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
   document.querySelectorAll(".organ-hotspot").forEach((hotspot) => {
     hotspot.addEventListener("click", () => {
       state.selectedMicrostructureOrgan = hotspot.dataset.organ;
@@ -1313,7 +1318,9 @@ function renderAmdOrganImpactCards(impacts) {
 function renderMicrostructureComparison(impact) {
   const panels = document.getElementById("microstructure-panels");
   const selection = document.getElementById("microstructure-selection");
+  const comparison = document.querySelector(".microstructure-comparison");
   if (!panels || !impact) return;
+  if (comparison) comparison.hidden = false;
   const organLabels = {
     brain: "Brain / CNS", lung: "Lung", blood: "Blood / RBC", liver: "Liver", kidney: "Kidney",
     retina: "Retina / Macula", vessels: "Vessels", skin: "Skin / Joint", rpe: "RPE", choroid: "Choroid",

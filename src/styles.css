@@ -962,7 +962,10 @@ h3 { letter-spacing: 0; }
 }
 
 .microstructure-header h3 { margin: 0; font-size: 18px; }
-.microstructure-header > span { color: var(--cyan); font-size: 12px; white-space: nowrap; }
+.microstructure-comparison[hidden] { display: none; }
+.microstructure-header-actions { display: flex; align-items: flex-end; gap: 12px; }
+.microstructure-header-actions > span { color: var(--cyan); font-size: 12px; white-space: nowrap; }
+.microstructure-back { min-height: 32px; padding: 6px 10px; font-size: 11px; white-space: nowrap; }
 .microstructure-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .microstructure-panel { min-width: 0; padding: 12px; border: 1px solid rgba(133, 171, 233, .2); border-radius: 8px; background: rgba(2, 13, 31, .6); }
 .microstructure-panel header { display: flex; justify-content: space-between; gap: 10px; color: var(--text); font-size: 12px; }
@@ -2658,7 +2661,7 @@ select {
   .drug-comparison-toolbar { align-items: stretch; flex-direction: column; }
   .feedback-grid { grid-template-columns: 1fr; }
   .microstructure-panels { grid-template-columns: 1fr; }
-  .microstructure-header { flex-direction: column; }
+  .microstructure-header, .microstructure-header-actions { flex-direction: column; align-items: flex-start; }
   .literature-status-item { border-right: 0; border-bottom: 1px solid rgba(133, 171, 233, .18); }
   .literature-status-item:last-child { border-bottom: 0; }
 }
