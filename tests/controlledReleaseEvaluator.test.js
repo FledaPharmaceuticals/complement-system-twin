@@ -74,3 +74,31 @@ test("creates a dry-run policy approval only for a complete ready decision", asy
     /ready_for_auto_release/i
   );
 });
+
+test("fails closed on incomplete policy registration and mismatched artifacts", async () => {
+  const input = await fixture();
+  input.policy.parameters = [];
+  input.parameterPolicy = {};
+  input.evidenceGate.parameterId = "different.parameter";
+  input.envelope.parameterId = "different.parameter";
+  input.calibrationRun.provenance.policyVersion = "9.9.9";
+
+  const result = evaluateControlledRelease(input);
+
+  assert.equal(result.status, "blocked");
+  assert.ok(result.reasonCodes.includes("POLICY_INVALID"));
+  assert.ok(result.reasonCodes.includes("PARAMETER_POLICY_MISMATCH"));
+  assert.ok(result.reasonCodes.includes("ARTIFACT_IDENTITY_MISMATCH"));
+});
+
+test("approval binds the complete decision chain and rejects caller-fabricated ready records", async () => {
+  const decision = evaluateControlledRelease(await fixture());
+  const approval = await createPolicyApprovalRecord(decision, { workloadIdentity: "fleda:dry-run:test" });
+
+  assert.match(approval.decisionChainHash, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(approval.signatureStatus, "not_signed_dry_run");
+  assert.throws(
+    () => createPolicyApprovalRecord({ status: "ready_for_auto_release", candidateSnapshotHash: decision.candidateSnapshotHash }, { workloadIdentity: "x" }),
+    /complete controlled release decision/i
+  );
+});

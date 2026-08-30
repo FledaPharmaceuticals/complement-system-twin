@@ -60,10 +60,20 @@ export function renderLedgerDetail(entry) {
   const evidenceRows = publications.length
     ? publications.map((publication) => `
         <li>
-          <strong>${escapeHtml(publication.publicationId)}</strong>
-          <span>${escapeHtml(publication.reviewStatus || "unreviewed")}</span>
-          ${publication.doi ? `<a href="https://doi.org/${encodeURIComponent(publication.doi)}" target="_blank" rel="noopener">DOI</a>` : ""}
-          ${publication.pmid ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(publication.pmid)}/" target="_blank" rel="noopener">PMID</a>` : ""}
+          <div class="model-ledger-evidence-title">
+            <strong>${escapeHtml(publication.publicationId)}</strong>
+            <span>${escapeHtml(publication.reviewStatus || "unreviewed")}</span>
+            ${publication.doi ? `<a href="https://doi.org/${encodeURIComponent(publication.doi)}" target="_blank" rel="noopener">DOI</a>` : ""}
+            ${publication.pmid ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(publication.pmid)}/" target="_blank" rel="noopener">PMID</a>` : ""}
+          </div>
+          <dl>
+            <div><dt>Source location</dt><dd>${escapeHtml(publication.sourceLocation || "Not reported")}</dd></div>
+            <div><dt>Context</dt><dd>${escapeHtml([publication.context?.disease, publication.context?.tissue, publication.context?.species, publication.context?.experimentalSetting].filter(Boolean).join(" · ") || "Not reported")}</dd></div>
+            <div><dt>Assay</dt><dd>${escapeHtml(publication.assay || "Not reported")}</dd></div>
+            <div><dt>Sample size</dt><dd>${escapeHtml(publication.sampleSize ?? "Not reported")}</dd></div>
+            <div><dt>Unit</dt><dd>${escapeHtml(publication.unit || "Not reported")}</dd></div>
+            <div><dt>Endpoint</dt><dd>${escapeHtml(publication.endpoint || "Not reported")}</dd></div>
+          </dl>
         </li>`).join("")
     : '<li><span>No publication evidence was used for this governance-only record.</span></li>';
   const limitations = (entry.limitations ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");

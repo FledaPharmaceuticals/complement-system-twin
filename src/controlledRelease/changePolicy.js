@@ -1,4 +1,5 @@
 const DISCLOSURE_LEVELS = new Set(["public_exact", "public_normalized", "public_summary"]);
+const REQUIRED_CONTEXT_FIELDS = ["disease", "tissue", "species", "assay", "timeContext", "spatialScope", "experimentalSetting"];
 
 function finite(value) {
   return Number.isFinite(value);
@@ -20,7 +21,15 @@ export function validateChangePolicy(policy = {}) {
     if (!parameter.parameterId || seen.has(parameter.parameterId)) errors.push(`${label}: unique parameter ID is required`);
     seen.add(parameter.parameterId);
     if (!parameter.moduleId || !parameter.unit) errors.push(`${label}: module and unit are required`);
+    if (!parameter.scientificMeaning) errors.push(`${label}: scientific meaning is required`);
+    if (!parameter.calibrationObjective) errors.push(`${label}: calibration objective is required`);
+    if (!parameter.transformation) errors.push(`${label}: transformation is required`);
     if (!Array.isArray(parameter.contexts) || !parameter.contexts.length) errors.push(`${label}: at least one context is required`);
+    for (const context of parameter.contexts ?? []) {
+      for (const field of REQUIRED_CONTEXT_FIELDS) {
+        if (!context?.[field]) errors.push(`${label}: context ${field.replaceAll(/([A-Z])/g, " $1").toLowerCase()} is required`);
+      }
+    }
     if (!Array.isArray(parameter.sentinelEndpoints) || !parameter.sentinelEndpoints.length) errors.push(`${label}: sentinel endpoints are required`);
     if (!finite(parameter.lowerBound) || !finite(parameter.upperBound) || parameter.lowerBound >= parameter.upperBound) {
       errors.push(`${label}: valid lower and upper bounds are required`);

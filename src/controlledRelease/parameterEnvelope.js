@@ -2,7 +2,7 @@ function rounded(value) {
   return Math.round(value * 1e12) / 1e12;
 }
 
-export function evaluateParameterEnvelope({ parameterPolicy = {}, anchorValue, activeValue, candidateValue } = {}) {
+export async function evaluateParameterEnvelope({ parameterPolicy = {}, anchorValue, activeValue, candidateValue } = {}) {
   const errors = [];
   const values = { anchorValue, activeValue, candidateValue };
   for (const [label, value] of Object.entries(values)) {
@@ -33,11 +33,23 @@ export function evaluateParameterEnvelope({ parameterPolicy = {}, anchorValue, a
     }
   }
 
+  const envelopeHash = await sha256Jcs({
+    parameterId: parameterPolicy.parameterId ?? null,
+    anchorValue: Number.isFinite(anchorValue) ? anchorValue : null,
+    activeValue: Number.isFinite(activeValue) ? activeValue : null,
+    candidateValue: Number.isFinite(candidateValue) ? candidateValue : null,
+    relativeChange,
+    cumulativeChange,
+    errors
+  });
   return {
     status: errors.length ? "blocked" : "passed",
+    parameterId: parameterPolicy.parameterId ?? null,
+    envelopeHash,
     relativeChange,
     cumulativeChange,
     errors,
     formalModelChanged: false
   };
 }
+import { sha256Jcs } from "../quantitativeObservations/canonicalHash.js";

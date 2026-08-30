@@ -24,7 +24,7 @@ test("advanced research content is collapsed by default", async () => {
 
 test("advanced research area exposes a read-only Model Change Ledger", async () => {
   const html = await readFile(new URL("index.html", root), "utf8");
-  for (const id of ["model-change-ledger", "ledger-disease-filter", "ledger-status-filter", "ledger-version-filter", "model-change-ledger-list", "model-change-ledger-detail"]) {
+  for (const id of ["model-change-ledger", "ledger-disease-filter", "ledger-pathway-filter", "ledger-parameter-filter", "ledger-status-filter", "ledger-version-filter", "ledger-date-filter", "model-change-ledger-list", "model-change-ledger-detail"]) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(html, /Model Change Ledger/);

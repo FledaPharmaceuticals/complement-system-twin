@@ -109,21 +109,31 @@ window.setTimeout(initBiomarkerPanel, 0);
 
 function initModelChangeLedger() {
   const diseaseFilter = document.getElementById("ledger-disease-filter");
+  const pathwayFilter = document.getElementById("ledger-pathway-filter");
+  const parameterFilter = document.getElementById("ledger-parameter-filter");
   const statusFilter = document.getElementById("ledger-status-filter");
   const versionFilter = document.getElementById("ledger-version-filter");
+  const dateFilter = document.getElementById("ledger-date-filter");
   const list = document.getElementById("model-change-ledger-list");
   const detail = document.getElementById("model-change-ledger-detail");
-  if (!diseaseFilter || !statusFilter || !versionFilter || !list || !detail) return;
+  if (!diseaseFilter || !pathwayFilter || !parameterFilter || !statusFilter || !versionFilter || !dateFilter || !list || !detail) return;
 
   const diseases = [...new Set(PUBLIC_LEDGER_ENTRIES.map((entry) => entry.context.disease))].sort();
+  const pathways = [...new Set(PUBLIC_LEDGER_ENTRIES.map((entry) => entry.context.pathway))].sort();
+  const parameters = [...new Set(PUBLIC_LEDGER_ENTRIES.map((entry) => entry.parameter.label))].sort();
   diseaseFilter.insertAdjacentHTML("beforeend", diseases.map((disease) => `<option value="${escapeHtml(disease)}">${escapeHtml(disease)}</option>`).join(""));
+  pathwayFilter.insertAdjacentHTML("beforeend", pathways.map((pathway) => `<option value="${escapeHtml(pathway)}">${escapeHtml(pathway)}</option>`).join(""));
+  parameterFilter.insertAdjacentHTML("beforeend", parameters.map((parameter) => `<option value="${escapeHtml(parameter)}">${escapeHtml(parameter)}</option>`).join(""));
   let selectedEntryId = PUBLIC_LEDGER_ENTRIES[0]?.entryId ?? "";
 
   const render = () => {
     const filtered = filterLedgerEntries(PUBLIC_LEDGER_ENTRIES, {
       disease: diseaseFilter.value,
+      pathway: pathwayFilter.value,
+      parameter: parameterFilter.value,
       status: statusFilter.value,
-      version: versionFilter.value
+      version: versionFilter.value,
+      date: dateFilter.value
     });
     if (!filtered.some((entry) => entry.entryId === selectedEntryId)) selectedEntryId = filtered[0]?.entryId ?? "";
     list.innerHTML = renderLedgerList(filtered, selectedEntryId);
@@ -137,8 +147,11 @@ function initModelChangeLedger() {
   };
 
   diseaseFilter.addEventListener("change", render);
+  pathwayFilter.addEventListener("change", render);
+  parameterFilter.addEventListener("change", render);
   statusFilter.addEventListener("change", render);
   versionFilter.addEventListener("input", render);
+  dateFilter.addEventListener("change", render);
   render();
 }
 

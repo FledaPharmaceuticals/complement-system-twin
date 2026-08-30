@@ -84,18 +84,60 @@
           "publicationId": "synthetic:amd-publication-1",
           "doi": null,
           "pmid": null,
+          "sourceLocation": "Synthetic Table 1, row 1",
+          "context": {
+            "disease": "AMD",
+            "tissue": "retina_rpe_choroid",
+            "species": "human",
+            "spatialScope": "local_tissue",
+            "experimentalSetting": "ex_vivo",
+            "timepoint": 0,
+            "timeUnit": "baseline"
+          },
+          "assay": "immunoassay",
+          "sampleSize": 40,
+          "unit": "relative_index",
+          "endpoint": "C3 activation fragment index",
           "reviewStatus": "synthetic_supported"
         },
         {
           "publicationId": "synthetic:amd-publication-2",
           "doi": null,
           "pmid": null,
+          "sourceLocation": "Synthetic Figure 1, panel A",
+          "context": {
+            "disease": "AMD",
+            "tissue": "retina_rpe_choroid",
+            "species": "human",
+            "spatialScope": "local_tissue",
+            "experimentalSetting": "ex_vivo",
+            "timepoint": 0,
+            "timeUnit": "baseline"
+          },
+          "assay": "immunoassay",
+          "sampleSize": 36,
+          "unit": "relative_index",
+          "endpoint": "C3 activation fragment index",
           "reviewStatus": "synthetic_supported"
         },
         {
           "publicationId": "synthetic:amd-publication-3",
           "doi": null,
           "pmid": null,
+          "sourceLocation": "Synthetic Table 2, row 4",
+          "context": {
+            "disease": "AMD",
+            "tissue": "retina_rpe_choroid",
+            "species": "human",
+            "spatialScope": "local_tissue",
+            "experimentalSetting": "ex_vivo",
+            "timepoint": 0,
+            "timeUnit": "baseline"
+          },
+          "assay": "immunoassay",
+          "sampleSize": 42,
+          "unit": "relative_index",
+          "endpoint": "C3 activation fragment index",
           "reviewStatus": "synthetic_holdout"
         }
       ]
@@ -155,6 +197,20 @@
           "publicationId": "synthetic:pnh-unsupported-1",
           "doi": null,
           "pmid": null,
+          "sourceLocation": "Synthetic negative-control record",
+          "context": {
+            "disease": "PNH",
+            "tissue": "blood_rbc",
+            "species": "human",
+            "spatialScope": "systemic",
+            "experimentalSetting": "clinical",
+            "timepoint": 0,
+            "timeUnit": "baseline"
+          },
+          "assay": "flow_cytometry",
+          "sampleSize": 8,
+          "unit": "relative_index",
+          "endpoint": "terminal pathway signal",
           "reviewStatus": "synthetic_unsupported"
         }
       ]

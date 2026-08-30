@@ -12,7 +12,7 @@ async function parameterPolicy() {
 }
 
 test("passes an in-bounds eight percent release change", async () => {
-  const result = evaluateParameterEnvelope({
+  const result = await evaluateParameterEnvelope({
     parameterPolicy: await parameterPolicy(),
     anchorValue: 1,
     activeValue: 1,
@@ -27,8 +27,8 @@ test("passes an in-bounds eight percent release change", async () => {
 
 test("blocks per-release and cumulative change violations", async () => {
   const policy = await parameterPolicy();
-  const release = evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: 1.11 });
-  const cumulative = evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1.18, candidateValue: 1.21 });
+  const release = await evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: 1.11 });
+  const cumulative = await evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1.18, candidateValue: 1.21 });
 
   assert.equal(release.status, "blocked");
   assert.match(release.errors.join(" "), /per-release/i);
@@ -38,9 +38,9 @@ test("blocks per-release and cumulative change violations", async () => {
 
 test("blocks physiologic bounds and invalid numeric bases", async () => {
   const policy = await parameterPolicy();
-  const bound = evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: 1.6 });
-  const zero = evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 0, activeValue: 0, candidateValue: 1 });
-  const nonfinite = evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: Number.NaN });
+  const bound = await evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: 1.6 });
+  const zero = await evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 0, activeValue: 0, candidateValue: 1 });
+  const nonfinite = await evaluateParameterEnvelope({ parameterPolicy: policy, anchorValue: 1, activeValue: 1, candidateValue: Number.NaN });
 
   assert.match(bound.errors.join(" "), /bounds/i);
   assert.match(zero.errors.join(" "), /non-zero/i);

@@ -8,8 +8,33 @@
     "contexts": [
       {
         "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "assay": "immunoassay",
+        "timeContext": "cross_sectional",
         "spatialScope": "local_tissue",
         "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "observations": [
+      {
+        "observationId": "synthetic:observation-1",
+        "measurementFingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "sourceKind": "synthetic_fixture",
+        "sourceLocator": "synthetic://amd-publication-1/table-1/row-1",
+        "analyte": "C3 activation fragment index",
+        "reportedUnit": "relative_index",
+        "assay": "immunoassay",
+        "groupId": "synthetic:group-1",
+        "sampleSize": 40,
+        "timepoint": 0,
+        "timeUnit": "baseline",
+        "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo",
+        "reviewStatus": "supported"
       }
     ],
     "integrityStatus": "clear"
@@ -23,8 +48,33 @@
     "contexts": [
       {
         "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "assay": "immunoassay",
+        "timeContext": "cross_sectional",
         "spatialScope": "local_tissue",
         "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "observations": [
+      {
+        "observationId": "synthetic:observation-2",
+        "measurementFingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "sourceKind": "synthetic_fixture",
+        "sourceLocator": "synthetic://amd-publication-2/figure-1/panel-a",
+        "analyte": "C3 activation fragment index",
+        "reportedUnit": "relative_index",
+        "assay": "immunoassay",
+        "groupId": "synthetic:group-2",
+        "sampleSize": 36,
+        "timepoint": 0,
+        "timeUnit": "baseline",
+        "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo",
+        "reviewStatus": "supported"
       }
     ],
     "integrityStatus": "clear"
@@ -38,8 +88,33 @@
     "contexts": [
       {
         "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "assay": "immunoassay",
+        "timeContext": "cross_sectional",
         "spatialScope": "local_tissue",
         "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "observations": [
+      {
+        "observationId": "synthetic:observation-3",
+        "measurementFingerprint": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "sourceKind": "synthetic_fixture",
+        "sourceLocator": "synthetic://amd-publication-3/table-2/row-4",
+        "analyte": "C3 activation fragment index",
+        "reportedUnit": "relative_index",
+        "assay": "immunoassay",
+        "groupId": "synthetic:group-3",
+        "sampleSize": 42,
+        "timepoint": 0,
+        "timeUnit": "baseline",
+        "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo",
+        "reviewStatus": "supported"
       }
     ],
     "integrityStatus": "clear"

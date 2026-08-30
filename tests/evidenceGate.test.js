@@ -21,7 +21,7 @@ async function inputs() {
 }
 
 test("accepts three eligible publications from two groups with a locked holdout", async () => {
-  const result = evaluateEvidenceGate(await inputs());
+  const result = await evaluateEvidenceGate(await inputs());
 
   assert.equal(result.status, "passed");
   assert.equal(result.independentGroupCount, 2);
@@ -38,7 +38,7 @@ test("blocks missing holdout, group independence, conflicts, and context mismatc
   input.evidence[2].assignment = "training";
   input.evidence[2].contexts[0].spatialScope = "systemic";
 
-  const result = evaluateEvidenceGate(input);
+  const result = await evaluateEvidenceGate(input);
   const errors = result.errors.join(" ");
 
   assert.equal(result.status, "blocked");
@@ -55,7 +55,7 @@ test("blocks ineligible, duplicate, retracted, and expression-of-concern evidenc
   input.evidence[1].integrityStatus = "retracted";
   input.evidence[2].integrityStatus = "expression_of_concern";
 
-  const result = evaluateEvidenceGate(input);
+  const result = await evaluateEvidenceGate(input);
   const errors = result.errors.join(" ");
 
   assert.equal(result.status, "blocked");
@@ -69,9 +69,41 @@ test("returns sorted unique evidence IDs for reproducible decisions", async () =
   const input = await inputs();
   input.evidence.reverse();
 
-  const result = evaluateEvidenceGate(input);
+  const result = await evaluateEvidenceGate(input);
 
   assert.deepEqual(result.trainingPublicationIds, ["synthetic:amd-publication-1", "synthetic:amd-publication-2"]);
   assert.deepEqual(result.holdoutPublicationIds, ["synthetic:amd-publication-3"]);
   assert.deepEqual(result.observationIds, ["synthetic:observation-1", "synthetic:observation-2", "synthetic:observation-3"]);
+});
+
+test("blocks missing observation provenance and duplicate measurement fingerprints", async () => {
+  const input = await inputs();
+  delete input.evidence[0].observations[0].sourceLocator;
+  input.evidence[1].observations[0].measurementFingerprint = input.evidence[2].observations[0].measurementFingerprint;
+  input.evidence[1].observationIds = [input.evidence[2].observationIds[0]];
+
+  const result = await evaluateEvidenceGate(input);
+  const errors = result.errors.join(" ");
+
+  assert.equal(result.status, "blocked");
+  assert.match(errors, /source locator/i);
+  assert.match(errors, /measurement fingerprint/i);
+  assert.match(errors, /observation IDs/i);
+});
+
+test("blocks empty contexts and incomplete quantitative observations", async () => {
+  const input = await inputs();
+  input.evidence[0].contexts = [{}];
+  delete input.evidence[0].observations[0].assay;
+  delete input.evidence[0].observations[0].sampleSize;
+  delete input.evidence[0].observations[0].timepoint;
+
+  const result = await evaluateEvidenceGate(input);
+  const errors = result.errors.join(" ");
+
+  assert.equal(result.status, "blocked");
+  assert.match(errors, /context/i);
+  assert.match(errors, /assay/i);
+  assert.match(errors, /sample size/i);
+  assert.match(errors, /timepoint/i);
 });

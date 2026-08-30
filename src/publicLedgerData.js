@@ -35,9 +35,9 @@ const entries = [
       publicationCount: 3,
       independentGroupCount: 2,
       publications: [
-        { publicationId: "synthetic:amd-publication-1", doi: null, pmid: null, reviewStatus: "synthetic_supported" },
-        { publicationId: "synthetic:amd-publication-2", doi: null, pmid: null, reviewStatus: "synthetic_supported" },
-        { publicationId: "synthetic:amd-publication-3", doi: null, pmid: null, reviewStatus: "synthetic_holdout" }
+        { publicationId: "synthetic:amd-publication-1", doi: null, pmid: null, sourceLocation: "Synthetic Table 1, row 1", context: { disease: "AMD", tissue: "retina_rpe_choroid", species: "human", spatialScope: "local_tissue", experimentalSetting: "ex_vivo", timepoint: 0, timeUnit: "baseline" }, assay: "immunoassay", sampleSize: 40, unit: "relative_index", endpoint: "C3 activation fragment index", reviewStatus: "synthetic_supported" },
+        { publicationId: "synthetic:amd-publication-2", doi: null, pmid: null, sourceLocation: "Synthetic Figure 1, panel A", context: { disease: "AMD", tissue: "retina_rpe_choroid", species: "human", spatialScope: "local_tissue", experimentalSetting: "ex_vivo", timepoint: 0, timeUnit: "baseline" }, assay: "immunoassay", sampleSize: 36, unit: "relative_index", endpoint: "C3 activation fragment index", reviewStatus: "synthetic_supported" },
+        { publicationId: "synthetic:amd-publication-3", doi: null, pmid: null, sourceLocation: "Synthetic Table 2, row 4", context: { disease: "AMD", tissue: "retina_rpe_choroid", species: "human", spatialScope: "local_tissue", experimentalSetting: "ex_vivo", timepoint: 0, timeUnit: "baseline" }, assay: "immunoassay", sampleSize: 42, unit: "relative_index", endpoint: "C3 activation fragment index", reviewStatus: "synthetic_holdout" }
       ]
     },
     validation: { trainingImprovementPercent: 15, holdoutImprovementPercent: 8, sentinelDegradationMaximumPercent: 1, uncertainty: "moderate" },
@@ -59,7 +59,7 @@ const entries = [
     parameter: { parameterId: "pnh.terminalAmplification", label: "Terminal-pathway amplification", disclosureLevel: "public_summary", direction: "increase" },
     rationale: "Synthetic negative-control proposal was rejected because independent evidence and holdout validation were insufficient.",
     limitations: ["Synthetic test record", "Insufficient independent evidence", "Holdout validation failed"],
-    evidence: { publicationCount: 1, independentGroupCount: 1, publications: [{ publicationId: "synthetic:pnh-unsupported-1", doi: null, pmid: null, reviewStatus: "synthetic_unsupported" }] },
+    evidence: { publicationCount: 1, independentGroupCount: 1, publications: [{ publicationId: "synthetic:pnh-unsupported-1", doi: null, pmid: null, sourceLocation: "Synthetic negative-control record", context: { disease: "PNH", tissue: "blood_rbc", species: "human", spatialScope: "systemic", experimentalSetting: "clinical", timepoint: 0, timeUnit: "baseline" }, assay: "flow_cytometry", sampleSize: 8, unit: "relative_index", endpoint: "terminal pathway signal", reviewStatus: "synthetic_unsupported" }] },
     validation: { trainingImprovementPercent: 6, holdoutImprovementPercent: -3, sentinelDegradationMaximumPercent: 4, uncertainty: "high" },
     policy: { policyId: "fleda-complement-auto-release-policy", version: "1.0.0", releaseRoute: "policy_dry_run_rejected" },
     rollback: { version: "complement-twin-v1.1-contract", status: "not_required" },

@@ -9,10 +9,17 @@
     {
       "parameterId": "amd.retinalAlternativeAmplification",
       "moduleId": "amd-cohort-model",
+      "scientificMeaning": "Relative local alternative-pathway amplification in the retina/RPE/choroid teaching model",
       "unit": "relative_multiplier",
+      "calibrationObjective": "weighted_rmse",
+      "transformation": "identity",
       "contexts": [
         {
           "disease": "AMD",
+          "tissue": "retina_rpe_choroid",
+          "species": "human",
+          "assay": "immunoassay",
+          "timeContext": "cross_sectional",
           "spatialScope": "local_tissue",
           "experimentalSetting": "ex_vivo"
         }

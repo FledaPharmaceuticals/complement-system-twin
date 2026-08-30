@@ -23,6 +23,10 @@ test("renders status, evidence, policy, metrics, rollback, limitations, and comm
   assert.match(html, /Policy 1\.0\.0/);
   assert.match(html, /Holdout improvement/);
   assert.match(html, /Rollback/);
+  assert.match(html, /Source location/);
+  assert.match(html, /Assay/);
+  assert.match(html, /Sample size/);
+  assert.match(html, /Unit/);
   assert.match(html, /Synthetic evidence only/);
   assert.match(html, /Scientific comments become available with the independent Fleda Research Workspace/);
   assert.doesNotMatch(html, /parameterSnapshot|oldValue|newValue|solverConfiguration/);

@@ -2,38 +2,128 @@
   "policy": {
     "policyId": "fleda-complement-auto-release-policy",
     "policyVersion": "1.0.0",
-    "status": "dry_run"
+    "status": "dry_run",
+    "minimumPublications": 3,
+    "minimumIndependentGroups": 2,
+    "holdoutRequired": true,
+    "parameters": [
+      {
+        "parameterId": "amd.retinalAlternativeAmplification",
+        "moduleId": "amd-cohort-model",
+        "scientificMeaning": "Relative local alternative-pathway amplification in the retina/RPE/choroid teaching model",
+        "unit": "relative_multiplier",
+        "calibrationObjective": "weighted_rmse",
+        "transformation": "identity",
+        "contexts": [
+          {
+            "disease": "AMD",
+            "tissue": "retina_rpe_choroid",
+            "species": "human",
+            "assay": "immunoassay",
+            "timeContext": "cross_sectional",
+            "spatialScope": "local_tissue",
+            "experimentalSetting": "ex_vivo"
+          }
+        ],
+        "lowerBound": 0.8,
+        "upperBound": 1.5,
+        "maxRelativeChange": 0.1,
+        "maxCumulativeChange": 0.2,
+        "trainingImprovementMinimum": 0.1,
+        "holdoutImprovementMinimum": 0.05,
+        "sentinelDegradationMaximum": 0.02,
+        "sentinelEndpoints": ["normal_baseline_stability", "retina_signal_ordering"],
+        "disclosureLevel": "public_normalized"
+      }
+    ]
   },
   "parameterPolicy": {
     "parameterId": "amd.retinalAlternativeAmplification",
+    "moduleId": "amd-cohort-model",
+    "scientificMeaning": "Relative local alternative-pathway amplification in the retina/RPE/choroid teaching model",
+    "unit": "relative_multiplier",
+    "calibrationObjective": "weighted_rmse",
+    "transformation": "identity",
+    "contexts": [
+      {
+        "disease": "AMD",
+        "tissue": "retina_rpe_choroid",
+        "species": "human",
+        "assay": "immunoassay",
+        "timeContext": "cross_sectional",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "lowerBound": 0.8,
+    "upperBound": 1.5,
+    "maxRelativeChange": 0.1,
+    "maxCumulativeChange": 0.2,
     "trainingImprovementMinimum": 0.1,
     "holdoutImprovementMinimum": 0.05,
     "sentinelDegradationMaximum": 0.02,
-    "sentinelEndpoints": ["normal_baseline_stability", "retina_signal_ordering"]
+    "sentinelEndpoints": ["normal_baseline_stability", "retina_signal_ordering"],
+    "disclosureLevel": "public_normalized"
   },
   "evidenceGate": {
     "status": "passed",
+    "policyId": "fleda-complement-auto-release-policy",
+    "policyVersion": "1.0.0",
+    "parameterId": "amd.retinalAlternativeAmplification",
+    "evidenceSetHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
     "trainingPublicationIds": ["synthetic:amd-publication-1", "synthetic:amd-publication-2"],
     "holdoutPublicationIds": ["synthetic:amd-publication-3"],
     "independentGroupCount": 2,
+    "observationIds": ["synthetic:observation-1", "synthetic:observation-2", "synthetic:observation-3"],
+    "measurementFingerprints": [
+      "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    ],
     "formalModelChanged": false
   },
   "envelope": {
     "status": "passed",
+    "parameterId": "amd.retinalAlternativeAmplification",
+    "envelopeHash": "sha256:10a0ba2404388a0afbe6f3066189f29ff916a306383022a5997fd756a2e7ad2d",
     "relativeChange": 0.08,
     "cumulativeChange": 0.08,
     "errors": [],
     "formalModelChanged": false
   },
   "calibrationRun": {
+    "recordType": "fleda_calibration_run",
+    "recordVersion": "1.0.0",
+    "runId": "calibration:synthetic-amd-1",
     "status": "candidate",
     "parameterId": "amd.retinalAlternativeAmplification",
     "baseVersion": "complement-twin-v1.1-contract",
     "proposedVersion": "complement-twin-v1.2-dry-run",
     "rollbackVersion": "complement-twin-v1.1-contract",
     "candidateSnapshotHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "evidenceGate": {
+      "status": "passed",
+      "policyId": "fleda-complement-auto-release-policy",
+      "policyVersion": "1.0.0",
+      "parameterId": "amd.retinalAlternativeAmplification",
+      "evidenceSetHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
+      "trainingPublicationIds": ["synthetic:amd-publication-1", "synthetic:amd-publication-2"],
+      "holdoutPublicationIds": ["synthetic:amd-publication-3"],
+      "independentGroupCount": 2,
+      "observationIds": ["synthetic:observation-1", "synthetic:observation-2", "synthetic:observation-3"],
+      "measurementFingerprints": [
+        "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      ],
+      "formalModelChanged": false
+    },
     "provenance": {
+      "policyId": "fleda-complement-auto-release-policy",
+      "policyVersion": "1.0.0",
       "policyHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidenceGateHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
+      "envelopeHash": "sha256:10a0ba2404388a0afbe6f3066189f29ff916a306383022a5997fd756a2e7ad2d",
       "environmentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
       "observationPackageHashes": ["sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"]
     },

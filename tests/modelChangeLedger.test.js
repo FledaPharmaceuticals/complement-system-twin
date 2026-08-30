@@ -27,7 +27,8 @@ function input(disclosureLevel = "public_normalized") {
         rationale: "Synthetic dry-run tests a retina-centered calibration policy.",
         limitations: ["Synthetic evidence only", "No active model change"],
         releaseRoute: "policy_dry_run",
-        commentCount: 0
+        commentCount: 0,
+        synthetic: true
       }
     },
     parameterPolicy: {
@@ -122,4 +123,28 @@ test("static browser data matches the language-neutral public fixture", async ()
   assert.equal(PUBLIC_LEDGER_ENTRIES.every((entry) => validatePublicLedgerEntry(entry).valid), true);
   assert.equal(PUBLIC_LEDGER_ENTRIES[1].formalModelChanged, false);
   assert.equal(PUBLIC_LEDGER_ENTRIES[1].synthetic, true);
+});
+
+test("projection allowlists publication fields and validates disclosure-specific shape", () => {
+  const source = input();
+  source.evidenceSummary.publications[0].internalReviewNotes = "PROTECTED";
+  source.evidenceSummary.publications[0].nested = { credentials: "secret" };
+  const entry = createPublicLedgerEntry(source);
+
+  assert.equal("internalReviewNotes" in entry.evidence.publications[0], false);
+  assert.equal("nested" in entry.evidence.publications[0], false);
+
+  const unsafe = structuredClone(entry);
+  unsafe.parameter.oldValue = 1;
+  assert.equal(validatePublicLedgerEntry(unsafe).valid, false);
+});
+
+test("projection rejects inconsistent delta and missing synthetic provenance", () => {
+  const inconsistent = input();
+  inconsistent.parameterChange.relativeChange = 0.99;
+  assert.throws(() => createPublicLedgerEntry(inconsistent), /relative change/i);
+
+  const unspecified = input();
+  delete unspecified.releaseDecision.publicMetadata.synthetic;
+  assert.throws(() => createPublicLedgerEntry(unspecified), /synthetic provenance/i);
 });

@@ -55,3 +55,18 @@ test("rejects invalid contexts, sentinels, and disclosure levels", async () => {
 test("returns null for an unregistered parameter", async () => {
   assert.equal(getParameterPolicy(await fixture(), "not-registered"), null);
 });
+
+test("rejects empty scientific context and incomplete calibration registration", async () => {
+  const policy = await fixture();
+  policy.parameters[0].contexts = [{}];
+  delete policy.parameters[0].scientificMeaning;
+  delete policy.parameters[0].calibrationObjective;
+  delete policy.parameters[0].transformation;
+
+  const result = validateChangePolicy(policy);
+
+  assert.equal(result.valid, false);
+  for (const term of ["disease", "tissue", "species", "assay", "time context", "spatial scope", "experimental setting", "scientific meaning", "calibration objective", "transformation"]) {
+    assert.match(result.errors.join(" "), new RegExp(term, "i"));
+  }
+});

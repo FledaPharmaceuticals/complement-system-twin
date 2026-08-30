@@ -25,7 +25,14 @@ export function createCalibrationRunRecord(input = {}) {
     if (!provenance[field]) throw new Error(`${field.replaceAll(/([A-Z])/g, " $1").toLowerCase()} is required`);
   }
   requireHash(provenance.policyHash, "policy hash");
+  requireHash(provenance.evidenceGateHash, "evidence gate hash");
+  requireHash(provenance.envelopeHash, "parameter envelope hash");
   requireHash(provenance.environmentHash, "environment hash");
+  if (provenance.evidenceGateHash !== input.evidenceGate.evidenceSetHash) throw new Error("Evidence gate hash must bind the calibration run to its evidence set");
+  if (input.evidenceGate.parameterId !== input.parameterId) throw new Error("Evidence gate parameter must match the calibration parameter");
+  if (input.evidenceGate.policyId !== provenance.policyId || input.evidenceGate.policyVersion !== provenance.policyVersion) {
+    throw new Error("Evidence gate policy identity must match calibration provenance");
+  }
   if (!Array.isArray(provenance.observationPackageHashes) || !provenance.observationPackageHashes.length) {
     throw new Error("Observation package hashes are required");
   }
