@@ -22,6 +22,16 @@ test("advanced research content is collapsed by default", async () => {
   }
 });
 
+test("advanced research area exposes a read-only Model Change Ledger", async () => {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  for (const id of ["model-change-ledger", "ledger-disease-filter", "ledger-status-filter", "ledger-version-filter", "model-change-ledger-list", "model-change-ledger-detail"]) {
+    assert.match(html, new RegExp(`id=["']${id}["']`));
+  }
+  assert.match(html, /Model Change Ledger/);
+  assert.match(html, /Scientific comments become available with the independent Fleda Research Workspace/);
+  assert.doesNotMatch(html, /id=["']advanced-research-tools["'][^>]*\sopen(?:\s|>)/);
+});
+
 test("workspace uses the local parser and has no remote AI endpoint", async () => {
   const app = await readFile(new URL("src/app.js", root), "utf8");
   const parser = await readFile(new URL("src/experimentIntent.js", root), "utf8");

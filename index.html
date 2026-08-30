@@ -330,13 +330,38 @@
             <p>Outputs are hypothesis-support signals and risk proxies, not diagnosis, patient prediction, or regulated medical software.</p>
           </article>
         </div>
-        <div class="model-history-panel">
-          <div>
-            <p class="eyebrow">Versioned Model History</p>
-            <h3>Traceable releases and controlled changes</h3>
-            <p>Candidate suggestions never replace an active model release. A future accepted change will appear as a new version with its evidence chain.</p>
+        <div id="model-change-ledger" class="model-ledger-panel">
+          <div class="model-ledger-heading">
+            <div>
+              <p class="eyebrow">Model Change Ledger</p>
+              <h3>Traceable releases and controlled changes</h3>
+              <p>Candidate suggestions never replace the active model. Every public record exposes its evidence level, validation result, limitations, policy route, and rollback version.</p>
+            </div>
+            <span class="model-ledger-readonly">Read-only public ledger</span>
           </div>
-          <div id="model-history-list" class="model-history-list" aria-live="polite"></div>
+          <div class="model-ledger-filters" aria-label="Model change ledger filters">
+            <label>Disease
+              <select id="ledger-disease-filter"><option value="">All diseases</option></select>
+            </label>
+            <label>Status
+              <select id="ledger-status-filter">
+                <option value="">All statuses</option>
+                <option value="candidate">Dry-run candidate</option>
+                <option value="testing">Testing</option>
+                <option value="active">Active</option>
+                <option value="rejected">Rejected</option>
+                <option value="rolled_back">Rolled back</option>
+              </select>
+            </label>
+            <label>Version
+              <input id="ledger-version-filter" type="search" placeholder="Filter version">
+            </label>
+          </div>
+          <div class="model-ledger-layout">
+            <div id="model-change-ledger-list" class="model-ledger-list" aria-live="polite"></div>
+            <div id="model-change-ledger-detail" class="model-ledger-detail" aria-live="polite"></div>
+          </div>
+          <p class="model-ledger-comment-boundary">Scientific comments become available with the independent Fleda Research Workspace.</p>
           <div id="model-audit-summary" class="model-audit-summary" aria-live="polite"></div>
         </div>
         <div class="roadmap-grid">

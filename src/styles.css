@@ -2930,12 +2930,321 @@ select {
 .model-release-card small { color: var(--muted); font-size: .68rem; }
 .model-history-empty { color: var(--muted); font-size: .8rem; }
 
+.model-ledger-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: rgba(9, 22, 48, .45);
+}
+
+.model-ledger-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.model-ledger-heading h3 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.model-ledger-heading p:not(.eyebrow) {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.55;
+}
+
+.model-ledger-readonly,
+.model-ledger-status,
+.model-ledger-synthetic {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 8px;
+  border: 1px solid rgba(91, 231, 255, .28);
+  color: var(--cyan);
+  background: rgba(10, 45, 73, .54);
+  font-size: .66rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.model-ledger-synthetic {
+  border-color: rgba(255, 193, 92, .34);
+  color: #ffd58e;
+  background: rgba(82, 51, 11, .42);
+}
+
+.model-ledger-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.model-ledger-filters label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.model-ledger-filters select,
+.model-ledger-filters input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--text);
+  background: rgba(2, 10, 27, .75);
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.model-ledger-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, .72fr) minmax(0, 1.28fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.model-ledger-list {
+  display: grid;
+  gap: 8px;
+}
+
+.model-ledger-entry {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(91, 231, 255, .18);
+  border-radius: 4px;
+  color: var(--text);
+  background: rgba(2, 10, 27, .55);
+  text-align: left;
+  cursor: pointer;
+}
+
+.model-ledger-entry:hover,
+.model-ledger-entry:focus-visible,
+.model-ledger-entry.is-selected {
+  border-color: var(--cyan);
+  background: rgba(15, 50, 83, .74);
+  outline: none;
+}
+
+.model-ledger-entry-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.model-ledger-entry-topline strong {
+  overflow-wrap: anywhere;
+  font-size: .78rem;
+}
+
+.model-ledger-entry-topline em {
+  flex: 0 0 auto;
+  color: var(--cyan);
+  font-size: .65rem;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.model-ledger-entry > span:not(.model-ledger-entry-topline) {
+  color: var(--text);
+  font-size: .74rem;
+}
+
+.model-ledger-entry small {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: .67rem;
+  line-height: 1.4;
+}
+
+.model-ledger-detail {
+  min-width: 0;
+}
+
+.model-ledger-detail-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(91, 231, 255, .24);
+  background: rgba(2, 10, 27, .62);
+}
+
+.model-ledger-detail-card > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.model-ledger-detail-card h4 {
+  margin: 7px 0 4px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: .94rem;
+}
+
+.model-ledger-detail-card header p,
+.model-ledger-rationale,
+.model-ledger-detail-card footer p,
+.model-ledger-comment-boundary {
+  margin: 0;
+  color: var(--muted);
+  font-size: .75rem;
+  line-height: 1.5;
+}
+
+.model-ledger-rationale {
+  color: var(--text);
+}
+
+.model-ledger-facts,
+.model-ledger-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.model-ledger-facts > span,
+.model-ledger-metrics > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(91, 231, 255, .14);
+  background: rgba(9, 22, 48, .58);
+}
+
+.model-ledger-facts small,
+.model-ledger-metrics small {
+  color: var(--muted);
+  font-size: .62rem;
+  text-transform: uppercase;
+}
+
+.model-ledger-facts strong,
+.model-ledger-metrics strong,
+.model-ledger-facts em {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: .72rem;
+  font-style: normal;
+}
+
+.model-ledger-facts em {
+  color: var(--cyan);
+  font-size: .65rem;
+}
+
+.model-ledger-detail-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.model-ledger-detail-columns h5 {
+  margin: 0 0 7px;
+  color: var(--text);
+  font-size: .72rem;
+  text-transform: uppercase;
+}
+
+.model-ledger-detail-columns ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: .7rem;
+  line-height: 1.45;
+}
+
+.model-ledger-evidence li span {
+  margin-left: 6px;
+  color: var(--cyan);
+}
+
+.model-ledger-evidence a {
+  margin-left: 6px;
+  color: var(--cyan);
+}
+
+.model-ledger-detail-card footer {
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(91, 231, 255, .14);
+}
+
+.model-ledger-detail-card footer span {
+  color: var(--text);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.model-ledger-empty,
+.model-ledger-detail-empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed rgba(91, 231, 255, .2);
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.model-ledger-comment-boundary {
+  padding: 10px 12px;
+  border-left: 2px solid var(--cyan);
+  background: rgba(9, 22, 48, .5);
+}
+
+@media (max-width: 900px) {
+  .model-ledger-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 760px) {
   .simulation-traceability {
     grid-template-columns: 1fr;
   }
 
   .model-history-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .model-ledger-heading,
+  .model-ledger-detail-card > header {
+    display: grid;
+  }
+
+  .model-ledger-filters,
+  .model-ledger-facts,
+  .model-ledger-metrics,
+  .model-ledger-detail-columns {
     grid-template-columns: 1fr;
   }
 }

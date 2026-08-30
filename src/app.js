@@ -17,7 +17,9 @@ import { MODEL_VERSION } from "./modelContract.js";
 import { buildSimulationEvidenceSummary } from "./evidenceSummary.js";
 import { generateCalibrationCandidates } from "./calibrationCandidates.js";
 import { MODEL_RELEASES } from "./modelRegistry.js";
-import { renderModelHistory } from "./modelHistoryView.js";
+import { PUBLIC_LEDGER_ENTRIES } from "./publicLedgerData.js";
+import { filterLedgerEntries } from "./modelChangeLedger.js";
+import { renderLedgerDetail, renderLedgerList } from "./modelChangeLedgerView.js";
 import { buildEvidenceCatalog } from "./evidenceCatalog.js";
 import { linkEvidenceRecords } from "./evidenceLinking.js";
 import { generateEvidenceParameterCandidates } from "./evidenceParameterCandidates.js";
@@ -100,10 +102,45 @@ initDrugComparisonPanel();
 initValidationDatasetPanel();
 initLiteratureServicePanel();
 initAppliedLiteratureCatalog();
-document.getElementById("model-history-list").innerHTML = renderModelHistory(MODEL_RELEASES);
+initModelChangeLedger();
 renderModelAuditSummary();
 renderEvidenceAudit();
 window.setTimeout(initBiomarkerPanel, 0);
+
+function initModelChangeLedger() {
+  const diseaseFilter = document.getElementById("ledger-disease-filter");
+  const statusFilter = document.getElementById("ledger-status-filter");
+  const versionFilter = document.getElementById("ledger-version-filter");
+  const list = document.getElementById("model-change-ledger-list");
+  const detail = document.getElementById("model-change-ledger-detail");
+  if (!diseaseFilter || !statusFilter || !versionFilter || !list || !detail) return;
+
+  const diseases = [...new Set(PUBLIC_LEDGER_ENTRIES.map((entry) => entry.context.disease))].sort();
+  diseaseFilter.insertAdjacentHTML("beforeend", diseases.map((disease) => `<option value="${escapeHtml(disease)}">${escapeHtml(disease)}</option>`).join(""));
+  let selectedEntryId = PUBLIC_LEDGER_ENTRIES[0]?.entryId ?? "";
+
+  const render = () => {
+    const filtered = filterLedgerEntries(PUBLIC_LEDGER_ENTRIES, {
+      disease: diseaseFilter.value,
+      status: statusFilter.value,
+      version: versionFilter.value
+    });
+    if (!filtered.some((entry) => entry.entryId === selectedEntryId)) selectedEntryId = filtered[0]?.entryId ?? "";
+    list.innerHTML = renderLedgerList(filtered, selectedEntryId);
+    detail.innerHTML = renderLedgerDetail(filtered.find((entry) => entry.entryId === selectedEntryId));
+    list.querySelectorAll("[data-ledger-entry-id]").forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedEntryId = button.dataset.ledgerEntryId || "";
+        render();
+      });
+    });
+  };
+
+  diseaseFilter.addEventListener("change", render);
+  statusFilter.addEventListener("change", render);
+  versionFilter.addEventListener("input", render);
+  render();
+}
 
 function initExperimentWorkspace() {
   const description = document.getElementById("experiment-description");
