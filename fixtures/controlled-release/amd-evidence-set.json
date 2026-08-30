@@ -1,0 +1,47 @@
+[
+  {
+    "publicationId": "synthetic:amd-publication-1",
+    "researchGroupId": "synthetic:research-group-a",
+    "observationIds": ["synthetic:observation-1"],
+    "calibrationEligible": true,
+    "assignment": "training",
+    "contexts": [
+      {
+        "disease": "AMD",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "integrityStatus": "clear"
+  },
+  {
+    "publicationId": "synthetic:amd-publication-2",
+    "researchGroupId": "synthetic:research-group-b",
+    "observationIds": ["synthetic:observation-2"],
+    "calibrationEligible": true,
+    "assignment": "training",
+    "contexts": [
+      {
+        "disease": "AMD",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "integrityStatus": "clear"
+  },
+  {
+    "publicationId": "synthetic:amd-publication-3",
+    "researchGroupId": "synthetic:research-group-b",
+    "observationIds": ["synthetic:observation-3"],
+    "calibrationEligible": true,
+    "assignment": "holdout",
+    "contexts": [
+      {
+        "disease": "AMD",
+        "spatialScope": "local_tissue",
+        "experimentalSetting": "ex_vivo"
+      }
+    ],
+    "integrityStatus": "clear"
+  }
+]
