@@ -18,6 +18,10 @@ export function validateChangePolicy(policy = {}) {
   const seen = new Set();
   const parameters = Array.isArray(policy.parameters) ? policy.parameters : [];
   for (const parameter of parameters) {
+    if (!parameter || typeof parameter !== "object" || Array.isArray(parameter)) {
+      errors.push("registered parameter entries must be objects");
+      continue;
+    }
     const label = parameter.parameterId || "unnamed parameter";
     if (!parameter.parameterId || seen.has(parameter.parameterId)) errors.push(`${label}: unique parameter ID is required`);
     seen.add(parameter.parameterId);
@@ -52,7 +56,7 @@ export function validateChangePolicy(policy = {}) {
 
 export function getParameterPolicy(policy = {}, parameterId) {
   const parameter = Array.isArray(policy.parameters)
-    ? policy.parameters.find((item) => item.parameterId === parameterId)
+    ? policy.parameters.find((item) => item?.parameterId === parameterId)
     : null;
   return parameter ? structuredClone(parameter) : null;
 }

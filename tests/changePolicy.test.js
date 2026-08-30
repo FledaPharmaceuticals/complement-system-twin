@@ -76,4 +76,8 @@ test("returns validation errors instead of throwing for malformed parameter coll
 
   assert.equal(result.valid, false);
   assert.match(result.errors.join(" "), /registered parameter/i);
+
+  const nullEntry = validateChangePolicy({ policyId: "x", policyVersion: "1.0.0", status: "dry_run", parameters: [null] });
+  assert.equal(nullEntry.valid, false);
+  assert.match(nullEntry.errors.join(" "), /entries must be objects/i);
 });
