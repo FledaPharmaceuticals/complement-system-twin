@@ -70,7 +70,7 @@
     "policyId": "fleda-complement-auto-release-policy",
     "policyVersion": "1.0.0",
     "parameterId": "amd.retinalAlternativeAmplification",
-    "evidenceSetHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
+    "evidenceSetHash": "sha256:5d1bdbd9815db97a57e476d944b200294b79a81e1b678f2dd1b5fb157b111e70",
     "trainingPublicationIds": ["synthetic:amd-publication-1", "synthetic:amd-publication-2"],
     "holdoutPublicationIds": ["synthetic:amd-publication-3"],
     "independentGroupCount": 2,
@@ -106,7 +106,7 @@
       "policyId": "fleda-complement-auto-release-policy",
       "policyVersion": "1.0.0",
       "parameterId": "amd.retinalAlternativeAmplification",
-      "evidenceSetHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
+      "evidenceSetHash": "sha256:5d1bdbd9815db97a57e476d944b200294b79a81e1b678f2dd1b5fb157b111e70",
       "trainingPublicationIds": ["synthetic:amd-publication-1", "synthetic:amd-publication-2"],
       "holdoutPublicationIds": ["synthetic:amd-publication-3"],
       "independentGroupCount": 2,
@@ -121,8 +121,8 @@
     "provenance": {
       "policyId": "fleda-complement-auto-release-policy",
       "policyVersion": "1.0.0",
-      "policyHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "evidenceGateHash": "sha256:b98bccff07b9bcf462f5610ef4718194ca080c828224e6022405b06ea36be237",
+      "policyHash": "sha256:9ff569cf43bc9cedede2c2f8cdb26421cf1411dbae2383cf278c1bf5d5983788",
+      "evidenceGateHash": "sha256:5d1bdbd9815db97a57e476d944b200294b79a81e1b678f2dd1b5fb157b111e70",
       "envelopeHash": "sha256:10a0ba2404388a0afbe6f3066189f29ff916a306383022a5997fd756a2e7ad2d",
       "environmentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
       "observationPackageHashes": ["sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"]

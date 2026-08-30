@@ -148,3 +148,26 @@ test("projection rejects inconsistent delta and missing synthetic provenance", (
   delete unspecified.releaseDecision.publicMetadata.synthetic;
   assert.throws(() => createPublicLedgerEntry(unspecified), /synthetic provenance/i);
 });
+
+test("projection accepts absolute envelope delta for a decreasing parameter", () => {
+  const decrease = input();
+  decrease.parameterChange = { oldValue: 1, newValue: 0.92, relativeChange: 0.08 };
+
+  const entry = createPublicLedgerEntry(decrease);
+
+  assert.equal(entry.parameter.direction, "decrease");
+  assert.equal(entry.parameter.normalizedDeltaPercent, 8);
+});
+
+test("Phase 1 validator blocks formal mutation, comment submission, and exact bounds in normalized disclosure", () => {
+  const base = createPublicLedgerEntry(input());
+  const unsafe = structuredClone(base);
+  unsafe.formalModelChanged = true;
+  unsafe.comments.submissionEnabled = true;
+  unsafe.parameter.lowerBound = 0.8;
+
+  const result = validatePublicLedgerEntry(unsafe);
+
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(" "), /formal model|comment submission|lowerBound/i);
+});

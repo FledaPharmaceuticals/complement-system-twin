@@ -16,7 +16,8 @@ export function validateChangePolicy(policy = {}) {
   if (!Array.isArray(policy.parameters) || !policy.parameters.length) errors.push("at least one registered parameter is required");
 
   const seen = new Set();
-  for (const parameter of policy.parameters ?? []) {
+  const parameters = Array.isArray(policy.parameters) ? policy.parameters : [];
+  for (const parameter of parameters) {
     const label = parameter.parameterId || "unnamed parameter";
     if (!parameter.parameterId || seen.has(parameter.parameterId)) errors.push(`${label}: unique parameter ID is required`);
     seen.add(parameter.parameterId);

@@ -3,6 +3,18 @@ function sameContext(left = {}, right = {}) {
     .every((field) => left[field] === right[field]);
 }
 
+function observationContext(observation = {}) {
+  return {
+    disease: observation.disease,
+    tissue: observation.tissue,
+    species: observation.species,
+    assay: observation.assay,
+    timeContext: observation.timeContext,
+    spatialScope: observation.spatialScope,
+    experimentalSetting: observation.experimentalSetting
+  };
+}
+
 function uniqueSorted(values) {
   return [...new Set(values.filter(Boolean))].sort();
 }
@@ -61,6 +73,7 @@ export async function evaluateEvidenceGate({ policy = {}, parameterPolicy = {}, 
         ["analyte", "analyte"],
         ["reportedUnit", "reported unit"],
         ["assay", "assay"],
+        ["timeContext", "time context"],
         ["groupId", "group identity"],
         ["timeUnit", "time unit"],
         ["disease", "disease"],
@@ -75,6 +88,9 @@ export async function evaluateEvidenceGate({ policy = {}, parameterPolicy = {}, 
       if (!Number.isInteger(observation.sampleSize) || observation.sampleSize <= 0) errors.push(`${observationLabel}: positive sample size is required`);
       if (!Number.isFinite(observation.timepoint)) errors.push(`${observationLabel}: finite timepoint is required`);
       if (observation.reviewStatus !== "supported") errors.push(`${observationLabel}: supported independent review is required`);
+      const observationCompatible = (record.contexts ?? []).some((context) => sameContext(observationContext(observation), context))
+        && (parameterPolicy.contexts ?? []).some((context) => sameContext(observationContext(observation), context));
+      if (!observationCompatible) errors.push(`${observationLabel}: observation context is incompatible with its publication or parameter policy`);
     }
 
     const compatible = (record.contexts ?? []).some((context) => (

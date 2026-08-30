@@ -70,3 +70,10 @@ test("rejects empty scientific context and incomplete calibration registration",
     assert.match(result.errors.join(" "), new RegExp(term, "i"));
   }
 });
+
+test("returns validation errors instead of throwing for malformed parameter collections", () => {
+  const result = validateChangePolicy({ policyId: "x", policyVersion: "1.0.0", status: "dry_run", parameters: {} });
+
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(" "), /registered parameter/i);
+});

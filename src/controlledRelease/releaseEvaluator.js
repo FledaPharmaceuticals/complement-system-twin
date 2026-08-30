@@ -21,7 +21,7 @@ function improvement(before, after) {
   return Math.round(((before - after) / before) * 1e12) / 1e12;
 }
 
-export function evaluateControlledRelease({ policy = {}, parameterPolicy = {}, evidenceGate = {}, envelope = {}, calibrationRun = {}, behaviorChecks = [] } = {}) {
+export async function evaluateControlledRelease({ policy = {}, parameterPolicy = {}, evidenceGate = {}, envelope = {}, calibrationRun = {}, behaviorChecks = [] } = {}) {
   const issues = [];
   const policyValidation = validateChangePolicy(policy);
   if (!policyValidation.valid) addIssue(issues, "POLICY_INVALID", `A valid versioned dry-run policy is required: ${policyValidation.errors.join("; ")}`);
@@ -53,6 +53,12 @@ export function evaluateControlledRelease({ policy = {}, parameterPolicy = {}, e
     && provenance.envelopeHash === envelope.envelopeHash;
   if (!identityMatches || !embeddedEvidenceMatches || !hashBindingsMatch) {
     addIssue(issues, "ARTIFACT_IDENTITY_MISMATCH", "Policy, evidence, envelope, and calibration artifacts must share bound identities and hashes");
+  }
+  try {
+    const computedPolicyHash = await sha256Jcs(policy);
+    if (provenance.policyHash !== computedPolicyHash) addIssue(issues, "POLICY_HASH_MISMATCH", "Calibration policy hash does not match the supplied policy manifest");
+  } catch {
+    addIssue(issues, "POLICY_HASH_MISMATCH", "Calibration policy manifest cannot be canonically hashed");
   }
 
   const objective = calibrationRun.objective ?? {};

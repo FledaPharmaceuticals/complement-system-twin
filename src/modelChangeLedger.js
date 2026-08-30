@@ -12,7 +12,7 @@ const PROTECTED_KEYS = new Set([
 const ALLOWED_KEYS = {
   root: new Set(["recordType", "recordVersion", "entryId", "status", "version", "baseVersion", "releasedAt", "context", "parameter", "rationale", "limitations", "evidence", "validation", "policy", "rollback", "comments", "formalModelChanged", "synthetic"]),
   context: new Set(["disease", "tissue", "pathway"]),
-  parameter: new Set(["parameterId", "label", "disclosureLevel", "direction", "oldValue", "newValue", "unit", "normalizedDeltaPercent", "lowerBound", "upperBound"]),
+  parameter: new Set(["parameterId", "label", "disclosureLevel", "direction", "oldValue", "newValue", "unit", "normalizedDeltaPercent", "normalizedLowerBoundPercent", "normalizedUpperBoundPercent"]),
   evidence: new Set(["publicationCount", "independentGroupCount", "publications"]),
   publication: new Set(["publicationId", "pmid", "pmcid", "doi", "sourceLocation", "context", "assay", "sampleSize", "unit", "endpoint", "reviewStatus"]),
   publicationContext: new Set(["disease", "tissue", "species", "spatialScope", "experimentalSetting", "timepoint", "timeUnit"]),
@@ -60,7 +60,7 @@ export function createPublicLedgerEntry({ releaseDecision = {}, parameterPolicy 
   if (!Number.isFinite(parameterChange.oldValue) || !Number.isFinite(parameterChange.newValue) || !Number.isFinite(parameterChange.relativeChange) || parameterChange.oldValue === 0) {
     throw new Error("Finite parameter change values are required for ledger projection");
   }
-  const derivedRelativeChange = (parameterChange.newValue - parameterChange.oldValue) / Math.abs(parameterChange.oldValue);
+  const derivedRelativeChange = Math.abs(parameterChange.newValue - parameterChange.oldValue) / Math.abs(parameterChange.oldValue);
   if (Math.abs(derivedRelativeChange - parameterChange.relativeChange) > 1e-12) throw new Error("Relative change must match the supplied old and new values");
   if (typeof metadata.synthetic !== "boolean") throw new Error("Explicit synthetic provenance is required");
   if (releaseDecision.parameterId && releaseDecision.parameterId !== parameterPolicy.parameterId) throw new Error("Release and parameter policy IDs must match");
@@ -167,7 +167,7 @@ export function validatePublicLedgerEntry(entry = {}) {
   } else if (["oldValue", "newValue", "unit"].some((key) => key in (entry.parameter ?? {}))) {
     errors.push("non-exact disclosures cannot expose old value, new value, or unit");
   }
-  if (entry.parameter?.disclosureLevel === "public_summary" && ["normalizedDeltaPercent", "lowerBound", "upperBound"].some((key) => key in (entry.parameter ?? {}))) {
+  if (entry.parameter?.disclosureLevel === "public_summary" && ["normalizedDeltaPercent", "normalizedLowerBoundPercent", "normalizedUpperBoundPercent"].some((key) => key in (entry.parameter ?? {}))) {
     errors.push("public_summary cannot expose normalized change or bounds");
   }
   if (!entry.rationale || !Array.isArray(entry.limitations) || !entry.limitations.length) errors.push("rationale and limitations are required");
@@ -176,6 +176,8 @@ export function validatePublicLedgerEntry(entry = {}) {
   if (!entry.rollback?.version || !entry.rollback?.status) errors.push("rollback metadata is required");
   if (!entry.validation?.uncertainty) errors.push("validation uncertainty is required");
   if (typeof entry.synthetic !== "boolean") errors.push("explicit synthetic provenance is required");
+  if (entry.formalModelChanged !== false) errors.push("Phase 1 public ledger cannot declare a formal model change");
+  if (entry.comments?.submissionEnabled !== false) errors.push("Phase 1 scientific comment submission must remain disabled");
   return { valid: errors.length === 0, errors };
 }
 

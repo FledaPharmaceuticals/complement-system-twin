@@ -107,3 +107,19 @@ test("blocks empty contexts and incomplete quantitative observations", async () 
   assert.match(errors, /sample size/i);
   assert.match(errors, /timepoint/i);
 });
+
+test("blocks observation context that contradicts its publication and parameter policy", async () => {
+  const input = await inputs();
+  Object.assign(input.evidence[0].observations[0], {
+    disease: "PNH",
+    tissue: "blood_rbc",
+    assay: "flow_cytometry",
+    spatialScope: "systemic",
+    experimentalSetting: "clinical"
+  });
+
+  const result = await evaluateEvidenceGate(input);
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.errors.join(" "), /observation context/i);
+});
