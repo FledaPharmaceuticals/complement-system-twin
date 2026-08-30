@@ -54,7 +54,7 @@ test("rejects numeric values that omit units and experimental design fields", ()
 test("reports the current catalog as evidence-guided but not quantitatively trainable", () => {
   const summary = summarizeTrainingReadiness(APPLIED_LITERATURE);
 
-  assert.equal(summary.totalRecords, 13);
+  assert.equal(summary.totalRecords, 15);
   assert.ok(summary.mechanisticGuidanceCount >= 4);
   assert.equal(summary.quantitativeObservationCount, 0);
   assert.equal(summary.calibrationEligibleRecordCount, 0);

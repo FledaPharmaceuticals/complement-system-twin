@@ -24,7 +24,8 @@ function paper({
   experimentalContext = "",
   mechanisticClaims = [],
   candidateEffects = [],
-  transferLimits = []
+  transferLimits = [],
+  clinicalOutcome = null
 }) {
   return Object.freeze({
     id: `pmid:${pmid}`,
@@ -44,6 +45,7 @@ function paper({
     mechanisticClaims,
     candidateEffects,
     transferLimits,
+    clinicalOutcome,
     url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
     sourceProvider: "PubMed",
     formalModelChanged: false
@@ -245,6 +247,48 @@ export const APPLIED_LITERATURE = Object.freeze([
     modelUse: "PNH hemolysis mechanism and proximal-versus-terminal inhibition guidance."
   }),
   paper({
+    pmid: "29801123",
+    doi: "10.1001/jamaophthalmol.2018.1544",
+    title: "Efficacy and Safety of Lampalizumab for Geographic Atrophy Due to Age-Related Macular Degeneration: Chroma and Spectri Phase 3 Randomized Clinical Trials",
+    authors: "Holz FG; Sadda SR; Busbee B; et al.",
+    year: 2018,
+    journal: "JAMA Ophthalmology",
+    evidenceType: "randomized_trial",
+    recognition: 98,
+    linkedEntities: ["AMD", "Factor D", "Lampalizumab", "Retina", "RPE", "Geographic Atrophy"],
+    modelUse: "Phase 3 clinical constraint: Factor D inhibition did not reduce geographic-atrophy enlargement versus sham at 48 weeks.",
+    experimentalContext: "Two multicenter, randomized, double-masked, sham-controlled phase 3 trials with 1,881 participants.",
+    mechanisticClaims: [
+      "Lampalizumab selectively inhibits complement Factor D, but target plausibility did not translate into reduced geographic-atrophy enlargement in CHROMA or SPECTRI."
+    ],
+    clinicalOutcome: "No confirmed clinical efficacy for geographic-atrophy enlargement in phase 3.",
+    transferLimits: [
+      "Do not infer geographic-atrophy benefit from Factor D target engagement alone.",
+      "Mechanistic biomarker changes and clinical lesion-growth outcomes must remain separate."
+    ]
+  }),
+  paper({
+    pmid: "28637922",
+    doi: "10.1126/scitranslmed.aaf1443",
+    title: "Targeting factor D of the alternative complement pathway reduces geographic atrophy progression secondary to age-related macular degeneration",
+    authors: "Yaspan BL; Williams DF; Holz FG; et al.",
+    year: 2017,
+    journal: "Science Translational Medicine",
+    evidenceType: "randomized_trial",
+    recognition: 88,
+    linkedEntities: ["AMD", "Factor D", "Lampalizumab", "Retina", "RPE", "Geographic Atrophy"],
+    modelUse: "Phase 2 hypothesis signal: MAHALO suggested slower geographic-atrophy enlargement, but the finding was not confirmed by subsequent phase 3 trials.",
+    experimentalContext: "Multicenter randomized phase 2 trial with 123 participants and an 18-month imaging endpoint.",
+    mechanisticClaims: [
+      "MAHALO supplied an early efficacy hypothesis for intravitreal Factor D inhibition in geographic atrophy."
+    ],
+    clinicalOutcome: "Exploratory phase 2 benefit signal; superseded as efficacy evidence by negative phase 3 trials.",
+    transferLimits: [
+      "The phase 2 signal cannot be used as a confirmed efficacy prior.",
+      "Any treatment-effect visualization must display the later phase 3 failure to confirm benefit."
+    ]
+  }),
+  paper({
     pmid: "37865470",
     doi: "10.1016/S0140-6736(23)01520-9",
     title: "Pegcetacoplan for the treatment of geographic atrophy secondary to age-related macular degeneration (OAKS and DERBY): two multicentre, randomised, double-masked, sham-controlled, phase 3 trials",
@@ -325,8 +369,10 @@ export function selectLiteratureForExperiment(plan, limit = 5) {
     return value;
   });
   const entities = [plan.diseaseContext, ...(plan.focus || []), ...interventionEntities];
+  const requiredTargets = interventionEntities.map(normalize);
   return rankAppliedLiterature(APPLIED_LITERATURE, { entities })
     .filter((record) => isDiseaseCompatible(record, plan.diseaseContext))
+    .filter((record) => !requiredTargets.length || requiredTargets.some((target) => record.linkedEntities.map(normalize).includes(target)))
     .filter((record) => record.ranking.contributions.relevance > 0)
     .slice(0, limit);
 }

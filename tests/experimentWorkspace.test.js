@@ -88,7 +88,21 @@ test("conversation renders Lambris evidence synthesis without promoting the mode
   assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
   assert.match(app, /Candidate model effects/);
   assert.match(app, /Formal model unchanged/);
-  assert.match(html, /app\.js\?v=20260830-amd-cohort-v2-1/);
+  assert.match(html, /app\.js\?v=20260830-scientific-dialog-v2-4/);
   assert.match(html, /id="organ-blood-pressure">120\/80/);
   assert.match(html, /id="organ-respiratory-rate">16/);
+});
+
+test("AMD cards use one canonical neovascular proxy score", async () => {
+  const app = await readFile(new URL("src/app.js", root), "utf8");
+
+  assert.match(app, /name:\s*"Neovascular Signal Proxy"[\s\S]{0,180}score:\s*clamp\(scores\.neovascularSignalProxy\)/);
+  assert.doesNotMatch(app, /diseaseWeightedScore\(scores\.neovascularSignalProxy/);
+});
+
+test("Factor D comparisons disclose the negative phase 3 clinical constraint", async () => {
+  const app = await readFile(new URL("src/app.js", root), "utf8");
+
+  assert.match(app, /CHROMA\/SPECTRI phase 3 trials did not confirm a geographic-atrophy benefit/i);
+  assert.match(app, /mechanistic target-engagement proxies/i);
 });

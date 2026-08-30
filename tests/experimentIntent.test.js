@@ -5,7 +5,7 @@ import { parseExperimentIntent } from "../src/experimentIntent.js";
 
 test("prepares a retina-centered chronic AMD experiment", () => {
   const plan = parseExperimentIntent(
-    "Model dry AMD with RPE stress, drusen and C3 activation over 12 months after factor D inhibition. Compare treated and untreated states."
+    "Model dry AMD with RPE stress, drusen and C3 activation over 12 months with intravitreal factor D inhibition from baseline. Compare treated and untreated states."
   );
 
   assert.equal(plan.diseaseContext, "AMD");
@@ -14,9 +14,33 @@ test("prepares a retina-centered chronic AMD experiment", () => {
   assert.ok(plan.focus.includes("C3"));
   assert.ok(plan.focus.includes("RPE"));
   assert.equal(plan.requestedComparison, true);
+  assert.deepEqual(plan.interventionStart, { value: 0, unit: "months" });
+  assert.equal(plan.interventionRoute, "intravitreal");
   assert.deepEqual(plan.duration, { value: 12, unit: "months" });
   assert.equal(plan.missingInformation.length, 0);
   assert.equal(plan.confidence, "high");
+});
+
+test("asks for AMD intervention timing and route instead of inventing them", () => {
+  const plan = parseExperimentIntent(
+    "Model dry AMD over 12 months with Factor D inhibition and compare treated and untreated states."
+  );
+
+  assert.equal(plan.canRun, false);
+  assert.equal(plan.interventionStart, null);
+  assert.equal(plan.interventionRoute, "unknown");
+  assert.ok(plan.missingInformation.some((item) => /intervention start/i.test(item)));
+  assert.ok(plan.missingInformation.some((item) => /intravitreal|systemic|route/i.test(item)));
+});
+
+test("extracts an explicit chronic intervention month", () => {
+  const plan = parseExperimentIntent(
+    "Model dry AMD for 12 months with intravitreal Factor D inhibition starting at month 6."
+  );
+
+  assert.deepEqual(plan.interventionStart, { value: 6, unit: "months" });
+  assert.equal(plan.interventionRoute, "intravitreal");
+  assert.equal(plan.canRun, true);
 });
 
 test("does not invent a disease for an incomplete experiment", () => {

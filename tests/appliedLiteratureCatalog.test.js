@@ -67,6 +67,22 @@ test("experiment literature selection returns disease and mechanism-relevant sou
   assert.ok(sources.every((record) => record.formalModelChanged === false));
 });
 
+test("AMD Factor D experiments use target-specific positive and negative trials", () => {
+  const sources = selectLiteratureForExperiment({
+    diseaseContext: "AMD",
+    focus: ["Factor D", "Retina"],
+    intervention: ["factorDInhibitor"]
+  });
+  const pmids = sources.map((record) => record.pmid);
+
+  assert.ok(pmids.includes("29801123"));
+  assert.ok(pmids.includes("28637922"));
+  assert.ok(pmids.indexOf("29801123") < pmids.indexOf("28637922"));
+  assert.equal(pmids.includes("37865470"), false);
+  assert.equal(pmids.includes("42063338"), false);
+  assert.match(sources.find((record) => record.pmid === "29801123").modelUse, /did not|no benefit|not confirm/i);
+});
+
 test("Lambris portfolio records carry PubMed-verified training boundaries", () => {
   const requiredPmids = ["42063338", "40243098", "39809101", "39666368"];
   const records = APPLIED_LITERATURE.filter((record) => requiredPmids.includes(record.pmid));

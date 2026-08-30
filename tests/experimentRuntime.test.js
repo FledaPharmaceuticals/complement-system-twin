@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   buildEndpointComparison,
+  getEndpointComparisonValues,
   createHeroResetSnapshot,
   formatSimulationTime,
   prepareEndpointComparisonInputs,
@@ -139,6 +140,28 @@ test("builds an explicit treated-versus-untreated endpoint comparison", () => {
 
   assert.deepEqual(comparison.map((row) => row.signal), ["C3a", "C5a", "MAC"]);
   assert.deepEqual(comparison[0], { signal: "C3a", untreated: 82, treated: 42, delta: -40 });
+});
+
+test("extracts AMD cohort endpoints for treated-versus-untreated comparison", () => {
+  const values = getEndpointComparisonValues({
+    series: [
+      { name: "C3", data: [{ value: 100 }, { value: 100 }] },
+      { name: "C3a/C3", data: [{ value: 100 }, { value: 114 }] },
+      { name: "C3d/C3", data: [{ value: 100 }, { value: 125 }] },
+      { name: "Ba/Bb", data: [{ value: 100 }, { value: 125 }] },
+      { name: "sC5b-9", data: [{ value: 100 }, { value: 110 }] },
+      { name: "Factor D", data: [{ value: 100 }, { value: 112 }] }
+    ]
+  });
+
+  assert.deepEqual(values, {
+    C3: 100,
+    "C3a/C3": 114,
+    "C3d/C3": 125,
+    "Ba/Bb": 125,
+    "sC5b-9": 110,
+    "Factor D": 112
+  });
 });
 
 test("C5aR intervention compares receptor signaling without claiming lower C5a ligand", () => {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Complement System Digital Twin</title>
-    <link rel="stylesheet" href="./src/styles.css">
+    <link rel="stylesheet" href="./src/styles.css?v=20260830-scientific-dialog-v2-4">
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   </head>
   <body>
@@ -257,9 +257,9 @@
         <div class="experiment-dialog-layout">
           <div class="experiment-dialog-main">
             <label for="experiment-description">Experiment description</label>
-            <textarea id="experiment-description" rows="6" maxlength="3000" placeholder="Example: Model dry AMD with RPE stress, drusen and C3 activation over 12 months after Factor D inhibition. Compare treated and untreated states."></textarea>
+            <textarea id="experiment-description" rows="6" maxlength="3000" placeholder="Example: Model dry AMD over 12 months with intravitreal Factor D inhibition from baseline. Compare treated and untreated states."></textarea>
             <div class="experiment-example-row" aria-label="Example experiment prompts">
-              <button type="button" class="experiment-example" data-experiment-example="Model dry AMD with RPE stress, drusen and C3 activation over 12 months after Factor D inhibition. Compare treated and untreated states.">AMD + Factor D</button>
+              <button type="button" class="experiment-example" data-experiment-example="Model dry AMD with RPE stress, drusen and C3 activation over 12 months with intravitreal Factor D inhibition from baseline. Compare treated and untreated states.">AMD + Factor D</button>
               <button type="button" class="experiment-example" data-experiment-example="Simulate PNH with terminal complement and RBC hemolysis over 120 minutes after C5 inhibition.">PNH + C5</button>
               <button type="button" class="experiment-example" data-experiment-example="Run a normal healthy baseline for 120 minutes without treatment.">Normal baseline</button>
             </div>
@@ -937,6 +937,6 @@
         </div>
       </details>
     </main>
-    <script type="module" src="./src/app.js?v=20260830-amd-cohort-v2-1"></script>
+    <script type="module" src="./src/app.js?v=20260830-scientific-dialog-v2-4"></script>
   </body>
 </html>

@@ -3,7 +3,7 @@ import { runComplementSimulation } from "./simulation.js";
 import { generateComplementTwinSummary } from "./summary.js";
 import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js?v=20260830-amd-cohort-v2-1";
 import { generateDynamicsInterpretation, nearestTimePoint } from "./modules/complement-system-twin/dynamics/generateDynamicsInterpretation.js";
-import { generateAmdDiseaseSummary, getAmdDisclaimer } from "./modules/complement-system-twin/dynamics/generateAmdDiseaseSummary.js?v=20260830-amd-cohort-v2-1";
+import { generateAmdDiseaseSummary, getAmdDisclaimer } from "./modules/complement-system-twin/dynamics/generateAmdDiseaseSummary.js?v=20260830-scientific-dialog-v2-4";
 import { diseaseOrganWeightMatrix } from "./modules/complement-system-twin/disease/organWeightMatrix.js";
 import { rankDiseaseSpecificImpacts } from "./modules/complement-system-twin/disease/diseaseOrganScoring.js";
 import { calculateCancerMicroenvironmentImpacts } from "./modules/complement-system-twin/disease/cancerOutcomeProfile.js?v=20260829-public-teaching-v2-1";
@@ -33,11 +33,11 @@ import { createValidationDataset, compareValidationDataset, parseValidationDatas
 import { generateValidationCalibrationCandidates } from "./validationCalibration.js";
 import { preflightValidationIntake } from "./validationIntake.js";
 import { getTissueImageRecord } from "./tissueImageCatalog.js?v=20260829-public-teaching-v2-1";
-import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-vitals-v2-2";
-import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
+import { parseExperimentIntent } from "./experimentIntent.js?v=20260830-scientific-dialog-v2-4";
+import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js?v=20260830-scientific-dialog-v2-4";
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
 import { summarizeTrainingReadiness } from "./trainingReadiness.js";
-import { buildEndpointComparison, createHeroResetSnapshot, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolvePlaybackStartTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-playback-reset-v2-3";
+import { buildEndpointComparison, createHeroResetSnapshot, formatSimulationTime, getEndpointComparisonValues, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolvePlaybackStartTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260830-scientific-dialog-v2-4";
 
 const state = {
   entityFilter: "all",
@@ -211,6 +211,8 @@ function renderPreparedExperimentPlan(plan) {
       <article><span>Complement focus</span><strong>${list(plan.focus, "Complete modeled panel")}</strong></article>
       <article><span>Intervention</span><strong>${list(plan.intervention.map(formatInterventionName), "No intervention")}</strong></article>
       <article><span>Time scale</span><strong>${escapeHtml(timeLabel)}</strong></article>
+      ${plan.intervention.length ? `<article><span>Intervention start</span><strong>${plan.interventionStart ? escapeHtml(formatSimulationTime(plan.interventionStart.value, plan.interventionStart.unit)) : "Needs clarification"}</strong></article>` : ""}
+      ${plan.intervention.length ? `<article><span>Administration route</span><strong>${plan.interventionRoute === "unknown" ? "Needs clarification" : escapeHtml(plan.interventionRoute)}</strong></article>` : ""}
     </div>
     ${renderPlanNotes("Missing information", plan.missingInformation, "missing")}
     ${renderPlanNotes("Explicit assumptions", plan.assumptions, "assumption")}
@@ -225,6 +227,7 @@ function renderPreparedExperimentPlan(plan) {
           <a href="${record.url}" target="_blank" rel="noreferrer">${escapeHtml(record.title)}</a>
           <small>${record.year} · ${escapeHtml(record.journal)} · PMID ${record.pmid}${record.priorityAuthor ? " · Lambris priority source" : ""}</small>
           <p>${escapeHtml(record.modelUse)}</p>
+          ${record.clinicalOutcome ? `<p class="experiment-clinical-outcome"><strong>Clinical outcome:</strong> ${escapeHtml(record.clinicalOutcome)}</p>` : ""}
         </li>
       `).join("") || "<li>No directly linked catalog source was found. The plan remains a model hypothesis.</li>"}</ol>
       <p>These sources guide candidate assumptions only. They do not automatically modify the active model.</p>
@@ -299,8 +302,8 @@ function runPreparedExperiment() {
   }
   syncHeroTimeScaleControls();
   const interventionTime = document.getElementById("hero-intervention-time");
-  if (interventionTime && plan.intervention.length) {
-    interventionTime.value = String(Number(interventionTime.max) * 0.5);
+  if (interventionTime && plan.intervention.length && plan.interventionStart) {
+    interventionTime.value = String(plan.interventionStart.value);
     document.getElementById("hero-intervention-time-output").textContent = formatHeroTime(Number(interventionTime.value));
   }
   startHeroPlayback(0);
@@ -320,6 +323,9 @@ function renderExperimentLiveResult(plan) {
   const sources = plan.evidenceSources || [];
   const requestedDuration = state.heroPlayback.activeDuration;
   const durationText = requestedDuration ? formatSimulationTime(requestedDuration.duration, requestedDuration.unit) : plan.timeScale.replaceAll("_", " ");
+  const comparisonBoundary = plan.intervention.includes("factorDInhibitor")
+    ? `<p class="experiment-comparison-boundary"><strong>Factor D evidence boundary:</strong> These are mechanistic target-engagement proxies. CHROMA/SPECTRI phase 3 trials did not confirm a geographic-atrophy benefit.</p>`
+    : "";
   const comparison = plan.requestedComparison && state.heroPlayback.comparisonRows.length
     ? `<section class="experiment-endpoint-comparison" aria-label="Treated versus untreated endpoint comparison">
         <div class="comparison-heading"><strong>Treated vs. untreated endpoint</strong><span>Model output units</span></div>
@@ -327,6 +333,7 @@ function renderExperimentLiveResult(plan) {
           <article><span>${escapeHtml(row.signal)}</span><b>${row.untreated}</b><i>Untreated</i><b>${row.treated}</b><i>Treated</i><strong class="${row.delta <= 0 ? "delta-down" : "delta-up"}">${row.delta > 0 ? "+" : ""}${row.delta}</strong></article>
         `).join("")}</div>
         <p>Paired teaching-model comparison using identical disease inputs. Values are comparable within each signal only and are not measured concentrations.</p>
+        ${comparisonBoundary}
       </section>`
     : "";
   container.innerHTML = `
@@ -2022,7 +2029,7 @@ function getAmdDrugTargetExplanation(targets) {
     c3Inhibitor: "C3 inhibition broadly reduces upstream C3a/C3b and downstream C5a/MAC signals, with broader immune suppression concern.",
     c5Inhibitor: "C5 inhibition lowers C5a and MAC but does not directly remove upstream C3b deposition.",
     factorBInhibitor: "Factor B inhibition reduces alternative pathway amplification and may be more pathway-selective.",
-    factorDInhibitor: "Factor D inhibition reduces alternative pathway convertase formation and C3bBb-driven amplification.",
+    factorDInhibitor: "Factor D inhibition can reduce alternative-pathway convertase formation mechanistically. This target-engagement proxy is not a clinical efficacy claim; lampalizumab did not confirm geographic-atrophy benefit in phase 3 CHROMA/SPECTRI trials.",
     c5aRInhibitor: "C5aR inhibition reduces inflammatory response signaling while leaving complement cleavage products visible in the model.",
     cd59Modifier: "CD59 support represents improved terminal pathway regulation and lower local MAC stress."
   };
@@ -2213,7 +2220,7 @@ function calculateAmdOrganScores(values) {
     {
       id: "neovascular-signal",
       name: "Neovascular Signal Proxy",
-      score: clamp(diseaseWeightedScore(scores.neovascularSignalProxy, weights.choroid) - 18),
+      score: clamp(scores.neovascularSignalProxy),
       description: "Wet AMD pathway signal proxy. In V1 this remains a pathway signal, not a diagnosis."
     },
     {
@@ -2467,8 +2474,8 @@ function heroReactionTraces() {
       interventions: { c3Inhibitor: 0, factorBInhibitor: 0, factorDInhibitor: 0, c5Inhibitor: 0, c5aRInhibitor: 0, cd59Modifier: 100 }
     });
     const comparisonInputs = prepareEndpointComparisonInputs({
-      untreated: getSimulationEndpointValues(untreatedResult),
-      treated: getSimulationEndpointValues(result),
+      untreated: getEndpointComparisonValues(untreatedResult),
+      treated: getEndpointComparisonValues(result),
       targets: intervention.targets,
       strength: intervention.strength
     });
@@ -2522,16 +2529,6 @@ function refreshExperimentResultAfterControlChange() {
   if (container) {
     container.innerHTML = `<div class="experiment-result-header"><strong>Manual teaching controls active</strong><span>${escapeHtml(MODEL_VERSION)}</span></div><p>The main curves and research-signal cards reflect the current controls. Analyze the description again to create a new evidence-linked experiment plan.</p>`;
   }
-}
-
-function getSimulationEndpointValues(result) {
-  const selected = new Set(["C3a", "C3b", "C5a", "MAC", "C3bBb"]);
-  return Object.fromEntries(result.series
-    .filter((series) => selected.has(series.name))
-    .map((series) => {
-      const values = series.data.map((point) => point.value);
-      return [series.name, values.at(-1)];
-    }));
 }
 
 function getHeroDiseasePreset(disease) {

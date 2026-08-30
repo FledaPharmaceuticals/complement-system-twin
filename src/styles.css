@@ -1433,6 +1433,12 @@ h3 { letter-spacing: 0; }
 .experiment-comparison-grid article strong { grid-column: 1 / -1; margin-top: 3px; font-size: 12px; }
 .experiment-comparison-grid .delta-down { color: #5be0a6; }
 .experiment-comparison-grid .delta-up { color: #ff7a89; }
+.experiment-endpoint-comparison .experiment-comparison-boundary {
+  padding: 8px 10px;
+  border-left: 2px solid #f6c85f;
+  color: #e8d9a6;
+  background: rgba(83, 61, 19, .24);
+}
 
 .experiment-safety-note {
   margin: 12px 0 0;
@@ -1524,6 +1530,13 @@ h3 { letter-spacing: 0; }
 .experiment-evidence-guidance a { color: #e9f5ff; font-weight: 750; }
 .experiment-evidence-guidance small { display: block; margin-top: 3px; color: #78cfea; }
 .experiment-evidence-guidance li p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.experiment-evidence-guidance li .experiment-clinical-outcome {
+  padding: 7px 9px;
+  border-left: 2px solid #f6c85f;
+  color: #e8d9a6;
+  background: rgba(83, 61, 19, .24);
+}
+.experiment-clinical-outcome strong { color: #ffe39a; }
 
 .experiment-training-summary {
   margin-top: 14px;

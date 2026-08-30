@@ -59,6 +59,24 @@ function detectDuration(text) {
   return { value: Number(match[1]), unit: match[2].toLowerCase() };
 }
 
+function detectInterventionStart(text, timeScale) {
+  if (/\b(?:from|at|starting (?:from|at)|beginning (?:from|at))\s+(?:the\s+)?baseline\b|\b(?:at|from)\s+(?:month|minute)\s*0\b/i.test(text)) {
+    return { value: 0, unit: timeScale === "chronic_months" ? "months" : "min" };
+  }
+  const match = text.match(/\b(?:starting|beginning|interven(?:e|tion)|dose|dosing|treat(?:ment)?)\s+(?:at|after|from)\s+(?:the\s+)?(?:month|minute|hour)?\s*(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?|months?|years?)?\b/i)
+    || text.match(/\b(?:at|after)\s+(\d+(?:\.\d+)?)\s*(minutes?|mins?|hours?|hrs?|months?|years?)\b/i);
+  if (!match) return null;
+  const unit = match[2] || (timeScale === "chronic_months" ? "months" : "minutes");
+  const normalized = normalizeExperimentDuration({ value: Number(match[1]), unit }, timeScale);
+  return normalized ? { value: normalized.duration, unit: normalized.unit } : null;
+}
+
+function detectInterventionRoute(text) {
+  if (/\b(?:intravitreal|intraocular|ocular injection|eye injection)\b/i.test(text)) return "intravitreal";
+  if (/\b(?:systemic|intravenous|subcutaneous|oral|infusion)\b/i.test(text)) return "systemic";
+  return "unknown";
+}
+
 export function parseExperimentIntent(text = "", options = {}) {
   const normalized = String(text).trim();
   const diseaseContext = options.diseaseContext || firstMatch(normalized, DISEASE_RULES);
@@ -67,6 +85,8 @@ export function parseExperimentIntent(text = "", options = {}) {
   const timeScale = options.timeScale || detectTimeScale(normalized, diseaseContext);
   const requestedComparison = /\b(?:compare|comparison|versus|vs\.?|treated and untreated|control arm)\b/i.test(normalized);
   const duration = detectDuration(normalized);
+  const interventionStart = intervention.length ? detectInterventionStart(normalized, timeScale) : null;
+  const interventionRoute = intervention.length ? detectInterventionRoute(normalized) : "not_applicable";
   const assumptions = [];
   const missingInformation = [];
   const safetyNotes = ["Research and education use only; outputs are mechanistic proxies, not diagnosis."];
@@ -74,6 +94,12 @@ export function parseExperimentIntent(text = "", options = {}) {
   if (diseaseContext === "unknown") missingInformation.push("Specify a disease context or normal baseline.");
   if (timeScale === "unknown") missingInformation.push("Specify an acute or chronic simulation time scale.");
   if (requestedComparison && !intervention.length) missingInformation.push("Specify an intervention for the treated-versus-untreated comparison.");
+  if (diseaseContext === "AMD" && intervention.length && !interventionStart) {
+    missingInformation.push("Specify the intervention start, for example from baseline or starting at month 6.");
+  }
+  if (diseaseContext === "AMD" && intervention.length && interventionRoute === "unknown") {
+    missingInformation.push("Specify whether the AMD intervention is intravitreal/ocular or systemic.");
+  }
   if (duration && timeScale !== "unknown" && !normalizeExperimentDuration(duration, timeScale)) {
     missingInformation.push("The requested duration unit is incompatible with the selected time scale.");
   }
@@ -98,6 +124,8 @@ export function parseExperimentIntent(text = "", options = {}) {
     intervention,
     timeScale,
     requestedComparison,
+    interventionStart,
+    interventionRoute,
     assumptions,
     missingInformation,
     confidence,

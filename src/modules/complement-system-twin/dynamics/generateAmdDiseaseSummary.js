@@ -26,7 +26,7 @@ function describeTargets(targets) {
     c3Inhibitor: "C3 inhibition broadly suppresses upstream C3a, C3b, C5a, and MAC signals, which may reduce retinal complement activation but carries broader immune suppression concern.",
     c5Inhibitor: "C5 inhibition reduces downstream C5a and MAC while leaving upstream C3b deposition comparatively active.",
     factorBInhibitor: "Factor B inhibition reduces alternative pathway amplification and may be more pathway-selective than broad C3 inhibition.",
-    factorDInhibitor: "Factor D inhibition reduces alternative pathway convertase formation and may lower C3bBb-driven amplification.",
+    factorDInhibitor: "Factor D inhibition can reduce alternative-pathway convertase activity mechanistically, but lampalizumab did not confirm a geographic-atrophy benefit in phase 3 CHROMA/SPECTRI trials.",
     cd59Modifier: "Complement regulation enhancement is represented as improved terminal pathway restraint and lower local MAC tissue stress."
   };
   return targets.map((target) => descriptions[target]).filter(Boolean).join(" ");

@@ -139,6 +139,17 @@ export function buildEndpointComparison({ untreated = {}, treated = {} }) {
   }));
 }
 
+export function getEndpointComparisonValues(result = {}) {
+  const selected = new Set([
+    "C3", "C3a", "C3b", "C5a", "MAC", "C3bBb",
+    "C3a/C3", "C3d/C3", "Ba/Bb", "C5a/C5", "sC5b-9", "Factor D"
+  ]);
+  return Object.fromEntries((result.series || [])
+    .filter((series) => selected.has(series.name))
+    .map((series) => [series.name, series.data?.at(-1)?.value])
+    .filter(([, value]) => Number.isFinite(value)));
+}
+
 export function prepareEndpointComparisonInputs({ untreated = {}, treated = {}, targets = [], strength = 0 }) {
   const untreatedCopy = { ...untreated };
   const treatedCopy = { ...treated };
