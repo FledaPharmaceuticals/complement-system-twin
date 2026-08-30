@@ -68,7 +68,8 @@
       "label": "Retinal alternative-pathway amplification",
       "disclosureLevel": "public_normalized",
       "direction": "increase",
-      "normalizedDeltaPercent": 8
+      "normalizedDeltaPercent": 8,
+      "boundsCategory": "Policy-bounded range"
     },
     "rationale": "Synthetic dry-run tests a retina-centered calibration policy and public disclosure route.",
     "limitations": [

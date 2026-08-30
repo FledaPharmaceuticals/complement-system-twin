@@ -28,7 +28,8 @@ function formatPercent(value) {
 function parameterSummary(parameter = {}) {
   const direction = parameter.direction === "unchanged" ? "No change" : `${parameter.direction || "Unknown"} direction`;
   if (Number.isFinite(parameter.normalizedDeltaPercent)) {
-    return `${direction} · ${formatPercent(parameter.normalizedDeltaPercent)} normalized change`;
+    const bounds = parameter.boundsCategory ? ` · ${parameter.boundsCategory}` : "";
+    return `${direction} · ${formatPercent(parameter.normalizedDeltaPercent)} normalized change${bounds}`;
   }
   if (parameter.disclosureLevel === "public_exact" && Number.isFinite(parameter.oldValue) && Number.isFinite(parameter.newValue)) {
     return `${direction} · ${parameter.oldValue} to ${parameter.newValue} ${parameter.unit || ""}`.trim();

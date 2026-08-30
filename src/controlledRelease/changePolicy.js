@@ -51,6 +51,8 @@ export function validateChangePolicy(policy = {}) {
 }
 
 export function getParameterPolicy(policy = {}, parameterId) {
-  const parameter = policy.parameters?.find((item) => item.parameterId === parameterId);
+  const parameter = Array.isArray(policy.parameters)
+    ? policy.parameters.find((item) => item.parameterId === parameterId)
+    : null;
   return parameter ? structuredClone(parameter) : null;
 }

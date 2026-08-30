@@ -28,7 +28,7 @@ const entries = [
     baseVersion: "complement-twin-v1.1-contract",
     releasedAt: null,
     context: { disease: "AMD", tissue: "Retina / RPE / choroid", pathway: "Alternative pathway" },
-    parameter: { parameterId: "amd.retinalAlternativeAmplification", label: "Retinal alternative-pathway amplification", disclosureLevel: "public_normalized", direction: "increase", normalizedDeltaPercent: 8 },
+    parameter: { parameterId: "amd.retinalAlternativeAmplification", label: "Retinal alternative-pathway amplification", disclosureLevel: "public_normalized", direction: "increase", normalizedDeltaPercent: 8, boundsCategory: "Policy-bounded range" },
     rationale: "Synthetic dry-run tests a retina-centered calibration policy and public disclosure route.",
     limitations: ["Synthetic evidence only", "No active model change", "Not a patient prediction"],
     evidence: {

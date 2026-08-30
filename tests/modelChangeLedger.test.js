@@ -164,10 +164,10 @@ test("Phase 1 validator blocks formal mutation, comment submission, and exact bo
   const unsafe = structuredClone(base);
   unsafe.formalModelChanged = true;
   unsafe.comments.submissionEnabled = true;
-  unsafe.parameter.lowerBound = 0.8;
+  unsafe.parameter.normalizedLowerBoundPercent = 80;
 
   const result = validatePublicLedgerEntry(unsafe);
 
   assert.equal(result.valid, false);
-  assert.match(result.errors.join(" "), /formal model|comment submission|lowerBound/i);
+  assert.match(result.errors.join(" "), /formal model|comment submission|normalizedLowerBoundPercent/i);
 });

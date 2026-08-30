@@ -12,7 +12,7 @@ const PROTECTED_KEYS = new Set([
 const ALLOWED_KEYS = {
   root: new Set(["recordType", "recordVersion", "entryId", "status", "version", "baseVersion", "releasedAt", "context", "parameter", "rationale", "limitations", "evidence", "validation", "policy", "rollback", "comments", "formalModelChanged", "synthetic"]),
   context: new Set(["disease", "tissue", "pathway"]),
-  parameter: new Set(["parameterId", "label", "disclosureLevel", "direction", "oldValue", "newValue", "unit", "normalizedDeltaPercent", "normalizedLowerBoundPercent", "normalizedUpperBoundPercent"]),
+  parameter: new Set(["parameterId", "label", "disclosureLevel", "direction", "oldValue", "newValue", "unit", "normalizedDeltaPercent", "boundsCategory"]),
   evidence: new Set(["publicationCount", "independentGroupCount", "publications"]),
   publication: new Set(["publicationId", "pmid", "pmcid", "doi", "sourceLocation", "context", "assay", "sampleSize", "unit", "endpoint", "reviewStatus"]),
   publicationContext: new Set(["disease", "tissue", "species", "spatialScope", "experimentalSetting", "timepoint", "timeUnit"]),
@@ -78,6 +78,7 @@ export function createPublicLedgerEntry({ releaseDecision = {}, parameterPolicy 
     parameter.normalizedDeltaPercent = percent(parameterChange.relativeChange);
   } else if (disclosureLevel === "public_normalized") {
     parameter.normalizedDeltaPercent = percent(parameterChange.relativeChange);
+    parameter.boundsCategory = parameterPolicy.boundsCategory ?? "Policy-bounded range";
   }
 
   const entry = {
@@ -167,7 +168,9 @@ export function validatePublicLedgerEntry(entry = {}) {
   } else if (["oldValue", "newValue", "unit"].some((key) => key in (entry.parameter ?? {}))) {
     errors.push("non-exact disclosures cannot expose old value, new value, or unit");
   }
-  if (entry.parameter?.disclosureLevel === "public_summary" && ["normalizedDeltaPercent", "normalizedLowerBoundPercent", "normalizedUpperBoundPercent"].some((key) => key in (entry.parameter ?? {}))) {
+  if (entry.parameter?.disclosureLevel === "public_normalized" && !entry.parameter.boundsCategory) errors.push("public_normalized requires a non-numeric bounds category");
+  if (entry.parameter?.disclosureLevel === "public_normalized" && typeof entry.parameter.boundsCategory !== "string") errors.push("public_normalized bounds category must be text");
+  if (entry.parameter?.disclosureLevel === "public_summary" && ["normalizedDeltaPercent", "boundsCategory"].some((key) => key in (entry.parameter ?? {}))) {
     errors.push("public_summary cannot expose normalized change or bounds");
   }
   if (!entry.rationale || !Array.isArray(entry.limitations) || !entry.limitations.length) errors.push("rationale and limitations are required");

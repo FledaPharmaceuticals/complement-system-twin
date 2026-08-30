@@ -112,3 +112,13 @@ test("blocks a policy provenance hash that does not match the policy manifest", 
   assert.equal(result.status, "blocked");
   assert.ok(result.reasonCodes.includes("POLICY_HASH_MISMATCH"));
 });
+
+test("malformed policy collection returns a blocked decision instead of throwing", async () => {
+  const input = await fixture();
+  input.policy.parameters = {};
+
+  const result = await evaluateControlledRelease(input);
+
+  assert.equal(result.status, "blocked");
+  assert.ok(result.reasonCodes.includes("POLICY_INVALID"));
+});
