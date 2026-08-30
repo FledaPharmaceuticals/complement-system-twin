@@ -31,6 +31,33 @@ export const C3G_LIMITATION_TERMS = Object.freeze([
   "glomerular-local complement activity"
 ]);
 
+export const FORBIDDEN_PUBLIC_FIELDS = Object.freeze([
+  "raw_literature_artifacts",
+  "observation_package_payloads",
+  "extraction_prompts",
+  "ai_reasoning",
+  "raw_model_output",
+  "candidate_parameter_values",
+  "private_priors",
+  "unpublished_calibration_values",
+  "formal_parameter_history",
+  "reviewer_identity",
+  "private_review_notes",
+  "conflict_details",
+  "administrative_workflow_records",
+  "database_ids",
+  "source_paths",
+  "migration_runs",
+  "audit_events",
+  "backup_metadata",
+  "secrets_tokens_or_credentials",
+  "patient_identity",
+  "clinical_production_data",
+  "gn_data"
+]);
+
+const FORBIDDEN_PUBLIC_FIELD_SET = new Set(FORBIDDEN_PUBLIC_FIELDS);
+
 const NUMERIC_OUTPUT_FIELDS = new Set(PUBLIC_SIMULATION_OUTPUT_FIELDS.slice(0, 10));
 const EXPECTED_TOP_LEVEL_FIELDS = [
   "scenario_id",
@@ -74,6 +101,8 @@ export async function validatePublicSimulationResponse(response, {
     if (!isPlainObject(response) || !hasExactKeys(response, EXPECTED_TOP_LEVEL_FIELDS)) {
       return failure("invalid_schema");
     }
+    const forbiddenPath = findForbiddenPublicField(response);
+    if (forbiddenPath) return failure("forbidden_public_field", forbiddenPath);
     if (response.model_version !== PUBLIC_SIMULATION_METADATA.version
         || response.research_use_only !== true
         || response.diagnostic_use !== false
@@ -189,6 +218,24 @@ function isPlainObject(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
+}
+
+function findForbiddenPublicField(value, path = []) {
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const found = findForbiddenPublicField(value[index], [...path, String(index)]);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (!isPlainObject(value)) return null;
+  for (const [key, child] of Object.entries(value)) {
+    const childPath = [...path, key];
+    if (FORBIDDEN_PUBLIC_FIELD_SET.has(key)) return childPath.join(".");
+    const found = findForbiddenPublicField(child, childPath);
+    if (found) return found;
+  }
+  return null;
 }
 
 function failure(reason, detail = null) {

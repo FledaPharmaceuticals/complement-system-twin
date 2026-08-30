@@ -16,52 +16,52 @@ export async function runDualSimulation(input, {
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), Math.max(1, timeoutMs));
-  let response;
   try {
-    response = await fetchImpl(`${baseUrl}/v1/simulations`, {
+    const response = await fetchImpl(`${baseUrl}/v1/simulations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ scenario_id: scenarioId, inputs: input }),
       signal: controller.signal
     });
+
+    if (response.status >= 500 && response.status <= 599) {
+      return fallback(javascriptOutputs, "server_5xx");
+    }
+    if (!response.ok) {
+      return directError(response, await readErrorMessage(response));
+    }
+
+    let payload;
+    try {
+      payload = await response.json();
+    } catch (error) {
+      if (error?.name === "AbortError") throw error;
+      return fallback(javascriptOutputs, "invalid_schema");
+    }
+    const validation = await validatePublicSimulationResponse(payload, {
+      expectedScenarioId: scenarioId,
+      diseaseContext: input?.diseaseContext,
+      javascriptOutputs
+    });
+    if (!validation.ok) {
+      return fallback(javascriptOutputs, validation.reason, validation.detail);
+    }
+
+    return {
+      status: "api_verified",
+      source: "api",
+      outputs: validation.outputs,
+      javascriptOutputs: structuredClone(javascriptOutputs),
+      resultId: validation.resultId,
+      model: validation.model,
+      warnings: validation.warnings
+    };
   } catch (error) {
     const reason = error?.name === "AbortError" ? "timeout" : "network_error";
     return fallback(javascriptOutputs, reason);
   } finally {
     clearTimeout(timeout);
   }
-
-  if (response.status >= 500 && response.status <= 599) {
-    return fallback(javascriptOutputs, "server_5xx");
-  }
-  if (!response.ok) {
-    return directError(response, await readErrorMessage(response));
-  }
-
-  let payload;
-  try {
-    payload = await response.json();
-  } catch {
-    return fallback(javascriptOutputs, "invalid_schema");
-  }
-  const validation = await validatePublicSimulationResponse(payload, {
-    expectedScenarioId: scenarioId,
-    diseaseContext: input?.diseaseContext,
-    javascriptOutputs
-  });
-  if (!validation.ok) {
-    return fallback(javascriptOutputs, validation.reason, validation.detail);
-  }
-
-  return {
-    status: "api_verified",
-    source: "api",
-    outputs: validation.outputs,
-    javascriptOutputs: structuredClone(javascriptOutputs),
-    resultId: validation.resultId,
-    model: validation.model,
-    warnings: validation.warnings
-  };
 }
 
 function fallback(javascriptOutputs, fallbackReason, detail = null) {
@@ -80,11 +80,13 @@ async function readErrorMessage(response) {
     const payload = await response.json();
     if (typeof payload?.detail === "string") return payload.detail;
     if (payload?.detail) return JSON.stringify(payload.detail);
-  } catch {
+  } catch (error) {
+    if (error?.name === "AbortError") throw error;
     try {
       const message = await response.text();
       if (message) return message;
-    } catch {
+    } catch (textError) {
+      if (textError?.name === "AbortError") throw textError;
       // The status code remains the authoritative classification.
     }
   }

@@ -24,6 +24,7 @@ test("simulation console exposes source provenance and uses the dual-run adapter
   assert.match(app, /simulation-result-source/);
   assert.match(app, /teaching_candidate/);
   assert.match(app, /unstratified/);
+  assert.doesNotMatch(app, /serverWarnings\.join/);
 });
 
 test("server substitution remains limited to the rule-based result console", () => {
