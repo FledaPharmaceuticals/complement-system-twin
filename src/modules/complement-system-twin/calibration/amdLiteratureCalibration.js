@@ -58,6 +58,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "alternativeMultiplier",
       evidenceLevel: "clinical + genetic + mechanistic",
       sampleContext: "human genetic association, ocular biology, disease mechanism",
+      sourceLabel: "Scholl et al., PLOS ONE 2008",
+      sourceUrl: "https://doi.org/10.1371/journal.pone.0002593",
       confidence: 0.82
     },
     {
@@ -68,6 +70,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "factorHRegulationMultiplier",
       evidenceLevel: "genetic + mechanistic",
       sampleContext: "human genetic association and complement regulation mechanism",
+      sourceLabel: "Wilke & Apte, JCI 2024",
+      sourceUrl: "https://doi.org/10.1172/JCI178296",
       confidence: 0.84
     },
     {
@@ -78,6 +82,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "drusenProxyWeight",
       evidenceLevel: "mechanistic + ocular tissue association",
       sampleContext: "retina, RPE, drusen, choroid interface",
+      sourceLabel: "Wilke & Apte, JCI 2024",
+      sourceUrl: "https://doi.org/10.1172/JCI178296",
       confidence: 0.72
     },
     {
@@ -88,6 +94,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "retinalTissueSensitivityMultiplier",
       evidenceLevel: "mechanistic",
       sampleContext: "ocular inflammatory signaling",
+      sourceLabel: "Altay et al., Eye 2019",
+      sourceUrl: "https://doi.org/10.1038/s41433-019-0501-4",
       confidence: 0.66
     },
     {
@@ -98,6 +106,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "macFormationLocalRiskMultiplier",
       evidenceLevel: "biomarker + tissue mechanism",
       sampleContext: "retina/choroid local tissue context",
+      sourceLabel: "Schick et al., Eye 2017",
+      sourceUrl: "https://doi.org/10.1038/eye.2016.328",
       confidence: 0.68
     },
     {
@@ -108,6 +118,8 @@ export const amdLiteratureCalibration = {
       modelParameter: "alternativeMultiplier",
       evidenceLevel: "genetic association",
       sampleContext: "human AMD genetic association",
+      sourceLabel: "Scholl et al., PLOS ONE 2008",
+      sourceUrl: "https://doi.org/10.1371/journal.pone.0002593",
       confidence: 0.76
     }
   ],

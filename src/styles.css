@@ -871,12 +871,67 @@ h3 { letter-spacing: 0; }
   font-size: 11px;
 }
 
+.amd-evidence-source {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.amd-evidence-source:hover,
+.amd-evidence-source:focus-visible {
+  text-decoration: underline;
+}
+
 .amd-summary,
 .amd-disclaimer,
 #amd-drug-summary {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.hero-chart-context,
+.amd-layer-note {
+  max-width: 820px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.amd-layer-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.amd-layer-list span {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(91, 231, 255, .15);
+  background: rgba(10, 29, 55, .52);
+}
+
+.amd-layer-list strong,
+.amd-layer-list em {
+  display: block;
+  font-style: normal;
+}
+
+.amd-layer-list strong {
+  color: #f8fbff;
+  font-size: 12px;
+}
+
+.amd-layer-list em {
+  margin-top: 4px;
+  color: var(--cyan);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 #amd-drug-summary {
@@ -1073,6 +1128,9 @@ h3 { letter-spacing: 0; }
 .organ-impact-card[role="button"]:hover, .organ-impact-card[role="button"]:focus-visible { border-color: var(--organ-color); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--organ-color), transparent 68%); }
 
 @media (max-width: 760px) {
+  .amd-layer-list {
+    grid-template-columns: 1fr;
+  }
   .microstructure-header { flex-direction: column; }
   .microstructure-header-actions { width: 100%; align-items: flex-start; flex-direction: column; }
   .microstructure-panels { grid-template-columns: 1fr; }

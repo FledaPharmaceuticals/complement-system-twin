@@ -1,4 +1,5 @@
 import { diseaseDynamicsProfiles } from "./diseaseDynamicsProfiles.js";
+import { getAmdCohortSeriesMeta, runAmdCohortSimulation } from "./amdCohortModel.js";
 
 const seriesMeta = [
   ["C3", "C3", "nM", "#4aa3ff", "c3-system"],
@@ -20,10 +21,14 @@ const seriesMeta = [
 ];
 
 export function getDynamicsSeriesMeta() {
-  return seriesMeta.map(([entityId, name, unit, color, group]) => ({ entityId, name, symbol: name, unit, color, group }));
+  return [
+    ...seriesMeta.map(([entityId, name, unit, color, group]) => ({ entityId, name, symbol: name, unit, color, group })),
+    ...getAmdCohortSeriesMeta()
+  ];
 }
 
 export function runDynamicsSimulation(input) {
+  if (input.diseaseContext === "AMD") return runAmdCohortSimulation(input);
   const profile = diseaseDynamicsProfiles[input.diseaseContext] ?? diseaseDynamicsProfiles.normal;
   const duration = Math.max(Number(input.duration) || 60, 0.01);
   const dt = Math.min(Math.max(Number(input.timeStep) || 1, 0.01), duration);

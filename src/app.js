@@ -1,13 +1,13 @@
 import { entities, relationships, diseases, drugs, publications } from "./data.js";
 import { runComplementSimulation } from "./simulation.js";
 import { generateComplementTwinSummary } from "./summary.js";
-import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js?v=20260829-public-teaching-v2-1";
+import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js?v=20260830-amd-cohort-v2-1";
 import { generateDynamicsInterpretation, nearestTimePoint } from "./modules/complement-system-twin/dynamics/generateDynamicsInterpretation.js";
-import { generateAmdDiseaseSummary, getAmdDisclaimer } from "./modules/complement-system-twin/dynamics/generateAmdDiseaseSummary.js";
+import { generateAmdDiseaseSummary, getAmdDisclaimer } from "./modules/complement-system-twin/dynamics/generateAmdDiseaseSummary.js?v=20260830-amd-cohort-v2-1";
 import { diseaseOrganWeightMatrix } from "./modules/complement-system-twin/disease/organWeightMatrix.js";
 import { rankDiseaseSpecificImpacts } from "./modules/complement-system-twin/disease/diseaseOrganScoring.js";
 import { calculateCancerMicroenvironmentImpacts } from "./modules/complement-system-twin/disease/cancerOutcomeProfile.js?v=20260829-public-teaching-v2-1";
-import { amdLiteratureCalibration, getAmdCalibrationSummary } from "./modules/complement-system-twin/calibration/amdLiteratureCalibration.js";
+import { amdLiteratureCalibration, getAmdCalibrationSummary } from "./modules/complement-system-twin/calibration/amdLiteratureCalibration.js?v=20260830-amd-cohort-v2-1";
 import { getLiteratureServiceStatus, getLocalLiteratureRecords, searchPublicPubMed } from "./literatureService.js";
 import { getLocalProteinAnnotations, searchUniProtAnnotations } from "./annotationService.js";
 import { fetchReactomePathway, getLocalPathwayAnnotations } from "./pathwayService.js";
@@ -43,7 +43,7 @@ const state = {
   selectedDisease: "PNH",
   selectedDrug: "C5 inhibition",
   dynamicsResult: null,
-  visibleDynamicsGroups: new Set(["c3-system", "c5-system", "convertases", "regulators", "terminal", "amd-retina"]),
+  visibleDynamicsGroups: new Set(["c3-system", "c5-system", "convertases", "regulators", "terminal", "amd-retina", "amd-plasma"]),
   heroPlayback: {
     traces: [],
     layout: null,
@@ -1379,12 +1379,16 @@ function getHeroChartModeFromControls() {
 function renderHeroDynamicsChart(mode = "baseline", resetZoom = false, visibleUntil = null) {
   const chart = document.getElementById("hero-dynamics-chart");
   const title = document.querySelector(".hero-dynamics-preview .chart-toolbar h3");
+  const context = document.getElementById("hero-chart-context");
+  const isAmd = getHeroInterventionControls().disease === "AMD";
   if (title) {
-    const isAmd = getHeroInterventionControls().disease === "AMD";
     title.textContent = mode === "reaction" || mode === "playback"
-      ? isAmd ? "AMD Chronic Complement Progression Simulation" : "Active Complement Reaction Simulation"
-      : isAmd ? "AMD Chronic Complement Baseline" : "Normal Complement Protein Concentration Baseline";
+      ? isAmd ? "AMD Cohort Complement Biomarker Hypothesis Model" : "Active Complement Reaction Simulation"
+      : isAmd ? "AMD Cohort Reference State" : "Normal Complement Protein Concentration Baseline";
   }
+  if (context) context.textContent = isAmd
+    ? "Control cohort index = 100. Lines interpolate literature-informed group differences with uncertainty; they are not an observed patient natural history."
+    : "Physiologic teaching baseline or simplified acute pathway dynamics.";
   if (!chart) return;
   if (!window.Plotly) {
     chart.innerHTML = `<div class="plotly-fallback">Plotly.js is loading. Refresh if the interactive chart does not appear.</div>`;
@@ -1393,6 +1397,7 @@ function renderHeroDynamicsChart(mode = "baseline", resetZoom = false, visibleUn
   state.heroPlayback.mode = mode;
   if (mode === "baseline") state.heroPlayback.amdSpecificOutputs = null;
   const rawTraces = mode === "reaction" || mode === "playback" ? heroReactionTraces() : heroBaselineTraces();
+  syncHeroHighlightOptions(rawTraces);
   const traces = applyHeroHighlight(rawTraces);
   const displayTraces = visibleUntil === null ? traces : trimTracesToTime(traces, visibleUntil);
   const annotations = heroTraceAnnotations(displayTraces);
@@ -1424,10 +1429,10 @@ function renderHeroDynamicsChart(mode = "baseline", resetZoom = false, visibleUn
       zeroline: false
     },
     yaxis: {
-      title: "Concentration / Relative Activity",
+      title: isAmd ? "Cohort-relative biomarker index (control = 100)" : "Concentration / Relative Activity",
       gridcolor: "rgba(133,171,233,0.18)",
       fixedrange: true,
-      rangemode: "tozero",
+      rangemode: isAmd ? "normal" : "tozero",
       zeroline: false
     },
     legend: { orientation: "h", y: -0.34, x: 0, font: { size: 11 } },
@@ -1515,7 +1520,13 @@ function trimTracesToTime(traces, visibleUntil) {
     return {
       ...trace,
       x: visibleIndexes.map((index) => trace.x[index]),
-      y: visibleIndexes.map((index) => trace.y[index])
+      y: visibleIndexes.map((index) => trace.y[index]),
+      customdata: Array.isArray(trace.customdata) ? visibleIndexes.map((index) => trace.customdata[index]) : trace.customdata,
+      error_y: trace.error_y ? {
+        ...trace.error_y,
+        array: Array.isArray(trace.error_y.array) ? visibleIndexes.map((index) => trace.error_y.array[index]) : trace.error_y.array,
+        arrayminus: Array.isArray(trace.error_y.arrayminus) ? visibleIndexes.map((index) => trace.error_y.arrayminus[index]) : trace.error_y.arrayminus
+      } : trace.error_y
     };
   });
 }
@@ -1682,7 +1693,7 @@ function renderAmdDiseaseDashboard(values, time) {
 
   const scores = state.heroPlayback.amdSpecificOutputs ?? calculateAmdScoresFromVisibleValues(values);
   const liveScores = calculateAmdScoresFromVisibleValues(values);
-  const displayScores = time > 0 ? { ...scores, ...liveScores } : { ...liveScores, ...scores };
+  const displayScores = { ...scores, ...liveScores };
   const targets = intervention.targets;
   const result = { scores: displayScores, selectedTargets: targets };
   document.getElementById("amd-retinal-score").textContent = `${Math.round(displayScores.retinalComplementActivityScore)}/100`;
@@ -1698,26 +1709,48 @@ function renderAmdDiseaseDashboard(values, time) {
   ].map(([label, role]) => `<span><strong>${label}</strong><em>${role}</em></span>`).join("");
 
   document.getElementById("amd-mechanisms").innerHTML = [
-    "Alternative pathway chronic activation",
-    "C3 activation and C3b deposition increased",
-    "C3a / C5a inflammatory signaling increased",
-    "Factor H regulation reduced or insufficient",
+    "Alternative-pathway activation is represented by cohort markers such as Ba/Bb and C3d/C3",
+    "C3a/C3 and C5a/C5 are activation ratios, not indefinitely accumulating fragments",
+    "sC5b-9 represents soluble terminal-complement signal; membrane MAC remains a tissue context",
+    "Factor H is modeled through functional and genetic context, not a forced concentration rise",
     "CFH / C3 / CFB / CFI genetic relevance",
-    "Local MAC tissue injury risk in retina/choroid context"
+    "Retina, RPE, Bruch membrane, and choroid remain the primary disease context"
   ].map((item) => `<li>${item}</li>`).join("");
 
   document.getElementById("amd-system-impact").innerHTML = renderAmdSignalGroups(displayScores);
 
+  const plasmaLayer = document.getElementById("amd-plasma-layer");
+  const ocularLayer = document.getElementById("amd-ocular-layer");
+  const plasmaValues = [
+    ["C3", values.C3],
+    ["C3a/C3", values["C3a/C3"]],
+    ["C3d/C3", values["C3d/C3"]],
+    ["Ba/Bb", values["Ba/Bb"]],
+    ["C5a/C5", values["C5a/C5"]],
+    ["sC5b-9", values["sC5b-9"]],
+    ["Factor D", values["Factor D"]],
+    ["Factor H", values["Factor H"]],
+    ["Factor I", values["Factor I"]]
+  ].filter(([, value]) => Number.isFinite(value));
+  if (plasmaLayer) plasmaLayer.innerHTML = plasmaValues.map(([label, value]) => `
+    <span><strong>${label}</strong><em>${Math.round(value)} · control=100</em></span>
+  `).join("");
+  if (ocularLayer) ocularLayer.innerHTML = [
+    ["Ocular C3a / Ba", displayScores.choroidalInflammationScore, "local activity proxy"],
+    ["C3b / iC3b deposition", displayScores.retinalComplementActivityScore, "tissue deposition proxy"],
+    ["Local sC5b-9", displayScores.RPEStressScore, "terminal tissue-stress proxy"],
+    ["RPE regulation", 100 - displayScores.complementDysregulationScore, "regulatory-capacity proxy"]
+  ].map(([label, score, role]) => `
+    <span><strong>${label}</strong><em>${Math.round(clamp(score))}/100 · ${role}</em></span>
+  `).join("");
+
   document.getElementById("amd-output-scores").innerHTML = [
     ["Retinal complement activity", displayScores.retinalComplementActivityScore],
-    ["Drusen risk proxy", displayScores.drusenFormationRiskProxy],
-    ["RPE stress", displayScores.RPEStressScore],
-    ["Choroidal inflammation", displayScores.choroidalInflammationScore],
-    ["Geographic atrophy proxy", displayScores.geographicAtrophyProgressionProxy],
-    ["Neovascular signal proxy", displayScores.neovascularSignalProxy],
-    ["Systemic inflammation association", displayScores.systemicInflammationAssociationScore],
-    ["Kidney complement association", displayScores.kidneyComplementAssociationScore],
-    ["Neuroinflammation association", displayScores.neuroinflammationAssociationScore]
+    ["Drusen burden proxy", displayScores.drusenFormationRiskProxy],
+    ["RPE stress proxy", displayScores.RPEStressScore],
+    ["Choroidal inflammation proxy", displayScores.choroidalInflammationScore],
+    ["GA lesion-growth proxy", displayScores.geographicAtrophyProgressionProxy],
+    ["Neovascular signal proxy", displayScores.neovascularSignalProxy]
   ].map(([label, score]) => `
     <div class="amd-output-card" style="--score-width:${Math.round(clamp(score))}%">
       <span>${label}</span>
@@ -1764,6 +1797,7 @@ function renderAmdCalibrationPanel() {
         <span>${record.modelParameter}</span>
         <span>confidence ${Math.round(record.confidence * 100)}%</span>
       </div>
+      ${record.sourceUrl ? `<a class="amd-evidence-source" href="${escapeAttr(record.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(record.sourceLabel ?? "Open source")}</a>` : ""}
     </article>
   `).join("");
   const { seedCandidates, localCandidates, review } = getAmdCalibrationReviewData();
@@ -1879,6 +1913,33 @@ function amdSystemRow(name, description, score) {
 }
 
 function calculateAmdScoresFromVisibleValues(values) {
+  if (Number.isFinite(values["C3d/C3"]) || Number.isFinite(values["Ba/Bb"])) {
+    const alternativeIndex = average(values["C3d/C3"], values["Ba/Bb"], values["Factor D"]);
+    const inflammatoryIndex = average(values["C3a/C3"], values["C5a/C5"]);
+    const terminalIndex = values["sC5b-9"] ?? 100;
+    const activationScore = clamp(50 + (alternativeIndex - 100) * 1.6);
+    const inflammationScore = clamp(50 + (inflammatoryIndex - 100) * 1.6);
+    const terminalScore = clamp(50 + (terminalIndex - 100) * 1.6);
+    const retinalComplementActivityScore = clamp(average(activationScore, inflammationScore) * 1.08);
+    const RPEStressScore = clamp(average(activationScore, terminalScore) * 1.04);
+    const choroidalInflammationScore = clamp(average(inflammationScore, terminalScore));
+    const drusenFormationRiskProxy = clamp(activationScore * 1.04);
+    return {
+      retinaMaculaScore: clamp(Math.max(retinalComplementActivityScore, RPEStressScore) + 5),
+      retinalComplementActivityScore,
+      drusenFormationRiskProxy,
+      RPEStressScore,
+      choroidalInflammationScore,
+      geographicAtrophyProgressionProxy: clamp(average(RPEStressScore, drusenFormationRiskProxy) * 0.78),
+      neovascularSignalProxy: clamp(choroidalInflammationScore * 0.55),
+      complementDysregulationScore: clamp(average(retinalComplementActivityScore, drusenFormationRiskProxy)),
+      vascularAssociationScore: clamp(choroidalInflammationScore * 0.55),
+      systemicInflammationAssociationScore: clamp(inflammationScore * 0.45),
+      kidneyComplementAssociationScore: clamp(activationScore * 0.22),
+      neuroinflammationAssociationScore: clamp(inflammationScore * 0.24),
+      liverComplementProductionBurden: clamp(Math.abs((values.C3 ?? 100) - 100) * 2)
+    };
+  }
   const inflammation = average(values.C3a, values.C5a);
   const amplification = average(values.C3b, values.C3bBb);
   const regulationLoss = clamp(100 - average(values["Factor H"], values["Factor I"], values.CD59));
@@ -2009,7 +2070,7 @@ function getHeroTimeScale() {
     isChronic,
     unit: isChronic ? "months" : "min",
     unitSingular: isChronic ? "month" : "min",
-    axisTitle: isChronic ? "Chronic progression time (months)" : "Time (minutes)",
+    axisTitle: isAmd ? "Hypothesis-support interpolation (months; not observed natural history)" : isChronic ? "Chronic progression time (months)" : "Time (minutes)",
     duration,
     timeStep: isChronic ? Math.max(0.1, duration / 120) : Math.max(1, duration / 120),
     defaultInterventionTime: duration * 0.5,
@@ -2289,6 +2350,20 @@ function applyHeroHighlight(traces) {
   });
 }
 
+function syncHeroHighlightOptions(traces) {
+  const select = document.getElementById("hero-highlight-series");
+  if (!select) return;
+  const names = traces.map((trace) => trace.name);
+  const signature = names.join("|");
+  if (select.dataset.seriesSignature === signature) return;
+  const selected = names.includes(select.value) ? select.value : "none";
+  select.innerHTML = ["none", ...names].map((name) => {
+    const label = name === "none" ? "None" : name;
+    return `<option value="${escapeAttr(name)}"${name === selected ? " selected" : ""}>${escapeHtml(label)}</option>`;
+  }).join("");
+  select.dataset.seriesSignature = signature;
+}
+
 function heroBaselineTraces() {
   const names = ["C3", "C3a", "C3b", "Factor B", "Factor D", "C3bBb", "Factor H", "Factor I", "C5", "C5a", "C5b", "MAC", "CD59"];
   const colors = ["#4aa3ff", "#6ee7ff", "#8a7dff", "#5be0a6", "#b5e853", "#f6c85f", "#ffbe76", "#ff9f7a", "#ff7ab6", "#ff5d6c", "#c778ff", "#ffffff", "#9fb4ff"];
@@ -2352,6 +2427,28 @@ function heroReactionTraces() {
     state.heroPlayback.comparisonRows = [];
   }
   state.heroPlayback.amdSpecificOutputs = result.amdSpecificOutputs;
+  if (intervention.disease === "AMD") {
+    return result.series.map((series) => ({
+      x: series.data.map((point) => point.time),
+      y: series.data.map((point) => point.value),
+      customdata: series.data.map((point) => [point.lower, point.upper]),
+      mode: "lines",
+      type: "scatter",
+      name: series.name,
+      line: { color: series.colorKey, width: 2.6, dash: "dot" },
+      error_y: {
+        type: "data",
+        symmetric: false,
+        array: series.data.map((point) => point.upper - point.value),
+        arrayminus: series.data.map((point) => point.value - point.lower),
+        visible: true,
+        color: `${series.colorKey}55`,
+        thickness: 0.6,
+        width: 0
+      },
+      hovertemplate: `${series.name}<br>Scenario position: %{x:.1f} ${timeScale.unit}<br>Cohort index: %{y:.1f}<br>Uncertainty interval: %{customdata[0]:.1f}–%{customdata[1]:.1f}<extra></extra>`
+    }));
+  }
   return result.series.map((series) => {
     const max = Math.max(...series.data.map((point) => point.value), 1);
     return {
@@ -2415,7 +2512,8 @@ function renderDynamicsGroupFilters() {
     regulators: "Regulators",
     convertases: "Convertases",
     terminal: "Terminal pathway",
-    "amd-retina": "AMD retina proxies"
+    "amd-retina": "AMD retina proxies",
+    "amd-plasma": "AMD plasma cohort biomarkers"
   };
   container.innerHTML = getDynamicsGroups().map((group) => `
     <label class="checkbox-row">
@@ -2509,6 +2607,7 @@ function renderDynamicsChart(resetZoom) {
   const result = state.dynamicsResult;
   if (!result) return;
   const formInput = getDynamicsInput();
+  const isAmdCohort = result.modelFrame === "literature_calibrated_cohort_hypothesis";
   const visibleSeries = result.series.filter((series) => state.visibleDynamicsGroups.has(series.group));
   const traces = visibleSeries.map((series) => ({
     x: series.data.map((point) => point.time),
@@ -2516,10 +2615,13 @@ function renderDynamicsChart(resetZoom) {
     mode: "lines",
     type: "scatter",
     name: series.name,
+    customdata: isAmdCohort ? series.data.map((point) => [point.lower, point.upper]) : undefined,
     line: { color: series.colorKey, width: ["MAC", "C3bBb"].includes(series.entityId) ? 4 : 2.5 },
-    hovertemplate: `${series.name}<br>Time: %{x:.2f} min<br>Value: %{y:.3f} ${series.unit}<extra></extra>`
+    hovertemplate: isAmdCohort
+      ? `${series.name}<br>Scenario position: %{x:.2f} months<br>Cohort index: %{y:.2f}<br>Uncertainty: %{customdata[0]:.1f}–%{customdata[1]:.1f}<extra></extra>`
+      : `${series.name}<br>Time: %{x:.2f} min<br>Value: %{y:.3f} ${series.unit}<extra></extra>`
   }));
-  const interventionEvent = result.events.find((event) => event.label === "Drug intervention applied");
+  const interventionEvent = result.events.find((event) => ["Drug intervention applied", "Modeled intervention"].includes(event.label));
   const shapes = interventionEvent ? [{
     type: "line",
     x0: interventionEvent.time,
@@ -2544,17 +2646,17 @@ function renderDynamicsChart(resetZoom) {
     font: { color: "#eef6ff" },
     margin: { l: 58, r: 24, t: 20, b: 52 },
     xaxis: {
-      title: "Time",
+      title: isAmdCohort ? "Hypothesis-support interpolation (months; not observed natural history)" : "Time",
       gridcolor: "rgba(133,171,233,0.18)",
       rangeslider: { visible: true, bgcolor: "#111f35", bordercolor: "rgba(133,171,233,0.28)" },
       zeroline: false
     },
     yaxis: {
-      title: "Concentration / Relative Activity",
+      title: isAmdCohort ? "Cohort-relative biomarker index (control = 100)" : "Concentration / Relative Activity",
       type: formInput.logScale ? "log" : "linear",
       gridcolor: "rgba(133,171,233,0.18)",
       fixedrange: false,
-      rangemode: "tozero",
+      rangemode: isAmdCohort ? "normal" : "tozero",
       zeroline: false
     },
     legend: { orientation: "h", y: -0.34, x: 0, font: { size: 11 } },

@@ -78,7 +78,7 @@ test("conversation renders Lambris evidence synthesis without promoting the mode
   assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
   assert.match(app, /Candidate model effects/);
   assert.match(app, /Formal model unchanged/);
-  assert.match(html, /app\.js\?v=20260829-playback-reset-v2-4/);
+  assert.match(html, /app\.js\?v=20260830-amd-cohort-v2-1/);
   assert.match(html, /id="organ-blood-pressure">120\/80/);
   assert.match(html, /id="organ-respiratory-rate">16/);
 });

@@ -174,8 +174,26 @@ primarily affects the retina, macula, RPE, and choroid. Complement
 dysregulation, especially alternative pathway activity and CFH/C3/CFB/CFI
 associations, is represented as a key mechanism.
 
-When AMD is selected, V1 increases alternative pathway tone, reduces Factor H
-regulatory strength, and adds AMD-specific outputs:
+When AMD is selected, the Live Dynamics Window does not reuse the acute
+complement ODE or normalize every series to its own maximum. It switches to a
+literature-informed cohort hypothesis model with three deliberately separate
+measurement layers:
+
+- Systemic EDTA-plasma biomarkers: C3, C3a/C3, C3d/C3, Ba/Bb, C5a/C5,
+  sC5b-9, Factor D, Factor H, and Factor I.
+- Local ocular complement activity: aqueous, vitreous, or ocular-tissue
+  signals such as ocular C3a/Ba, C3b/iC3b deposition, and local sC5b-9.
+- Retinal structural proxies: drusen burden, RPE stress, geographic-atrophy
+  lesion growth, and neovascular signal.
+
+The plasma chart uses a control-cohort index of 100 and exposes uncertainty
+intervals. It interpolates between cohort-level states for hypothesis support;
+the interpolation is not observed individual natural history. Total C3,
+Factor H, and Factor I are not forced to fall or rise, and short-lived C3a,
+C3b, C3bBb, C5b, membrane MAC, and CD59 are not presented as indefinitely
+accumulating plasma concentrations.
+
+AMD-specific outputs remain research proxies:
 
 - Retinal complement activity score.
 - Drusen formation risk proxy.
@@ -199,11 +217,12 @@ diseases. AMD should not be interpreted as a systemic complement storm. It is
 modeled as a retina/macula/RPE/choroid-centered disease with secondary systemic
 associations that are deliberately lower-weight and folded away by default.
 
-AMD uses a chronic months-scale progression view in the Live Dynamics Window
-instead of the acute minutes-scale reaction window used for PNH, aHUS, sepsis,
-and other fast complement activation scenarios. AMD does not alter the heart
-rate monitor in V1; heart rate stays at baseline because AMD is not modeled as
-an acute systemic cardiovascular response.
+AMD uses a months-scale hypothesis-support interpolation in the Live Dynamics
+Window instead of the acute minutes-scale reaction window used for PNH, aHUS,
+sepsis, and other fast complement activation scenarios. The month axis must not
+be interpreted as a validated patient progression curve. AMD does not alter the
+heart-rate monitor in V1; heart rate stays at baseline because AMD is not
+modeled as an acute systemic cardiovascular response.
 
 The organ-impact monitor also displays blood pressure and respiratory rate.
 All three vital signs remain at a physiologic teaching baseline unless the

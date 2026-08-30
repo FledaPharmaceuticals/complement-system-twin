@@ -9,7 +9,8 @@ export function generateAmdDiseaseSummary(result) {
   const choroidScore = Math.round(scores.choroidalInflammationScore ?? 0);
 
   return [
-    `AMD is modeled as a retina-centered disease state driven primarily by chronic alternative complement pathway activation. In this simulation, reduced Factor H regulation increases C3 activation and C3b deposition, raising retinal complement activity (${retinalScore}/100), RPE stress (${rpeScore}/100), and choroidal inflammatory signaling (${choroidScore}/100).`,
+    `AMD is modeled as a retina-centered complement-mediated disease context. Cohort-level plasma markers inform alternative-pathway activity, while separate ocular proxies summarize retinal complement activity (${retinalScore}/100), RPE stress (${rpeScore}/100), and choroidal inflammatory signaling (${choroidScore}/100).`,
+    "The displayed interpolation is not an individual natural history; total proteins, activation fragments, ocular tissue signals, and retinal imaging proxies remain distinct measurement layers.",
     "Secondary brain, kidney, vascular, and immune findings are displayed as association or risk layers rather than direct deterministic organ damage.",
     targetText,
     disclaimer
