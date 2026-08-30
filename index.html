@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="fleda-complement-api-base-url" content="">
     <title>Complement System Digital Twin</title>
     <link rel="stylesheet" href="./src/styles.css?v=20260830-scientific-dialog-v2-4">
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -900,7 +901,9 @@
               <span><small>Model version</small><strong id="simulation-model-version">Loading...</strong></span>
               <span><small>Evidence basis</small><strong id="simulation-evidence-basis">Seed knowledge graph</strong></span>
               <span><small>Uncertainty</small><strong id="simulation-uncertainty">Qualitative proxy</strong></span>
+              <span><small>Result source</small><strong id="simulation-result-source">JavaScript fallback</strong></span>
             </div>
+            <p id="simulation-contract-warning" class="simulation-contract-warning" hidden></p>
           </div>
         </div>
       </section>

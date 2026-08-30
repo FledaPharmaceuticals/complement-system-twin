@@ -1,0 +1,29 @@
+{
+  "artifactName": "FledaPublicSimulationResultHashVectors",
+  "artifactVersion": "1.0.0",
+  "canonicalization": "RFC8785-JCS",
+  "hashAlgorithm": "SHA-256",
+  "hashPrefix": "sha256:",
+  "vectors": [
+    {
+      "name": "numeric-tolerance-exponent",
+      "payload": {
+        "validation": {
+          "numericTolerance": 1e-9
+        },
+        "warnings": []
+      },
+      "canonical": "{\"validation\":{\"numericTolerance\":1e-9},\"warnings\":[]}",
+      "resultId": "sha256:9e8903e5054c8b461847c1823ae65a3f7af84fe902a64dd90be27867be84cbfd"
+    },
+    {
+      "name": "utf8-and-key-order",
+      "payload": {
+        "z": "é",
+        "a": 1
+      },
+      "canonical": "{\"a\":1,\"z\":\"é\"}",
+      "resultId": "sha256:160c52d506c747530bfe5649cb89704189ea10f8734fbb2a6c6b04cbddf687c8"
+    }
+  ]
+}

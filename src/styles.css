@@ -2867,7 +2867,7 @@ select {
 
 .simulation-traceability {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-top: 14px;
 }
@@ -2893,6 +2893,30 @@ select {
   color: var(--text);
   font-size: 0.78rem;
   line-height: 1.35;
+}
+
+.simulation-request-error {
+  grid-column: 1 / -1;
+}
+
+.simulation-request-error p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.simulation-contract-warning {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--warn);
+  color: #fde68a;
+  background: rgba(245, 158, 11, .08);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.simulation-contract-warning[hidden] {
+  display: none;
 }
 
 .model-history-panel {
