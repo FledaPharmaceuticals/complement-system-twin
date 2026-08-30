@@ -1,0 +1,23 @@
+{
+  "canonicalization": [
+    {
+      "name": "ordered-unicode-object",
+      "value": {
+        "z": 0.000001,
+        "b": [true, null, "é"],
+        "a": 1
+      },
+      "canonical": "{\"a\":1,\"b\":[true,null,\"é\"],\"z\":0.000001}",
+      "sha256": "sha256:ae5d74e4caa0f2b13290280859cdcc6b9a9c9df563d465be09d13c547d72f460"
+    },
+    {
+      "name": "ecmascript-number-thresholds",
+      "value": [1e+30, 0.002, 1e-27, 100000000000000000000],
+      "canonical": "[1e+30,0.002,1e-27,100000000000000000000]"
+    }
+  ],
+  "amdSystemicFixture": {
+    "locatorFingerprint": "sha256:0d1f45bfe55db5c7c5d3116100118fe148047f80bcd54c56ce5e530935204a97",
+    "measurementFingerprint": "sha256:e56071bbe99e2aa893e8ea71fd8f3d36e82bfa7d410388ae97258b4a10c76fa0"
+  }
+}

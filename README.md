@@ -576,3 +576,26 @@ does not activate a release or claim that a calibration is clinically valid.
 Validation comparisons entering the bundle must explicitly declare the
 validation record type, contain no patient or production data, and declare that
 the formal model was unchanged.
+
+## Quantitative Literature Observations
+
+The repository includes the public `FledaQuantitativeObservation` 1.0.0
+contract for lossless, auditable values extracted from permitted complement
+literature. JavaScript and Python validators use the same deterministic
+candidate-calibration gates and RFC 8785/JCS fingerprints.
+
+- Synthetic AMD fixtures demonstrate systemic clinical plasma and local ex vivo
+  retina/RPE contexts without copying paper content.
+- Local ocular and systemic observations remain separate unless a source
+  defines an explicit comparison relationship.
+- AI review can block or downgrade evidence but cannot independently approve
+  calibration eligibility.
+- Candidate-ready evidence never changes formal model parameters; promotion
+  requires a separate governed Fleda server release.
+
+Focused checks:
+
+```bash
+node --test tests/quantitativeObservationSchema.test.js tests/quantitativeObservationHash.test.js tests/quantitativeObservationValidation.test.js tests/quantitativeObservationReport.test.js
+./.venv/bin/python -m pytest tests/test_quantitative_observation_hash.py tests/test_quantitative_observation_validation.py tests/test_quantitative_observation_report.py -q
+```

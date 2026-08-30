@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://complementtwin.com/schemas/fleda-quantitative-observation-1.0.0.schema.json",
+  "title": "FledaQuantitativeObservation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observationId",
+    "schemaName",
+    "schemaVersion",
+    "source",
+    "locator",
+    "biologicalContext",
+    "experiment",
+    "measurement",
+    "normalization",
+    "provenance",
+    "governance"
+  ],
+  "properties": {
+    "observationId": { "type": "string", "minLength": 1 },
+    "schemaName": { "const": "FledaQuantitativeObservation" },
+    "schemaVersion": { "const": "1.0.0" },
+    "source": { "$ref": "#/$defs/source" },
+    "locator": { "$ref": "#/$defs/locator" },
+    "biologicalContext": { "$ref": "#/$defs/biologicalContext" },
+    "experiment": { "$ref": "#/$defs/experiment" },
+    "measurement": { "$ref": "#/$defs/measurement" },
+    "normalization": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/normalization" }] },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "governance": { "$ref": "#/$defs/governance" }
+  },
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "nullableNumber": { "type": ["number", "null"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pmid", "pmcid", "doi", "title", "publicationYear", "sourceUrl", "contentHash", "retrievedAt", "accessType", "license"],
+      "properties": {
+        "pmid": { "$ref": "#/$defs/nullableString" },
+        "pmcid": { "$ref": "#/$defs/nullableString" },
+        "doi": { "$ref": "#/$defs/nullableString" },
+        "title": { "type": "string", "minLength": 1 },
+        "publicationYear": { "type": "integer", "minimum": 1600 },
+        "sourceUrl": { "type": "string", "minLength": 1 },
+        "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "retrievedAt": { "type": "string", "format": "date-time" },
+        "accessType": { "enum": ["open_full_text", "open_abstract", "licensed_upload", "metadata_only"] },
+        "license": { "type": "string", "minLength": 1 }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceKind", "section", "page", "tableId", "figureId", "panel", "rowLabel", "columnLabel", "caption", "supportingExcerpt", "boundingBox", "axis"],
+      "properties": {
+        "sourceKind": { "enum": ["text", "table", "figure", "supplement"] },
+        "section": { "$ref": "#/$defs/nullableString" },
+        "page": { "$ref": "#/$defs/nullableString" },
+        "tableId": { "$ref": "#/$defs/nullableString" },
+        "figureId": { "$ref": "#/$defs/nullableString" },
+        "panel": { "$ref": "#/$defs/nullableString" },
+        "rowLabel": { "$ref": "#/$defs/nullableString" },
+        "columnLabel": { "$ref": "#/$defs/nullableString" },
+        "caption": { "$ref": "#/$defs/nullableString" },
+        "supportingExcerpt": { "$ref": "#/$defs/nullableString" },
+        "boundingBox": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y", "width", "height"],
+              "properties": {
+                "x": { "type": "number", "minimum": 0, "maximum": 1 },
+                "y": { "type": "number", "minimum": 0, "maximum": 1 },
+                "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+                "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+              }
+            }
+          ]
+        },
+        "axis": { "type": ["object", "null"] }
+      }
+    },
+    "biologicalContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analyte", "canonicalEntityId", "matrix", "tissue", "compartment", "species", "strain", "cellType", "genotype", "disease", "subtype", "stage", "phenotype", "spatialScope", "experimentalSetting"],
+      "properties": {
+        "analyte": { "type": "string", "minLength": 1 },
+        "canonicalEntityId": { "$ref": "#/$defs/nullableString" },
+        "matrix": { "$ref": "#/$defs/nullableString" },
+        "tissue": { "$ref": "#/$defs/nullableString" },
+        "compartment": { "$ref": "#/$defs/nullableString" },
+        "species": { "type": "string", "minLength": 1 },
+        "strain": { "$ref": "#/$defs/nullableString" },
+        "cellType": { "$ref": "#/$defs/nullableString" },
+        "genotype": { "$ref": "#/$defs/nullableString" },
+        "disease": { "type": "string", "minLength": 1 },
+        "subtype": { "$ref": "#/$defs/nullableString" },
+        "stage": { "$ref": "#/$defs/nullableString" },
+        "phenotype": { "$ref": "#/$defs/nullableString" },
+        "spatialScope": { "enum": ["local_tissue", "systemic", "mixed", "unknown"] },
+        "experimentalSetting": { "enum": ["in_vivo", "ex_vivo", "in_vitro", "clinical", "unknown"] }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["studyDesign", "experimentalModel", "assay", "assayManufacturer", "assayVersion", "lowerLimitOfQuantification", "cohort", "sampleSize", "replicateType", "replicateCount", "groupId", "groupLabel", "groupRole", "comparisonId", "pairedDesign", "baselineOrFollowup", "analysisSampleSize", "intervention", "comparator", "dose", "doseUnit", "route", "duration", "durationUnit", "timepoint", "timeUnit", "timepointAnchor", "preAnalyticalConditions"],
+      "properties": {
+        "studyDesign": { "type": "string", "minLength": 1 },
+        "experimentalModel": { "type": "string", "minLength": 1 },
+        "assay": { "type": "string", "minLength": 1 },
+        "assayManufacturer": { "$ref": "#/$defs/nullableString" },
+        "assayVersion": { "$ref": "#/$defs/nullableString" },
+        "lowerLimitOfQuantification": { "$ref": "#/$defs/nullableNumber" },
+        "cohort": { "$ref": "#/$defs/nullableString" },
+        "sampleSize": { "type": "integer", "minimum": 1 },
+        "replicateType": { "$ref": "#/$defs/nullableString" },
+        "replicateCount": { "type": ["integer", "null"], "minimum": 1 },
+        "groupId": { "type": "string", "minLength": 1 },
+        "groupLabel": { "type": "string", "minLength": 1 },
+        "groupRole": { "enum": ["case", "healthy_control", "vehicle_control", "treated", "untreated", "reference", "other", "unknown"] },
+        "comparisonId": { "$ref": "#/$defs/nullableString" },
+        "pairedDesign": { "enum": ["paired", "unpaired", "mixed", "not_reported"] },
+        "baselineOrFollowup": { "enum": ["baseline", "followup", "single_timepoint", "not_applicable"] },
+        "analysisSampleSize": { "type": "integer", "minimum": 1 },
+        "intervention": { "$ref": "#/$defs/nullableString" },
+        "comparator": { "$ref": "#/$defs/nullableString" },
+        "dose": { "$ref": "#/$defs/nullableNumber" },
+        "doseUnit": { "$ref": "#/$defs/nullableString" },
+        "route": { "$ref": "#/$defs/nullableString" },
+        "duration": { "$ref": "#/$defs/nullableNumber" },
+        "durationUnit": { "$ref": "#/$defs/nullableString" },
+        "timepoint": { "$ref": "#/$defs/nullableNumber" },
+        "timeUnit": { "$ref": "#/$defs/nullableString" },
+        "timepointAnchor": { "enum": ["dose", "stimulation", "diagnosis", "enrollment", "collection", "baseline", "other", "unknown"] },
+        "preAnalyticalConditions": { "type": ["object", "null"] }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["endpoint", "reportedStatistic", "value", "reportedValueText", "reportedUnit", "unitCode", "valueQualifier", "censored", "detectionLimit", "detectionLimitUnitCode", "variabilityType", "variabilityLower", "variabilityUpper", "variabilityValue", "pValue", "effectEstimate", "effectEstimateType", "axisScale", "extractionOrigin", "digitizationError"],
+      "properties": {
+        "endpoint": { "type": "string", "minLength": 1 },
+        "reportedStatistic": { "type": "string", "minLength": 1 },
+        "value": { "type": "number" },
+        "reportedValueText": { "type": "string", "minLength": 1 },
+        "reportedUnit": { "type": "string", "minLength": 1 },
+        "unitCode": { "type": "string", "minLength": 1 },
+        "valueQualifier": { "enum": ["exact", "approximate", "less_than", "less_than_or_equal", "greater_than", "greater_than_or_equal", "not_reported"] },
+        "censored": { "type": "boolean" },
+        "detectionLimit": { "$ref": "#/$defs/nullableNumber" },
+        "detectionLimitUnitCode": { "$ref": "#/$defs/nullableString" },
+        "variabilityType": { "enum": ["SD", "SEM", "CI", "IQR", "range", "none_reported", "not_applicable"] },
+        "variabilityLower": { "$ref": "#/$defs/nullableNumber" },
+        "variabilityUpper": { "$ref": "#/$defs/nullableNumber" },
+        "variabilityValue": { "$ref": "#/$defs/nullableNumber" },
+        "pValue": { "$ref": "#/$defs/nullableNumber" },
+        "effectEstimate": { "$ref": "#/$defs/nullableNumber" },
+        "effectEstimateType": { "$ref": "#/$defs/nullableString" },
+        "axisScale": { "enum": ["linear", "log10", "ln", "categorical"] },
+        "extractionOrigin": { "enum": ["text", "table_cell", "author_data", "figure_digitization"] },
+        "digitizationError": { "$ref": "#/$defs/nullableNumber" }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["normalizedValue", "normalizedUnit", "canonicalEndpoint", "conversionRuleId", "conversionRuleVersion", "conversionInputs", "conversionFormula", "conversionStatus"],
+      "properties": {
+        "normalizedValue": { "$ref": "#/$defs/nullableNumber" },
+        "normalizedUnit": { "$ref": "#/$defs/nullableString" },
+        "canonicalEndpoint": { "$ref": "#/$defs/nullableString" },
+        "conversionRuleId": { "$ref": "#/$defs/nullableString" },
+        "conversionRuleVersion": { "$ref": "#/$defs/nullableString" },
+        "conversionInputs": { "type": ["object", "null"] },
+        "conversionFormula": { "$ref": "#/$defs/nullableString" },
+        "conversionStatus": { "enum": ["not_required", "validated", "needs_review", "blocked"] }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["extractionMethod", "extractorName", "extractorVersion", "extractedAt", "promptVersion", "reviewerName", "reviewerVersion", "reviewedAt", "reviewResult", "ruleValidationResult", "validationIssues", "sourceImageHash"],
+      "properties": {
+        "extractionMethod": { "enum": ["deterministic_table", "deterministic_text", "figure_digitization", "ai_extraction", "manual_import"] },
+        "extractorName": { "type": "string", "minLength": 1 },
+        "extractorVersion": { "type": "string", "minLength": 1 },
+        "extractedAt": { "type": "string", "format": "date-time" },
+        "promptVersion": { "$ref": "#/$defs/nullableString" },
+        "reviewerName": { "$ref": "#/$defs/nullableString" },
+        "reviewerVersion": { "$ref": "#/$defs/nullableString" },
+        "reviewedAt": { "$ref": "#/$defs/nullableString" },
+        "reviewResult": { "enum": ["supported", "partially_supported", "unsupported", "conflicted", "not_reviewed"] },
+        "ruleValidationResult": { "enum": ["passed", "warning", "failed"] },
+        "validationIssues": { "type": "array", "items": { "type": "object" } },
+        "sourceImageHash": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflowState", "uncertainty", "calibrationEligible", "eligibilityReasons", "notApplicableReasons", "evidenceLevel", "studyQualitySignals", "formalModelChange", "candidateModelVersion"],
+      "properties": {
+        "workflowState": { "enum": ["extracted", "ai_reviewed", "context_limited", "conflicted", "accepted_for_knowledge_graph", "accepted_for_candidate_calibration", "rejected"] },
+        "uncertainty": { "enum": ["low", "moderate", "high", "unknown"] },
+        "calibrationEligible": { "type": "boolean" },
+        "eligibilityReasons": { "type": "array", "items": { "type": "string" } },
+        "notApplicableReasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fieldPath", "ruleId", "reason"],
+            "properties": {
+              "fieldPath": { "type": "string" },
+              "ruleId": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "evidenceLevel": { "type": "string", "minLength": 1 },
+        "studyQualitySignals": { "type": "array", "items": { "type": "string" } },
+        "formalModelChange": { "const": false },
+        "candidateModelVersion": { "$ref": "#/$defs/nullableString" }
+      }
+    }
+  }
+}
