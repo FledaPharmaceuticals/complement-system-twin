@@ -1,0 +1,184 @@
+[
+  {
+    "recordType": "fleda_public_model_change_ledger_entry",
+    "recordVersion": "1.0.0",
+    "entryId": "ledger:contract-v1.1",
+    "status": "active",
+    "version": "complement-twin-v1.1-contract",
+    "baseVersion": "complement-twin-v1.0-public",
+    "releasedAt": "2026-08-27",
+    "context": {
+      "disease": "Cross-disease",
+      "tissue": "Public teaching model",
+      "pathway": "Model governance"
+    },
+    "parameter": {
+      "parameterId": "governance.traceabilityContract",
+      "label": "Traceability contract",
+      "disclosureLevel": "public_summary",
+      "direction": "unchanged"
+    },
+    "rationale": "Established evidence, version, uncertainty, and rollback metadata without changing biological parameters.",
+    "limitations": [
+      "Governance release only",
+      "No biological parameter change"
+    ],
+    "evidence": {
+      "publicationCount": 0,
+      "independentGroupCount": 0,
+      "publications": []
+    },
+    "validation": {
+      "trainingImprovementPercent": 0,
+      "holdoutImprovementPercent": 0,
+      "sentinelDegradationMaximumPercent": 0,
+      "uncertainty": "not_applicable"
+    },
+    "policy": {
+      "policyId": "fleda-explicit-human-release",
+      "version": "1.0.0",
+      "releaseRoute": "human_approved_contract"
+    },
+    "rollback": {
+      "version": "complement-twin-v1.0-public",
+      "status": "available"
+    },
+    "comments": {
+      "count": 0,
+      "submissionEnabled": false
+    },
+    "formalModelChanged": false,
+    "synthetic": false
+  },
+  {
+    "recordType": "fleda_public_model_change_ledger_entry",
+    "recordVersion": "1.0.0",
+    "entryId": "ledger:synthetic-amd-v1.2",
+    "status": "candidate",
+    "version": "complement-twin-v1.2-dry-run",
+    "baseVersion": "complement-twin-v1.1-contract",
+    "releasedAt": null,
+    "context": {
+      "disease": "AMD",
+      "tissue": "Retina / RPE / choroid",
+      "pathway": "Alternative pathway"
+    },
+    "parameter": {
+      "parameterId": "amd.retinalAlternativeAmplification",
+      "label": "Retinal alternative-pathway amplification",
+      "disclosureLevel": "public_normalized",
+      "direction": "increase",
+      "normalizedDeltaPercent": 8
+    },
+    "rationale": "Synthetic dry-run tests a retina-centered calibration policy and public disclosure route.",
+    "limitations": [
+      "Synthetic evidence only",
+      "No active model change",
+      "Not a patient prediction"
+    ],
+    "evidence": {
+      "publicationCount": 3,
+      "independentGroupCount": 2,
+      "publications": [
+        {
+          "publicationId": "synthetic:amd-publication-1",
+          "doi": null,
+          "pmid": null,
+          "reviewStatus": "synthetic_supported"
+        },
+        {
+          "publicationId": "synthetic:amd-publication-2",
+          "doi": null,
+          "pmid": null,
+          "reviewStatus": "synthetic_supported"
+        },
+        {
+          "publicationId": "synthetic:amd-publication-3",
+          "doi": null,
+          "pmid": null,
+          "reviewStatus": "synthetic_holdout"
+        }
+      ]
+    },
+    "validation": {
+      "trainingImprovementPercent": 15,
+      "holdoutImprovementPercent": 8,
+      "sentinelDegradationMaximumPercent": 1,
+      "uncertainty": "moderate"
+    },
+    "policy": {
+      "policyId": "fleda-complement-auto-release-policy",
+      "version": "1.0.0",
+      "releaseRoute": "policy_dry_run"
+    },
+    "rollback": {
+      "version": "complement-twin-v1.1-contract",
+      "status": "available"
+    },
+    "comments": {
+      "count": 0,
+      "submissionEnabled": false
+    },
+    "formalModelChanged": false,
+    "synthetic": true
+  },
+  {
+    "recordType": "fleda_public_model_change_ledger_entry",
+    "recordVersion": "1.0.0",
+    "entryId": "ledger:synthetic-terminal-rejected",
+    "status": "rejected",
+    "version": "complement-twin-v1.2-rejected-synthetic",
+    "baseVersion": "complement-twin-v1.1-contract",
+    "releasedAt": null,
+    "context": {
+      "disease": "PNH",
+      "tissue": "Blood / RBC",
+      "pathway": "Terminal pathway"
+    },
+    "parameter": {
+      "parameterId": "pnh.terminalAmplification",
+      "label": "Terminal-pathway amplification",
+      "disclosureLevel": "public_summary",
+      "direction": "increase"
+    },
+    "rationale": "Synthetic negative-control proposal was rejected because independent evidence and holdout validation were insufficient.",
+    "limitations": [
+      "Synthetic test record",
+      "Insufficient independent evidence",
+      "Holdout validation failed"
+    ],
+    "evidence": {
+      "publicationCount": 1,
+      "independentGroupCount": 1,
+      "publications": [
+        {
+          "publicationId": "synthetic:pnh-unsupported-1",
+          "doi": null,
+          "pmid": null,
+          "reviewStatus": "synthetic_unsupported"
+        }
+      ]
+    },
+    "validation": {
+      "trainingImprovementPercent": 6,
+      "holdoutImprovementPercent": -3,
+      "sentinelDegradationMaximumPercent": 4,
+      "uncertainty": "high"
+    },
+    "policy": {
+      "policyId": "fleda-complement-auto-release-policy",
+      "version": "1.0.0",
+      "releaseRoute": "policy_dry_run_rejected"
+    },
+    "rollback": {
+      "version": "complement-twin-v1.1-contract",
+      "status": "not_required"
+    },
+    "comments": {
+      "count": 0,
+      "submissionEnabled": false
+    },
+    "formalModelChanged": false,
+    "synthetic": true
+  }
+]
