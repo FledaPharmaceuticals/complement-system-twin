@@ -63,6 +63,7 @@ export function createPublicLedgerEntry({ releaseDecision = {}, parameterPolicy 
   const derivedRelativeChange = Math.abs(parameterChange.newValue - parameterChange.oldValue) / Math.abs(parameterChange.oldValue);
   if (Math.abs(derivedRelativeChange - parameterChange.relativeChange) > 1e-12) throw new Error("Relative change must match the supplied old and new values");
   if (typeof metadata.synthetic !== "boolean") throw new Error("Explicit synthetic provenance is required");
+  if (!Array.isArray(evidenceSummary.publications)) throw new Error("Public evidence publications must be an array");
   if (releaseDecision.parameterId && releaseDecision.parameterId !== parameterPolicy.parameterId) throw new Error("Release and parameter policy IDs must match");
 
   const parameter = {

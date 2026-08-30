@@ -6,6 +6,7 @@ function finite(value) {
 }
 
 export function validateChangePolicy(policy = {}) {
+  policy = policy && typeof policy === "object" && !Array.isArray(policy) ? policy : {};
   const errors = [];
   if (!policy.policyId) errors.push("policy ID is required");
   if (!/^\d+\.\d+\.\d+$/.test(policy.policyVersion ?? "")) errors.push("semantic policy version is required");
@@ -55,7 +56,7 @@ export function validateChangePolicy(policy = {}) {
 }
 
 export function getParameterPolicy(policy = {}, parameterId) {
-  const parameter = Array.isArray(policy.parameters)
+  const parameter = Array.isArray(policy?.parameters)
     ? policy.parameters.find((item) => item?.parameterId === parameterId)
     : null;
   return parameter ? structuredClone(parameter) : null;

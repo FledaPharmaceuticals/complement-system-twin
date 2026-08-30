@@ -89,4 +89,6 @@ test("returns validation errors instead of throwing for malformed parameter coll
   });
   assert.equal(malformedContext.valid, false);
   assert.match(malformedContext.errors.join(" "), /context/i);
+
+  assert.equal(validateChangePolicy(null).valid, false);
 });

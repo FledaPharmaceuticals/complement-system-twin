@@ -3,6 +3,7 @@ function rounded(value) {
 }
 
 export async function evaluateParameterEnvelope({ parameterPolicy = {}, anchorValue, activeValue, candidateValue } = {}) {
+  parameterPolicy = parameterPolicy && typeof parameterPolicy === "object" && !Array.isArray(parameterPolicy) ? parameterPolicy : {};
   const errors = [];
   const values = { anchorValue, activeValue, candidateValue };
   for (const [label, value] of Object.entries(values)) {

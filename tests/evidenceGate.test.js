@@ -123,3 +123,12 @@ test("blocks observation context that contradicts its publication and parameter 
   assert.equal(result.status, "blocked");
   assert.match(result.errors.join(" "), /observation context/i);
 });
+
+test("malformed evidence collections fail closed", async () => {
+  const input = await inputs();
+  input.evidence = {};
+  const result = await evaluateEvidenceGate(input);
+
+  assert.equal(result.status, "blocked");
+  assert.match(result.errors.join(" "), /evidence must be an array/i);
+});
