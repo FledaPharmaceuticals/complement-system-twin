@@ -34,6 +34,7 @@ import { getTissueImageRecord } from "./tissueImageCatalog.js?v=20260829-public-
 import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-vitals-v2-2";
 import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
+import { summarizeTrainingReadiness } from "./trainingReadiness.js";
 import { buildEndpointComparison, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-vitals-v2-2";
 
 const state = {
@@ -291,7 +292,27 @@ function initAppliedLiteratureCatalog() {
   const filter = document.getElementById("literature-catalog-filter");
   if (!filter) return;
   filter.addEventListener("change", renderAppliedLiteratureCatalog);
+  renderTrainingReadinessSummary();
   renderAppliedLiteratureCatalog();
+}
+
+function renderTrainingReadinessSummary() {
+  const container = document.getElementById("training-readiness-summary");
+  if (!container) return;
+  const summary = summarizeTrainingReadiness(APPLIED_LITERATURE);
+  container.innerHTML = `
+    <div class="training-readiness-heading">
+      <span>Parameter calibration readiness</span>
+      <strong>Evidence-guided, not quantitatively trained</strong>
+    </div>
+    <div class="training-readiness-metrics">
+      <span><b>${summary.totalRecords}</b><small>applied publications</small></span>
+      <span><b>${summary.mechanisticGuidanceCount}</b><small>mechanistic guidance records</small></span>
+      <span><b>${summary.quantitativeObservationCount}</b><small>complete quantitative observations</small></span>
+      <span><b>${summary.calibrationEligibleRecordCount}</b><small>calibration-eligible records</small></span>
+    </div>
+    <p><b>Next evidence requirement:</b> ${summary.nextRequirements.join("; ")}. Formal model unchanged.</p>
+  `;
 }
 
 function renderAppliedLiteratureCatalog() {

@@ -125,6 +125,16 @@ one tissue or disease from being presented as primary calibration evidence for
 an unrelated context. Candidate effects remain qualitative unless a later
 review package establishes compatible units, exposure, assay, and validation.
 
+`src/trainingReadiness.js` applies a strict quantitative-readiness gate to the
+applied catalog. A record may guide a mechanistic hypothesis when it has
+verifiable provenance, experimental context, claims, and candidate effects.
+It becomes eligible for candidate parameter calibration only when at least one
+observation also includes an endpoint, numeric value, unit, timepoint and time
+unit, assay, species, sample size, and variability. The current 13-paper public
+catalog contains no observations that satisfy this complete quantitative
+contract, so the interface correctly labels the model as evidence-guided rather
+than quantitatively trained. This assessment never changes formal parameters.
+
 `src/publicEvidenceAdapter.js` provides an offline adapter for PubMed-style
 metadata. It preserves PMID/DOI provenance, infers a conservative evidence
 level from publication type, links only explicitly supplied vocabulary terms,

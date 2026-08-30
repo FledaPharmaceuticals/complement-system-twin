@@ -1622,6 +1622,16 @@ h3 { letter-spacing: 0; }
 .literature-catalog-heading h3 { margin: 0 0 8px; font-size: 21px; }
 .literature-catalog-heading p:not(.eyebrow) { max-width: 820px; margin: 0; color: var(--muted); line-height: 1.55; }
 .literature-catalog-heading label { display: grid; gap: 6px; color: #a9bdd9; font-size: 11px; font-weight: 700; }
+.training-readiness-summary { margin-top: 18px; padding: 14px; border: 1px solid rgba(91, 231, 255, .22); border-radius: 6px; background: rgba(7, 29, 54, .62); }
+.training-readiness-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.training-readiness-heading span { color: #89a5c9; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.training-readiness-heading strong { color: #f6d86b; font-size: 13px; }
+.training-readiness-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 12px; border-block: 1px solid rgba(133, 171, 233, .16); }
+.training-readiness-metrics span { display: grid; gap: 2px; min-width: 0; padding: 10px 12px; border-right: 1px solid rgba(133, 171, 233, .14); }
+.training-readiness-metrics span:last-child { border-right: 0; }
+.training-readiness-metrics b { color: var(--cyan); font-size: 20px; }
+.training-readiness-metrics small { color: #9fb2cf; line-height: 1.35; }
+.training-readiness-summary > p { margin: 10px 0 0; color: #aebed5; font-size: 11px; line-height: 1.55; }
 .literature-catalog-list { display: grid; margin-top: 18px; border-top: 1px solid rgba(133, 171, 233, .18); }
 .literature-catalog-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 16px 4px; border-bottom: 1px solid rgba(133, 171, 233, .14); }
 .literature-rank { display: grid; align-content: start; text-align: center; }
@@ -3229,6 +3239,10 @@ select {
   .literature-status-item { border-right: 0; border-bottom: 1px solid rgba(133, 171, 233, .18); }
   .literature-status-item:last-child { border-bottom: 0; }
   .literature-catalog-heading { grid-template-columns: 1fr; }
+  .training-readiness-heading { align-items: flex-start; flex-direction: column; }
+  .training-readiness-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .training-readiness-metrics span:nth-child(2) { border-right: 0; }
+  .training-readiness-metrics span:nth-child(-n+2) { border-bottom: 1px solid rgba(133, 171, 233, .14); }
   .hero > * { min-width: 0; }
   .hero-copy,
   .hero-panel,
@@ -3269,4 +3283,7 @@ select {
   .experiment-result-header,
   .experiment-evidence-guidance > div { align-items: flex-start; flex-direction: column; }
   .literature-catalog-card { grid-template-columns: 48px minmax(0, 1fr); gap: 10px; }
+  .training-readiness-metrics { grid-template-columns: 1fr; }
+  .training-readiness-metrics span { border-right: 0; border-bottom: 1px solid rgba(133, 171, 233, .14); }
+  .training-readiness-metrics span:last-child { border-bottom: 0; }
 }

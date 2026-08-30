@@ -32,12 +32,22 @@ test("workspace uses the local parser and has no remote AI endpoint", async () =
 
 test("page exposes an applied literature catalog and controlled learning boundary", async () => {
   const html = await readFile(new URL("index.html", root), "utf8");
-  for (const id of ["applied-literature-catalog", "literature-catalog-list", "literature-catalog-filter"]) {
+  for (const id of ["applied-literature-catalog", "literature-catalog-list", "literature-catalog-filter", "training-readiness-summary"]) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(html, /recent publications/i);
   assert.match(html, /Lambris/i);
   assert.match(html, /cannot automatically overwrite the active model/i);
+});
+
+test("catalog renders an explicit quantitative training-readiness gate", async () => {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  const app = await readFile(new URL("src/app.js", root), "utf8");
+
+  assert.match(html, /Parameter calibration readiness/i);
+  assert.match(app, /summarizeTrainingReadiness/);
+  assert.match(app, /evidence-guided, not quantitatively trained/i);
+  assert.match(app, /formal model unchanged/i);
 });
 
 test("experiment override controls stay inside their sidebar at desktop widths", async () => {
@@ -59,7 +69,7 @@ test("conversation renders Lambris evidence synthesis without promoting the mode
   assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
   assert.match(app, /Candidate model effects/);
   assert.match(app, /Formal model unchanged/);
-  assert.match(html, /app\.js\?v=20260829-vitals-v2-2/);
+  assert.match(html, /app\.js\?v=20260829-training-readiness-v2-3/);
   assert.match(html, /id="organ-blood-pressure">120\/80/);
   assert.match(html, /id="organ-respiratory-rate">16/);
 });
