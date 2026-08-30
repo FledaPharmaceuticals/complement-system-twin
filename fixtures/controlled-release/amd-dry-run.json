@@ -1,0 +1,59 @@
+{
+  "policy": {
+    "policyId": "fleda-complement-auto-release-policy",
+    "policyVersion": "1.0.0",
+    "status": "dry_run"
+  },
+  "parameterPolicy": {
+    "parameterId": "amd.retinalAlternativeAmplification",
+    "trainingImprovementMinimum": 0.1,
+    "holdoutImprovementMinimum": 0.05,
+    "sentinelDegradationMaximum": 0.02,
+    "sentinelEndpoints": ["normal_baseline_stability", "retina_signal_ordering"]
+  },
+  "evidenceGate": {
+    "status": "passed",
+    "trainingPublicationIds": ["synthetic:amd-publication-1", "synthetic:amd-publication-2"],
+    "holdoutPublicationIds": ["synthetic:amd-publication-3"],
+    "independentGroupCount": 2,
+    "formalModelChanged": false
+  },
+  "envelope": {
+    "status": "passed",
+    "relativeChange": 0.08,
+    "cumulativeChange": 0.08,
+    "errors": [],
+    "formalModelChanged": false
+  },
+  "calibrationRun": {
+    "status": "candidate",
+    "parameterId": "amd.retinalAlternativeAmplification",
+    "baseVersion": "complement-twin-v1.1-contract",
+    "proposedVersion": "complement-twin-v1.2-dry-run",
+    "rollbackVersion": "complement-twin-v1.1-contract",
+    "candidateSnapshotHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "provenance": {
+      "policyHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "environmentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "observationPackageHashes": ["sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"]
+    },
+    "objective": {
+      "name": "weighted_rmse",
+      "trainingBefore": 1,
+      "trainingAfter": 0.85,
+      "holdoutBefore": 1,
+      "holdoutAfter": 0.92
+    },
+    "formalModelChanged": false
+  },
+  "behaviorChecks": [
+    { "name": "normal_baseline_stability", "passed": true, "degradation": 0.01, "resultHash": "sha256:0101010101010101010101010101010101010101010101010101010101010101" },
+    { "name": "retina_signal_ordering", "passed": true, "degradation": 0.01, "resultHash": "sha256:0202020202020202020202020202020202020202020202020202020202020202" },
+    { "name": "non_negativity", "passed": true, "degradation": 0, "resultHash": "sha256:0303030303030303030303030303030303030303030303030303030303030303" },
+    { "name": "mass_balance", "passed": true, "degradation": 0, "resultHash": "sha256:0404040404040404040404040404040404040404040404040404040404040404" },
+    { "name": "disease_ordering", "passed": true, "degradation": 0, "resultHash": "sha256:0505050505050505050505050505050505050505050505050505050505050505" },
+    { "name": "intervention_directionality", "passed": true, "degradation": 0, "resultHash": "sha256:0606060606060606060606060606060606060606060606060606060606060606" },
+    { "name": "reset_replay_determinism", "passed": true, "degradation": 0, "resultHash": "sha256:0707070707070707070707070707070707070707070707070707070707070707" },
+    { "name": "numerical_convergence", "passed": true, "degradation": 0, "resultHash": "sha256:0808080808080808080808080808080808080808080808080808080808080808" }
+  ]
+}

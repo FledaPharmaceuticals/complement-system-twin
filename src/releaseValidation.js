@@ -23,6 +23,9 @@ export function preflightProposedModelRelease({ release = {}, behaviorChecks = [
 
 export function activateApprovedModelRelease({ release = {}, preflight = {}, approval = {} } = {}) {
   if (preflight.status !== "ready_for_review") throw new Error("A passed release preflight is required");
+  if (approval.approvalType === "policy_approval" && (approval.status !== "approved" || approval.activationPermitted !== true)) {
+    throw new Error("Policy approval does not permit formal release activation");
+  }
   if (approval.status !== "approved" || !approval.approvalRecordId) throw new Error("An explicit approved status and approval record are required");
   return {
     ...structuredClone(release),

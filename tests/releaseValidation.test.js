@@ -68,3 +68,20 @@ test("applies only an approved release to a new immutable parameter state", () =
   assert.deepEqual(currentParameters, { alternativeMultiplier: 1.1 });
   assert.equal(next.formalModelChanged, true);
 });
+
+test("dry-run policy approval cannot activate a formal release", () => {
+  const preflight = preflightProposedModelRelease({ release, behaviorChecks: [] });
+  assert.throws(
+    () => activateApprovedModelRelease({
+      release,
+      preflight,
+      approval: {
+        approvalType: "policy_approval",
+        status: "dry_run_approved",
+        activationPermitted: false,
+        approvalRecordId: "policy-approval:dry-run"
+      }
+    }),
+    /policy approval.*activation/i
+  );
+});
