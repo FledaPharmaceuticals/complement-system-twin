@@ -103,6 +103,32 @@ export function resolvePlaybackResumeTime({ currentTime = 0, duration = 0 }) {
   return current > 0 && current < end ? current : 0;
 }
 
+export function resolvePlaybackStartTime({ requestedStart = 0, duration = 0, contextChanged = false }) {
+  if (contextChanged) return 0;
+  return clamp(requestedStart, 0, Math.max(0, Number(duration) || 0));
+}
+
+export function createHeroResetSnapshot() {
+  return {
+    controls: {
+      disease: "normal",
+      targets: [],
+      strength: 70,
+      highlight: "none"
+    },
+    playback: {
+      currentTime: 0,
+      activeDuration: null,
+      experimentText: "",
+      comparisonRows: [],
+      biomarkerEstimate: null,
+      biomarkerApplied: false,
+      amdSpecificOutputs: null,
+      mode: "baseline"
+    }
+  };
+}
+
 export function buildEndpointComparison({ untreated = {}, treated = {} }) {
   const signals = Object.keys(untreated).filter((signal) => Number.isFinite(untreated[signal]) && Number.isFinite(treated[signal]));
   return signals.map((signal) => ({

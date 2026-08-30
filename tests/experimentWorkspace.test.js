@@ -50,6 +50,15 @@ test("catalog renders an explicit quantitative training-readiness gate", async (
   assert.match(app, /formal model unchanged/i);
 });
 
+test("hero reset clears scenario state and disease changes restart at zero", async () => {
+  const app = await readFile(new URL("src/app.js", root), "utf8");
+
+  assert.match(app, /createHeroResetSnapshot/);
+  assert.match(app, /function resetHeroSimulation/);
+  assert.match(app, /contextChanged:\s*true/);
+  assert.match(app, /Object\.assign\(state\.heroPlayback,\s*reset\.playback\)/);
+});
+
 test("experiment override controls stay inside their sidebar at desktop widths", async () => {
   const css = await readFile(new URL("src/styles.css", root), "utf8");
   const labelRule = css.match(/\.experiment-dialog-controls label\s*\{([^}]*)\}/)?.[1] ?? "";
@@ -69,7 +78,7 @@ test("conversation renders Lambris evidence synthesis without promoting the mode
   assert.match(app, /plan\.evidenceGuidance\s*=\s*buildEvidenceGuidance/);
   assert.match(app, /Candidate model effects/);
   assert.match(app, /Formal model unchanged/);
-  assert.match(html, /app\.js\?v=20260829-training-readiness-v2-3/);
+  assert.match(html, /app\.js\?v=20260829-playback-reset-v2-4/);
   assert.match(html, /id="organ-blood-pressure">120\/80/);
   assert.match(html, /id="organ-respiratory-rate">16/);
 });

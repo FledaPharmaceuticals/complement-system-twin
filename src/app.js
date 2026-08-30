@@ -35,7 +35,7 @@ import { parseExperimentIntent } from "./experimentIntent.js?v=20260829-vitals-v
 import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperiment } from "./appliedLiteratureCatalog.js";
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
 import { summarizeTrainingReadiness } from "./trainingReadiness.js";
-import { buildEndpointComparison, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-vitals-v2-2";
+import { buildEndpointComparison, createHeroResetSnapshot, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolvePlaybackStartTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-playback-reset-v2-3";
 
 const state = {
   entityFilter: "all",
@@ -1159,9 +1159,19 @@ function initHeroDynamicsChart() {
   controls.forEach((control) => {
     control.addEventListener("change", () => {
       if (control.id === "hero-disease-scenario") {
+        pauseHeroPlayback();
+        state.heroPlayback.currentTime = resolvePlaybackStartTime({
+          requestedStart: state.heroPlayback.currentTime,
+          duration: state.heroPlayback.duration,
+          contextChanged: true
+        });
         state.heroPlayback.activeDuration = null;
         state.heroPlayback.experimentText = "";
         state.heroPlayback.comparisonRows = [];
+        state.heroPlayback.biomarkerEstimate = null;
+        state.heroPlayback.biomarkerApplied = false;
+        state.heroPlayback.amdSpecificOutputs = null;
+        state.selectedMicrostructureOrgan = null;
         state.preparedExperimentPlan = null;
       }
       if (control.name === "heroInterventionTarget") {
@@ -1179,10 +1189,38 @@ function initHeroDynamicsChart() {
       refreshExperimentResultAfterControlChange();
     });
   });
-  resetButton?.addEventListener("click", () => {
-    pauseHeroPlayback();
-    renderHeroDynamicsChart("baseline", true);
+  resetButton?.addEventListener("click", resetHeroSimulation);
+}
+
+function resetHeroSimulation() {
+  pauseHeroPlayback();
+  const reset = createHeroResetSnapshot();
+  Object.assign(state.heroPlayback, reset.playback);
+  state.preparedExperimentPlan = null;
+  state.selectedMicrostructureOrgan = null;
+
+  const disease = document.getElementById("hero-disease-scenario");
+  const strength = document.getElementById("hero-intervention-strength");
+  const strengthOutput = document.getElementById("hero-intervention-strength-output");
+  const highlight = document.getElementById("hero-highlight-series");
+  if (disease) disease.value = reset.controls.disease;
+  document.querySelectorAll("input[name='heroInterventionTarget']").forEach((input) => {
+    input.checked = false;
   });
+  if (strength) strength.value = String(reset.controls.strength);
+  if (strengthOutput) strengthOutput.textContent = String(reset.controls.strength);
+  if (highlight) highlight.value = reset.controls.highlight;
+
+  syncHeroTimeScaleControls();
+  const speed = document.getElementById("hero-playback-speed");
+  const interventionTime = document.getElementById("hero-intervention-time");
+  const interventionOutput = document.getElementById("hero-intervention-time-output");
+  if (speed) speed.value = "10";
+  if (interventionTime) interventionTime.value = "60";
+  if (interventionOutput) interventionOutput.textContent = "60 min";
+
+  renderHeroDynamicsChart("baseline", true);
+  refreshExperimentResultAfterControlChange();
 }
 
 function initMicrostructureInteractions() {
@@ -1426,7 +1464,10 @@ function startHeroPlayback(startAt = 0) {
   const speedSelect = document.getElementById("hero-playback-speed");
   pauseHeroPlayback();
   state.heroPlayback.speed = Number(speedSelect?.value ?? state.heroPlayback.speed);
-  state.heroPlayback.currentTime = Math.min(startAt > 0 ? startAt : state.heroPlayback.speed, state.heroPlayback.duration);
+  state.heroPlayback.currentTime = resolvePlaybackStartTime({
+    requestedStart: startAt,
+    duration: state.heroPlayback.duration
+  });
   // Normal baseline playback animates the baseline traces without inventing
   // acute pathway events. Reaction traces are reserved for active scenarios.
   const chartMode = getHeroChartModeFromControls();

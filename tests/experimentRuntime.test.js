@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 
 import {
   buildEndpointComparison,
+  createHeroResetSnapshot,
   formatSimulationTime,
   prepareEndpointComparisonInputs,
   normalizeExperimentDuration,
+  resolvePlaybackStartTime,
   resolvePlaybackResumeTime,
   resolveResearchHeartRate,
   resolveResearchVitalSigns,
@@ -99,6 +101,34 @@ test("resumes playback from a paused time and restarts only from the endpoint", 
   assert.equal(resolvePlaybackResumeTime({ currentTime: 40, duration: 120 }), 40);
   assert.equal(resolvePlaybackResumeTime({ currentTime: 120, duration: 120 }), 0);
   assert.equal(resolvePlaybackResumeTime({ currentTime: 0, duration: 120 }), 0);
+});
+
+test("starts every fresh or changed scenario at the zero-time frame", () => {
+  assert.equal(resolvePlaybackStartTime({ requestedStart: 0, duration: 120 }), 0);
+  assert.equal(resolvePlaybackStartTime({ requestedStart: 40, duration: 120 }), 40);
+  assert.equal(resolvePlaybackStartTime({ requestedStart: 40, duration: 120, contextChanged: true }), 0);
+  assert.equal(resolvePlaybackStartTime({ requestedStart: 200, duration: 120 }), 120);
+});
+
+test("reset snapshot restores the complete normal teaching baseline", () => {
+  const reset = createHeroResetSnapshot();
+
+  assert.deepEqual(reset.controls, {
+    disease: "normal",
+    targets: [],
+    strength: 70,
+    highlight: "none"
+  });
+  assert.deepEqual(reset.playback, {
+    currentTime: 0,
+    activeDuration: null,
+    experimentText: "",
+    comparisonRows: [],
+    biomarkerEstimate: null,
+    biomarkerApplied: false,
+    amdSpecificOutputs: null,
+    mode: "baseline"
+  });
 });
 
 test("builds an explicit treated-versus-untreated endpoint comparison", () => {
