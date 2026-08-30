@@ -1068,10 +1068,10 @@ async function renderSimulation() {
       ? `API verified · ${execution.model.version} · ${execution.model.parameterSetVersion}`
       : `JavaScript fallback · ${execution.fallbackReason.replaceAll("_", " ")}`;
   }
-  renderSimulationContractWarning(input, execution.warnings);
+  renderSimulationContractWarning(input);
 }
 
-function renderSimulationContractWarning(input, serverWarnings = []) {
+function renderSimulationContractWarning(input) {
   const warningElement = document.getElementById("simulation-contract-warning");
   if (!warningElement) return;
   if (input.diseaseContext !== "C3G") {
@@ -1079,9 +1079,7 @@ function renderSimulationContractWarning(input, serverWarnings = []) {
     warningElement.textContent = "";
     return;
   }
-  const limitation = serverWarnings.length
-    ? serverWarnings.join(" ")
-    : `The current profile does not distinguish ${C3G_LIMITATION_TERMS.join(", ")}.`;
+  const limitation = `The current profile does not distinguish ${C3G_LIMITATION_TERMS.join(", ")}.`;
   warningElement.textContent = `C3G · teaching_candidate · unstratified. ${limitation} Existing multipliers are unchanged.`;
   warningElement.hidden = false;
 }

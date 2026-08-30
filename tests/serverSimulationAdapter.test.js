@@ -102,6 +102,50 @@ test("falls back for network errors, timeouts, and server 5xx", async () => {
   }
 });
 
+test("keeps the timeout active while the response body is being read", async () => {
+  const execution = runDualSimulation(input, {
+    apiBaseUrl: "https://model.example",
+    scenarioId: "normal-example",
+    timeoutMs: 5,
+    fetchImpl: async (_url, { signal }) => ({
+      status: 200,
+      ok: true,
+      json: () => new Promise((_resolve, reject) => {
+        signal.addEventListener("abort", () => reject(new DOMException("timed out", "AbortError")));
+      })
+    })
+  });
+  const result = await Promise.race([
+    execution,
+    new Promise((resolve) => setTimeout(() => resolve({ status: "test_timeout" }), 50))
+  ]);
+
+  assert.equal(result.status, "javascript_fallback");
+  assert.equal(result.fallbackReason, "timeout");
+  assert.deepEqual(result.outputs, runComplementSimulation(input));
+});
+
+test("falls back on a timeout while reading an HTTP error body", async () => {
+  const result = await runDualSimulation(input, {
+    apiBaseUrl: "https://model.example",
+    scenarioId: "normal-example",
+    timeoutMs: 5,
+    fetchImpl: async (_url, { signal }) => ({
+      status: 429,
+      ok: false,
+      headers: new Headers({ "Retry-After": "30" }),
+      json: () => new Promise((_resolve, reject) => {
+        signal.addEventListener("abort", () => reject(new DOMException("timed out", "AbortError")));
+      }),
+      text: async () => ""
+    })
+  });
+
+  assert.equal(result.status, "javascript_fallback");
+  assert.equal(result.fallbackReason, "timeout");
+  assert.deepEqual(result.outputs, runComplementSimulation(input));
+});
+
 test("returns direct typed errors for input, validation, limit, and deployment responses", async () => {
   const cases = [
     [400, "input_error"],
