@@ -23,6 +23,8 @@ function improvement(before, after) {
 
 export async function evaluateControlledRelease({ policy = {}, parameterPolicy = {}, evidenceGate = {}, envelope = {}, calibrationRun = {}, behaviorChecks = [] } = {}) {
   const issues = [];
+  const checks = Array.isArray(behaviorChecks) ? behaviorChecks : [];
+  if (!Array.isArray(behaviorChecks)) addIssue(issues, "BEHAVIOR_CHECK_FAILED", "Behavior checks must be an array");
   const policyValidation = validateChangePolicy(policy);
   if (!policyValidation.valid) addIssue(issues, "POLICY_INVALID", `A valid versioned dry-run policy is required: ${policyValidation.errors.join("; ")}`);
   const registeredPolicy = getParameterPolicy(policy, parameterPolicy.parameterId ?? calibrationRun.parameterId);
@@ -71,21 +73,23 @@ export async function evaluateControlledRelease({ policy = {}, parameterPolicy =
     addIssue(issues, "HOLDOUT_IMPROVEMENT_BELOW_POLICY", "Holdout objective improvement is below policy");
   }
 
-  const checksByName = new Map(behaviorChecks.map((check) => [check.name, check]));
+  const checksByName = new Map(checks.filter((check) => check && typeof check === "object").map((check) => [check.name, check]));
   for (const name of REQUIRED_CHECKS) {
     const check = checksByName.get(name);
     if (!check || check.passed !== true || !HASH_PATTERN.test(check.resultHash ?? "")) {
       addIssue(issues, "BEHAVIOR_CHECK_FAILED", `Required behavior check failed or lacks a result hash: ${name}`);
     }
   }
-  for (const sentinel of parameterPolicy.sentinelEndpoints ?? []) {
+  const sentinels = Array.isArray(parameterPolicy.sentinelEndpoints) ? parameterPolicy.sentinelEndpoints : [];
+  for (const sentinel of sentinels) {
     const check = checksByName.get(sentinel);
     if (!check || !Number.isFinite(check.degradation) || check.degradation > parameterPolicy.sentinelDegradationMaximum) {
       addIssue(issues, "SENTINEL_DEGRADATION_ABOVE_POLICY", `Sentinel degradation exceeds policy: ${sentinel}`);
     }
   }
 
-  const hashes = [calibrationRun.candidateSnapshotHash, provenance.policyHash, provenance.environmentHash, provenance.evidenceGateHash, provenance.envelopeHash, ...(provenance.observationPackageHashes ?? [])];
+  const observationPackageHashes = Array.isArray(provenance.observationPackageHashes) ? provenance.observationPackageHashes : [];
+  const hashes = [calibrationRun.candidateSnapshotHash, provenance.policyHash, provenance.environmentHash, provenance.evidenceGateHash, provenance.envelopeHash, ...observationPackageHashes];
   if (!hashes.length || hashes.some((hash) => !HASH_PATTERN.test(hash ?? ""))) {
     addIssue(issues, "PROVENANCE_HASH_MISSING", "Required calibration provenance hash is missing");
   }
@@ -93,8 +97,10 @@ export async function evaluateControlledRelease({ policy = {}, parameterPolicy =
     addIssue(issues, "ROLLBACK_VERSION_INVALID", "Rollback version must match the active base version");
   }
 
-  const training = new Set(evidenceGate.trainingPublicationIds ?? []);
-  if ((evidenceGate.holdoutPublicationIds ?? []).some((id) => training.has(id))) {
+  const trainingPublicationIds = Array.isArray(evidenceGate.trainingPublicationIds) ? evidenceGate.trainingPublicationIds : [];
+  const holdoutPublicationIds = Array.isArray(evidenceGate.holdoutPublicationIds) ? evidenceGate.holdoutPublicationIds : [];
+  const training = new Set(trainingPublicationIds);
+  if (holdoutPublicationIds.some((id) => training.has(id))) {
     addIssue(issues, "HOLDOUT_REUSED_FOR_TRAINING", "Holdout evidence was reused for training");
   }
 
@@ -111,13 +117,13 @@ export async function evaluateControlledRelease({ policy = {}, parameterPolicy =
     evidenceGate: structuredClone(evidenceGate),
     envelope: structuredClone(envelope),
     metrics: { trainingImprovement, holdoutImprovement },
-    behaviorChecks: structuredClone(behaviorChecks),
+    behaviorChecks: structuredClone(checks),
     provenance: {
       policyHash: provenance.policyHash ?? null,
       environmentHash: provenance.environmentHash ?? null,
       evidenceGateHash: provenance.evidenceGateHash ?? null,
       envelopeHash: provenance.envelopeHash ?? null,
-      observationPackageHashes: structuredClone(provenance.observationPackageHashes ?? [])
+      observationPackageHashes: structuredClone(observationPackageHashes)
     },
     baseVersion: calibrationRun.baseVersion ?? null,
     proposedVersion: calibrationRun.proposedVersion ?? null,
@@ -129,6 +135,9 @@ export async function evaluateControlledRelease({ policy = {}, parameterPolicy =
 
 export function createPolicyApprovalRecord(decision = {}, { workloadIdentity, decidedAt = new Date().toISOString() } = {}) {
   if (decision.status !== "ready_for_auto_release") throw new Error("A ready_for_auto_release decision is required");
+  const decisionObservationHashes = Array.isArray(decision.provenance?.observationPackageHashes)
+    ? decision.provenance.observationPackageHashes
+    : [];
   const completeDecision = decision.recordType === "fleda_controlled_release_decision"
     && decision.recordVersion === "1.0.0"
     && decision.status === "ready_for_auto_release"
@@ -142,8 +151,10 @@ export function createPolicyApprovalRecord(decision = {}, { workloadIdentity, de
     && Number.isFinite(decision.metrics?.holdoutImprovement)
     && decision.baseVersion && decision.proposedVersion && decision.rollbackVersion === decision.baseVersion
     && decision.policyId && decision.policyVersion && decision.parameterId
+    && Array.isArray(decision.behaviorChecks)
     && REQUIRED_CHECKS.every((name) => decision.behaviorChecks?.some((check) => check.name === name && check.passed === true && HASH_PATTERN.test(check.resultHash ?? "")))
-    && [decision.provenance?.policyHash, decision.provenance?.environmentHash, decision.provenance?.evidenceGateHash, decision.provenance?.envelopeHash, ...(decision.provenance?.observationPackageHashes ?? [])]
+    && decisionObservationHashes.length > 0
+    && [decision.provenance?.policyHash, decision.provenance?.environmentHash, decision.provenance?.evidenceGateHash, decision.provenance?.envelopeHash, ...decisionObservationHashes]
       .every((hash) => HASH_PATTERN.test(hash ?? ""));
   if (!completeDecision) throw new Error("A complete controlled release decision is required");
   if (!workloadIdentity) throw new Error("Workload identity is required");

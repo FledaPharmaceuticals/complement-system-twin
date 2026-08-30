@@ -126,4 +126,14 @@ test("malformed policy collection returns a blocked decision instead of throwing
   const nullEntryResult = await evaluateControlledRelease(input);
   assert.equal(nullEntryResult.status, "blocked");
   assert.ok(nullEntryResult.reasonCodes.includes("POLICY_INVALID"));
+
+  input.policy.parameters = [{ parameterId: "x", contexts: {} }];
+  input.behaviorChecks = {};
+  input.calibrationRun.provenance.observationPackageHashes = {};
+  input.evidenceGate.trainingPublicationIds = {};
+  input.evidenceGate.holdoutPublicationIds = {};
+  const malformedCollections = await evaluateControlledRelease(input);
+  assert.equal(malformedCollections.status, "blocked");
+  assert.ok(malformedCollections.reasonCodes.includes("POLICY_INVALID"));
+  assert.ok(malformedCollections.reasonCodes.includes("BEHAVIOR_CHECK_FAILED"));
 });

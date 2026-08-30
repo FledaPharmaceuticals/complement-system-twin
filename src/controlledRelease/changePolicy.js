@@ -30,7 +30,7 @@ export function validateChangePolicy(policy = {}) {
     if (!parameter.calibrationObjective) errors.push(`${label}: calibration objective is required`);
     if (!parameter.transformation) errors.push(`${label}: transformation is required`);
     if (!Array.isArray(parameter.contexts) || !parameter.contexts.length) errors.push(`${label}: at least one context is required`);
-    for (const context of parameter.contexts ?? []) {
+    for (const context of Array.isArray(parameter.contexts) ? parameter.contexts : []) {
       for (const field of REQUIRED_CONTEXT_FIELDS) {
         if (!context?.[field]) errors.push(`${label}: context ${field.replaceAll(/([A-Z])/g, " $1").toLowerCase()} is required`);
       }
