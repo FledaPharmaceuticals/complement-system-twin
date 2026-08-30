@@ -88,6 +88,36 @@ record constructor through `createModelChangeRecord()`. A future governed
 review workflow must explicitly promote an accepted candidate into a new model
 version.
 
+### Controlled Release Dry Run And Public Ledger
+
+Phase 1 adds a policy-controlled release rehearsal and a read-only Model Change
+Ledger. The release policy is deliberately fixed at `dry_run`: it can evaluate
+evidence independence, holdout performance, sentinel behavior, parameter-change
+envelopes, reproducibility hashes, and rollback metadata, but it cannot activate
+or overwrite a formal model version. The active teaching model and its
+parameters remain unchanged.
+
+The public ledger is a disclosure-safe projection rather than the authoritative
+parameter store. It publishes plain-language rationale, disease and pathway
+context, evidence counts and public identifiers, normalized validation metrics,
+uncertainty, limitations, policy provenance, release route, status, and rollback
+version. It excludes private parameter snapshots, previous parameter sets,
+solver configuration, credentials, proprietary priors, private notes, and local
+paths. Disclosure levels determine whether a record may show an exact value, a
+normalized change, or direction only.
+
+The included AMD candidate and rejected PNH record are visibly synthetic test
+fixtures. They demonstrate that passing and failing decisions are traceable;
+they do not claim that a publication changed the live model. Candidate,
+testing, rejected, and rolled-back records cannot become active merely by
+appearing in the ledger.
+
+Server-side activation, registered-user scientific comments, and authoritative
+parameter storage belong to later phases on the independent Fleda model server.
+Until that governance service exists, the GitHub Pages ledger remains read-only
+and comment counts are informational. No part of this workflow connects to GN
+authentication, databases, APIs, customer data, or production systems.
+
 `src/evidenceCatalog.js` normalizes the existing publication seed records into
 the shared evidence contract and supports lookup by disease or complement
 entity. Seed records use an explicit `seed://` locator and `curated_seed`
