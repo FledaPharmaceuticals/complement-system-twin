@@ -1,5 +1,8 @@
 import { entities, relationships, diseases, drugs, publications } from "./data.js";
 import { runComplementSimulation } from "./simulation.js";
+import { runDualSimulation } from "./serverSimulationAdapter.js";
+import { getServerSimulationApiBaseUrl } from "./serverSimulationConfig.js";
+import { C3G_LIMITATION_TERMS } from "./serverSimulationContract.js";
 import { generateComplementTwinSummary } from "./summary.js";
 import { getDynamicsSeriesMeta, runDynamicsSimulation } from "./modules/complement-system-twin/dynamics/runDynamicsSimulation.js?v=20260830-amd-cohort-v2-1";
 import { generateDynamicsInterpretation, nearestTimePoint } from "./modules/complement-system-twin/dynamics/generateDynamicsInterpretation.js";
@@ -78,6 +81,7 @@ const evidenceVocabulary = [
 ];
 const linkExternalEvidence = (records) => linkEvidenceRecords(records, evidenceVocabulary);
 let evidenceCatalog = buildEvidenceCatalog({ publications });
+let simulationRenderSequence = 0;
 let localEvidenceState = { count: 0, records: [], error: null };
 let localAnnotationState = { count: 0, records: [], error: null };
 let localPathwayState = { count: 0, records: [], error: null };
@@ -1002,9 +1006,32 @@ function applyDiseaseDefaults(disease) {
   });
 }
 
-function renderSimulation() {
+async function renderSimulation() {
+  const renderSequence = ++simulationRenderSequence;
   const input = getSimulationInput();
-  const result = runComplementSimulation(input);
+  const sourceElement = document.getElementById("simulation-result-source");
+  renderSimulationContractWarning(input);
+  const apiBaseUrl = getServerSimulationApiBaseUrl();
+  if (sourceElement) sourceElement.textContent = apiBaseUrl ? "Checking Fleda API parity..." : "JavaScript fallback · API not configured";
+  const execution = await runDualSimulation(input, {
+    apiBaseUrl,
+    scenarioId: `browser-${input.diseaseContext || "normal"}`
+  });
+  if (renderSequence !== simulationRenderSequence) return;
+  if (execution.status === "request_error") {
+    document.getElementById("result-cards").innerHTML = `
+      <div class="result-card high simulation-request-error">
+        <span>${escapeHtml(execution.category.replaceAll("_", " "))}</span>
+        <strong>HTTP ${execution.httpStatus}</strong>
+        <p>${escapeHtml(execution.message)}${execution.retryAfter ? ` Retry after ${escapeHtml(execution.retryAfter)} seconds.` : ""}</p>
+      </div>
+    `;
+    document.getElementById("simulation-summary").textContent = "The server response requires correction before a simulation result can be shown. The previous result was not reused.";
+    document.getElementById("simulation-model-version").textContent = MODEL_VERSION;
+    if (sourceElement) sourceElement.textContent = `Fleda API error · ${execution.category}`;
+    return;
+  }
+  const result = execution.outputs;
   const cards = [
     ["C3 activation", result.c3Activation],
     ["C3a inflammatory signal", result.c3aSignal],
@@ -1029,6 +1056,27 @@ function renderSimulation() {
   const evidence = buildSimulationEvidenceSummary(input.diseaseContext, evidenceCatalog);
   document.getElementById("simulation-evidence-basis").textContent = `${evidence.label} (${evidence.count})`;
   document.getElementById("simulation-uncertainty").textContent = `${evidence.uncertainty}; research proxy only`;
+  if (sourceElement) {
+    sourceElement.textContent = execution.status === "api_verified"
+      ? `API verified · ${execution.model.version} · ${execution.model.parameterSetVersion}`
+      : `JavaScript fallback · ${execution.fallbackReason.replaceAll("_", " ")}`;
+  }
+  renderSimulationContractWarning(input, execution.warnings);
+}
+
+function renderSimulationContractWarning(input, serverWarnings = []) {
+  const warningElement = document.getElementById("simulation-contract-warning");
+  if (!warningElement) return;
+  if (input.diseaseContext !== "C3G") {
+    warningElement.hidden = true;
+    warningElement.textContent = "";
+    return;
+  }
+  const limitation = serverWarnings.length
+    ? serverWarnings.join(" ")
+    : `The current profile does not distinguish ${C3G_LIMITATION_TERMS.join(", ")}.`;
+  warningElement.textContent = `C3G · teaching_candidate · unstratified. ${limitation} Existing multipliers are unchanged.`;
+  warningElement.hidden = false;
 }
 
 function getSimulationInput() {

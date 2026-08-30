@@ -1,0 +1,148 @@
+{
+  "schemaName": "FledaPublicSimulationResult",
+  "schemaVersion": "1.0.0",
+  "endpoint": "POST /v1/simulations",
+  "openApiArtifact": "contracts/openapi.json",
+  "openApiSchema": "#/components/schemas/PublicSimulationResult",
+  "openApiSha256": "c253716284230b0b5c59c8440a031ff9fae5570b3a12e83e391cb4ce9f5b6e2a",
+  "hashCanonicalization": "RFC8785-JCS",
+  "resultHashVectorsArtifact": "contracts/c3-safe-result-hash-vectors-1.0.0.json",
+  "resultHashVectorsSha256": "e8eb28c46d5e09e631c52e2bd4bc12bc97e683885b8070b68f19016901ad61de",
+  "serverBranch": "codex/quantitative-observation-contract",
+  "deliveryCommitSource": "exact_verified_commit_supplied_in_task_4_status_and_handoff",
+  "modelVersion": "0.2.0-local-parity",
+  "parameterSetVersion": "js-v1-parity",
+  "reviewStatus": "not_clinically_validated",
+  "publicResultFields": [
+    "schemaName",
+    "schemaVersion",
+    "resultId",
+    "scenarioId",
+    "model",
+    "scope",
+    "outputs",
+    "validation",
+    "warnings"
+  ],
+  "requiredOutputFields": [
+    "c3Activation",
+    "c3aSignal",
+    "c3bOpsonization",
+    "c5Activation",
+    "c5aSignal",
+    "macFormation",
+    "hostCellDamageRisk",
+    "pathogenDefenseCompromise",
+    "infectionRisk",
+    "diseaseActivityProxy",
+    "dominantDriver",
+    "diseaseLabel"
+  ],
+  "compatibilityFields": [
+    "outputs",
+    "model_version",
+    "research_use_only",
+    "diagnostic_use",
+    "uncertainty"
+  ],
+  "compatibilityOutputRule": "publicResult.outputs_must_equal_top_level_outputs_exactly",
+  "supportedOutputs": "core_simulation_indices_only",
+  "numericTolerance": 1e-9,
+  "baselineSimulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
+  "clientAcceptanceChecks": [
+    "schema_name_and_version",
+    "complete_output_shape",
+    "numeric_tolerance",
+    "deterministic_result_hash"
+  ],
+  "fallbackTarget": "existing_javascript_engine",
+  "fallbackConditions": [
+    "network_error",
+    "timeout",
+    "server_5xx",
+    "invalid_schema",
+    "invalid_result_hash",
+    "missing_required_fields",
+    "result_mismatch"
+  ],
+  "httpStatusRules": {
+    "400": {
+      "category": "input_error",
+      "action": "display_directly",
+      "fallback": false
+    },
+    "422": {
+      "category": "validation_error",
+      "action": "display_directly",
+      "fallback": false
+    },
+    "413": {
+      "category": "service_limit",
+      "action": "display_directly",
+      "fallback": false
+    },
+    "429": {
+      "category": "service_limit",
+      "action": "display_directly",
+      "fallback": false,
+      "requiredResponseHeaders": [
+        "Retry-After"
+      ]
+    },
+    "404": {
+      "category": "deployment_error",
+      "action": "display_deployment_error",
+      "fallback": false
+    },
+    "5xx": {
+      "category": "server_error",
+      "action": "fallback_to_existing_javascript_engine",
+      "fallback": true
+    }
+  },
+  "unsupportedFeatures": [
+    "dynamics",
+    "experiment_runtime",
+    "vital_signs",
+    "organ_outputs",
+    "literature_catalog",
+    "negative_semantics",
+    "playback_behavior"
+  ],
+  "forbiddenPublicFields": [
+    "raw_literature_artifacts",
+    "observation_package_payloads",
+    "extraction_prompts",
+    "ai_reasoning",
+    "raw_model_output",
+    "candidate_parameter_values",
+    "private_priors",
+    "unpublished_calibration_values",
+    "formal_parameter_history",
+    "reviewer_identity",
+    "private_review_notes",
+    "conflict_details",
+    "administrative_workflow_records",
+    "database_ids",
+    "source_paths",
+    "migration_runs",
+    "audit_events",
+    "backup_metadata",
+    "secrets_tokens_or_credentials",
+    "patient_identity",
+    "clinical_production_data",
+    "gn_data"
+  ],
+  "c3gCalibrationStatus": "teaching_candidate",
+  "c3gDiseaseProfile": "unstratified",
+  "frontendOwner": "C3-digital-twin",
+  "frontendResponsibilities": [
+    "frontend_integration",
+    "dual_run_comparison",
+    "fallback_behavior",
+    "browser_testing",
+    "later_pages_deployment"
+  ],
+  "frontendIntegrationStatus": "pending_c3_task",
+  "publicDeploymentStatus": "not_completed_by_this_task"
+}

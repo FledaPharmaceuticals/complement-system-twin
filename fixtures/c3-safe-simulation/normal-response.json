@@ -1,0 +1,63 @@
+{
+  "scenario_id": "normal-example",
+  "model_version": "0.2.0-local-parity",
+  "research_use_only": true,
+  "diagnostic_use": false,
+  "outputs": {
+    "c3Activation": 39.74,
+    "c3aSignal": 32.5868,
+    "c3bOpsonization": 37.753,
+    "c5Activation": 18.900450000000003,
+    "c5aSignal": 18.900450000000003,
+    "macFormation": 12.946808250000004,
+    "hostCellDamageRisk": 13.727021115000003,
+    "pathogenDefenseCompromise": 0,
+    "infectionRisk": 0,
+    "diseaseActivityProxy": 21.069898397000006,
+    "dominantDriver": "amplification",
+    "diseaseLabel": "Normal"
+  },
+  "uncertainty": {
+    "method": "online_javascript_v1_parity",
+    "summary": "Ported from the current public JavaScript V1 teaching engine; not clinically validated."
+  },
+  "publicResult": {
+    "schemaName": "FledaPublicSimulationResult",
+    "schemaVersion": "1.0.0",
+    "resultId": "sha256:b470bf37af199ea4f591ad6cc9bbf05452041e98fe658705e36608f994e563ea",
+    "scenarioId": "normal-example",
+    "model": {
+      "version": "0.2.0-local-parity",
+      "parameterSetVersion": "js-v1-parity",
+      "calibrationStatus": "teaching_candidate",
+      "reviewStatus": "not_clinically_validated"
+    },
+    "scope": {
+      "use": "research_and_education_only",
+      "diagnosticUse": false,
+      "supportedOutputs": "core_simulation_indices_only",
+      "diseaseProfile": "unstratified"
+    },
+    "outputs": {
+      "c3Activation": 39.74,
+      "c3aSignal": 32.5868,
+      "c3bOpsonization": 37.753,
+      "c5Activation": 18.900450000000003,
+      "c5aSignal": 18.900450000000003,
+      "macFormation": 12.946808250000004,
+      "hostCellDamageRisk": 13.727021115000003,
+      "pathogenDefenseCompromise": 0,
+      "infectionRisk": 0,
+      "diseaseActivityProxy": 21.069898397000006,
+      "dominantDriver": "amplification",
+      "diseaseLabel": "Normal"
+    },
+    "validation": {
+      "method": "online_javascript_v1_parity",
+      "numericTolerance": 1e-9,
+      "deterministic": true,
+      "hashCanonicalization": "RFC8785-JCS"
+    },
+    "warnings": []
+  }
+}
