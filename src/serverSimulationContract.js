@@ -32,6 +32,21 @@ export const C3G_LIMITATION_TERMS = Object.freeze([
 ]);
 
 export const FORBIDDEN_PUBLIC_FIELDS = Object.freeze([
+  "mechanism_equations",
+  "coefficient_values",
+  "full_parameter_sets",
+  "candidate_calibrations",
+  "private_datasets",
+  "training_data",
+  "ai_extraction_records",
+  "human_review_records",
+  "raw_evidence_payloads",
+  "internal_model_version_history",
+  "private_audit_records",
+  "source_artifacts",
+  "prompts_or_reasoning",
+  "secrets_or_credentials",
+  "gummynology_or_gn_data",
   "raw_literature_artifacts",
   "observation_package_payloads",
   "extraction_prompts",

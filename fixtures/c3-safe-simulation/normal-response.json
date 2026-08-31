@@ -1,5 +1,5 @@
 {
-  "scenario_id": "normal-example",
+  "scenario_id": "normal",
   "model_version": "0.2.0-local-parity",
   "research_use_only": true,
   "diagnostic_use": false,
@@ -24,8 +24,8 @@
   "publicResult": {
     "schemaName": "FledaPublicSimulationResult",
     "schemaVersion": "1.0.0",
-    "resultId": "sha256:b470bf37af199ea4f591ad6cc9bbf05452041e98fe658705e36608f994e563ea",
-    "scenarioId": "normal-example",
+    "resultId": "sha256:6caa0b33df5fff7c9ead88f31be0a6e7246c0ec67272b1bc147f2dfaeb6085da",
+    "scenarioId": "normal",
     "model": {
       "version": "0.2.0-local-parity",
       "parameterSetVersion": "js-v1-parity",

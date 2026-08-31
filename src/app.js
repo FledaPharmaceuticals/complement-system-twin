@@ -1,6 +1,6 @@
 import { entities, relationships, diseases, drugs, publications } from "./data.js";
 import { runComplementSimulation } from "./simulation.js";
-import { runDualSimulation } from "./serverSimulationAdapter.js";
+import { isLegacyParityScenarioId, isPublicTeachingScenarioId, runDualSimulation } from "./serverSimulationAdapter.js";
 import { getServerSimulationApiBaseUrl } from "./serverSimulationConfig.js";
 import { C3G_LIMITATION_TERMS } from "./serverSimulationContract.js";
 import { generateComplementTwinSummary } from "./summary.js";
@@ -82,6 +82,8 @@ const evidenceVocabulary = [
 const linkExternalEvidence = (records) => linkEvidenceRecords(records, evidenceVocabulary);
 let evidenceCatalog = buildEvidenceCatalog({ publications });
 let simulationRenderSequence = 0;
+let simulationRenderTimer = null;
+let simulationRequestController = null;
 let localEvidenceState = { count: 0, records: [], error: null };
 let localAnnotationState = { count: 0, records: [], error: null };
 let localPathwayState = { count: 0, records: [], error: null };
@@ -973,13 +975,27 @@ function initSimulation() {
   form.querySelectorAll("input[type='range']").forEach((input) => {
     input.addEventListener("input", () => {
       input.nextElementSibling.textContent = input.value;
-      renderSimulation();
+      scheduleSimulationRender();
     });
   });
   select.addEventListener("change", () => {
     applyDiseaseDefaults(select.value);
-    renderSimulation();
+    renderSimulationImmediately();
   });
+  renderSimulation();
+}
+
+function scheduleSimulationRender() {
+  simulationRenderSequence += 1;
+  simulationRequestController?.abort();
+  simulationRequestController = null;
+  window.clearTimeout(simulationRenderTimer);
+  simulationRenderTimer = window.setTimeout(renderSimulation, 180);
+}
+
+function renderSimulationImmediately() {
+  window.clearTimeout(simulationRenderTimer);
+  simulationRenderTimer = null;
   renderSimulation();
 }
 
@@ -1008,16 +1024,50 @@ function applyDiseaseDefaults(disease) {
 
 async function renderSimulation() {
   const renderSequence = ++simulationRenderSequence;
+  simulationRequestController?.abort();
+  simulationRequestController = null;
   const input = getSimulationInput();
   const sourceElement = document.getElementById("simulation-result-source");
   renderSimulationContractWarning(input);
-  const apiBaseUrl = getServerSimulationApiBaseUrl();
-  if (sourceElement) sourceElement.textContent = apiBaseUrl ? "Checking Fleda API parity..." : "JavaScript fallback · API not configured";
+  const configuredApiBaseUrl = getServerSimulationApiBaseUrl();
+  const scenarioId = input.diseaseContext || "normal";
+  const apiBaseUrl = configuredApiBaseUrl;
+  const outsideApiScope = Boolean(
+    configuredApiBaseUrl
+    && isPublicTeachingScenarioId(scenarioId)
+    && !isLegacyParityScenarioId(scenarioId)
+  );
+  const requestController = apiBaseUrl && isLegacyParityScenarioId(scenarioId)
+    ? new AbortController()
+    : null;
+  simulationRequestController = requestController;
+  if (sourceElement) {
+    sourceElement.textContent = outsideApiScope
+      ? "Public teaching model · outside API parity scope"
+      : apiBaseUrl
+        ? "Checking Fleda API parity..."
+        : "Public teaching model · JavaScript";
+  }
   const execution = await runDualSimulation(input, {
     apiBaseUrl,
-    scenarioId: `browser-${input.diseaseContext || "normal"}`
+    scenarioId,
+    signal: requestController?.signal
   });
+  if (simulationRequestController === requestController) simulationRequestController = null;
   if (renderSequence !== simulationRenderSequence) return;
+  if (execution.status === "unavailable_no_fallback") {
+    document.getElementById("result-cards").innerHTML = `
+      <div class="result-card high simulation-request-error">
+        <span>server scenario unavailable</span>
+        <strong>No fallback</strong>
+        <p>This mechanism has no equivalent public teaching model.</p>
+      </div>
+    `;
+    document.getElementById("simulation-summary").textContent = "No result is shown because this server mechanism has no equivalent JavaScript fallback.";
+    document.getElementById("simulation-model-version").textContent = MODEL_VERSION;
+    if (sourceElement) sourceElement.textContent = "Fleda API unavailable · no equivalent fallback";
+    return;
+  }
   if (execution.status === "request_error") {
     document.getElementById("result-cards").innerHTML = `
       <div class="result-card high simulation-request-error">
@@ -1052,14 +1102,20 @@ async function renderSimulation() {
     </div>
   `).join("");
   document.getElementById("simulation-summary").textContent = generateComplementTwinSummary(result, input);
-  document.getElementById("simulation-model-version").textContent = MODEL_VERSION;
+  document.getElementById("simulation-model-version").textContent = execution.status === "api_verified"
+    ? execution.model.version
+    : MODEL_VERSION;
   const evidence = buildSimulationEvidenceSummary(input.diseaseContext, evidenceCatalog);
   document.getElementById("simulation-evidence-basis").textContent = `${evidence.label} (${evidence.count})`;
   document.getElementById("simulation-uncertainty").textContent = `${evidence.uncertainty}; research proxy only`;
   if (sourceElement) {
     sourceElement.textContent = execution.status === "api_verified"
       ? `API verified · ${execution.model.version} · ${execution.model.parameterSetVersion}`
-      : `JavaScript fallback · ${execution.fallbackReason.replaceAll("_", " ")}`;
+      : execution.status === "javascript_fallback"
+        ? `JavaScript fallback · ${execution.fallbackReason.replaceAll("_", " ")}`
+        : outsideApiScope
+          ? "Public teaching model · outside API parity scope"
+          : "Public teaching model · JavaScript";
   }
   renderSimulationContractWarning(input);
 }

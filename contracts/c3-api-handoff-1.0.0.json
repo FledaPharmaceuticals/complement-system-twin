@@ -1,0 +1,160 @@
+{
+  "schemaName": "FledaC3ApiHandoff",
+  "schemaVersion": "1.0.0",
+  "apiBaseUrl": "https://api.twins.fledausa.com",
+  "researchUseOnly": true,
+  "diagnosticUse": false,
+  "deployedServer": {
+    "source": "verified_release_attestation",
+    "sourceCommit": "b7bb1cccea955a5dd62a54613facfd1b03471e69"
+  },
+  "pagesBaseline": {
+    "deploymentCommit": "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36",
+    "appResourceVersion": "20260830-amd-cohort-v2-1",
+    "appSha256": "d9c7cb8ce1da346933d60e0e110ac92aa716ce4bef3ee50175348b329e5c3865",
+    "simulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5"
+  },
+  "pagesOwnership": "c3_digital_twin_only_no_server_task_edits",
+  "corsAllowedOrigins": [
+    "https://fledapharmaceuticals.github.io",
+    "https://twins.fledausa.com"
+  ],
+  "publicRoutes": [
+    "GET /health",
+    "POST /v1/simulations",
+    "GET /v1/evidence/catalog",
+    "GET /v1/model/version"
+  ],
+  "supportedOutputs": [
+    "c3Activation",
+    "c3aSignal",
+    "c3bOpsonization",
+    "c5Activation",
+    "c5aSignal",
+    "macFormation",
+    "hostCellDamageRisk",
+    "pathogenDefenseCompromise",
+    "infectionRisk",
+    "diseaseActivityProxy",
+    "dominantDriver",
+    "diseaseLabel"
+  ],
+  "unsupportedJavascriptFeatures": [
+    "dynamics",
+    "experiment_runtime",
+    "vital_signs",
+    "organ_outputs",
+    "literature_catalog",
+    "negative_semantics",
+    "playback_behavior"
+  ],
+  "selectionPolicy": {
+    "primary": "private_server_model",
+    "legacyFallback": "frozen_public_teaching_model",
+    "legacyFallbackScenarioIds": ["normal", "amd", "pnh", "ahus", "c3g", "sepsis"],
+    "futureScenarioPolicy": "no_equivalent_javascript_fallback",
+    "legacyFallbackConditions": [
+      "network_error",
+      "timeout",
+      "server_5xx",
+      "invalid_schema",
+      "invalid_result_hash",
+      "missing_required_fields",
+      "result_mismatch"
+    ]
+  },
+  "httpStatusRules": {
+    "400": { "action": "display_input_error", "legacyFallback": false },
+    "404": { "action": "report_deployment_error", "legacyFallback": false },
+    "413": { "action": "display_service_limit", "legacyFallback": false },
+    "422": { "action": "display_input_error", "legacyFallback": false },
+    "429": { "action": "display_service_limit_and_retry_after", "legacyFallback": false },
+    "5xx": { "action": "legacy_fallback_when_eligible", "legacyFallback": true }
+  },
+  "publicProjection": {
+    "allowedCategories": [
+      "result_metrics",
+      "applicability_status",
+      "uncertainty",
+      "public_evidence_summary",
+      "warnings",
+      "opaque_version_id"
+    ],
+    "evidenceSummaryFields": [
+      "evidenceId",
+      "title",
+      "pmid",
+      "doi",
+      "publication_year",
+      "review_status"
+    ],
+    "forbiddenCategories": [
+      "mechanism_equations",
+      "coefficient_values",
+      "full_parameter_sets",
+      "candidate_calibrations",
+      "private_datasets",
+      "training_data",
+      "database_ids",
+      "ai_extraction_records",
+      "human_review_records",
+      "raw_evidence_payloads",
+      "internal_model_version_history",
+      "private_audit_records",
+      "reviewer_identity",
+      "source_artifacts",
+      "prompts_or_reasoning",
+      "secrets_or_credentials",
+      "patient_identity",
+      "clinical_production_data",
+      "gummynology_or_gn_data"
+    ],
+    "versionDisclosure": "opaque_version_id_only_for_private_models"
+  },
+  "durabilityGate": {
+    "mode": "rebuildable_only",
+    "offsiteBackup": "deferred_risk_accepted",
+    "persistentExpansionAllowed": false
+  },
+  "evidenceCatalogScope": "two_staging_candidates_not_pages_pubmed_catalog",
+  "modelArchitecture": {
+    "publicTeachingModel": {
+      "status": "frozen",
+      "role": "teaching_and_limited_offline_fallback",
+      "futurePrivateParameterSyncAllowed": false,
+      "equivalentFallbackScenarioIds": ["normal", "amd", "pnh", "ahus", "c3g", "sepsis"]
+    },
+    "privateServerModel": {
+      "status": "authoritative_for_new_mechanisms",
+      "browserDeliveryAllowed": false,
+      "newMechanismFallback": "no_equivalent_javascript_fallback"
+    }
+  },
+  "artifacts": {
+    "openApi": {
+      "path": "contracts/openapi-public-1.2.0.json",
+      "sha256": "bdc090f7bc3a344b260e7820296e9a284c51e37c7c4c4bc9f345b576448f268b"
+    },
+    "simulationFixtures": {
+      "path": "fixtures/simulation_baselines.json",
+      "sha256": "06a80b86719bb8ff0533d98b14e16a68157cc2d8ea37e7c4ba2b970da91a1cef",
+      "numericTolerance": 1e-9
+    }
+  },
+  "verification": {
+    "schemaName": "FledaPublicApiVerification",
+    "schemaVersion": "1.0.0",
+    "verifiedAt": "2026-08-31T13:38:21.287795+00:00",
+    "apiBaseUrl": "https://api.twins.fledausa.com",
+    "onlineSimulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
+    "fixedScenarioCount": 6,
+    "boundaryCaseCount": 24,
+    "randomizedCaseCount": 128,
+    "publicApiFixedScenarioCount": 6,
+    "publicApiBoundaryCaseCount": 12,
+    "publicApiRandomizedCaseCount": 32,
+    "maximumAbsoluteDelta": 0.0,
+    "publicApiMaximumAbsoluteDelta": 0.0,
+    "resultHashFailures": 0
+  }
+}

@@ -1,20 +1,60 @@
 import { runComplementSimulation } from "./simulation.js";
 import { validatePublicSimulationResponse } from "./serverSimulationContract.js";
 
+export const LEGACY_PARITY_SCENARIO_IDS = Object.freeze([
+  "normal", "AMD", "PNH", "aHUS", "C3G", "sepsis"
+]);
+
+const LEGACY_PARITY_SCENARIO_ID_SET = new Set(LEGACY_PARITY_SCENARIO_IDS);
+const PUBLIC_TEACHING_SCENARIO_ID_SET = new Set([
+  ...LEGACY_PARITY_SCENARIO_IDS,
+  "IgA nephropathy",
+  "lupus nephritis",
+  "cancer microenvironment"
+]);
+
+export function isLegacyParityScenarioId(scenarioId) {
+  return LEGACY_PARITY_SCENARIO_ID_SET.has(scenarioId);
+}
+
+export function isPublicTeachingScenarioId(scenarioId) {
+  return PUBLIC_TEACHING_SCENARIO_ID_SET.has(scenarioId);
+}
+
 export async function runDualSimulation(input, {
   apiBaseUrl = "",
-  scenarioId = `browser-${input?.diseaseContext || "normal"}`,
+  scenarioId = input?.diseaseContext || "normal",
   timeoutMs = 5000,
   fetchImpl = globalThis.fetch,
-  javascriptRunner = runComplementSimulation
+  javascriptRunner = runComplementSimulation,
+  signal = null
 } = {}) {
-  const javascriptOutputs = javascriptRunner(input);
   const baseUrl = String(apiBaseUrl || "").trim().replace(/\/+$/, "");
-  if (!baseUrl || typeof fetchImpl !== "function") {
-    return fallback(javascriptOutputs, "api_not_configured");
+  if (!isPublicTeachingScenarioId(scenarioId)) {
+    return {
+      status: "unavailable_no_fallback",
+      source: "unavailable",
+      outputs: null,
+      javascriptOutputs: null,
+      fallbackReason: "no_equivalent_javascript_fallback",
+      detail: null
+    };
+  }
+  if (!baseUrl) {
+    return javascriptDefault(javascriptRunner(input), "api_not_configured");
+  }
+  if (!isLegacyParityScenarioId(scenarioId)) {
+    return javascriptDefault(javascriptRunner(input), "api_scenario_not_supported");
+  }
+  const javascriptOutputs = javascriptRunner(input);
+  if (typeof fetchImpl !== "function") {
+    return fallback(javascriptOutputs, "network_error");
   }
 
   const controller = new AbortController();
+  const cancelRequest = () => controller.abort();
+  signal?.addEventListener?.("abort", cancelRequest, { once: true });
+  if (signal?.aborted) controller.abort();
   const timeout = setTimeout(() => controller.abort(), Math.max(1, timeoutMs));
   try {
     const response = await fetchImpl(`${baseUrl}/v1/simulations`, {
@@ -57,11 +97,25 @@ export async function runDualSimulation(input, {
       warnings: validation.warnings
     };
   } catch (error) {
-    const reason = error?.name === "AbortError" ? "timeout" : "network_error";
+    const reason = error?.name === "AbortError"
+      ? signal?.aborted ? "request_cancelled" : "timeout"
+      : "network_error";
     return fallback(javascriptOutputs, reason);
   } finally {
     clearTimeout(timeout);
+    signal?.removeEventListener?.("abort", cancelRequest);
   }
+}
+
+function javascriptDefault(javascriptOutputs, reason) {
+  return {
+    status: "javascript_default",
+    source: "javascript",
+    outputs: structuredClone(javascriptOutputs),
+    javascriptOutputs: structuredClone(javascriptOutputs),
+    fallbackReason: reason,
+    detail: null
+  };
 }
 
 function fallback(javascriptOutputs, fallbackReason, detail = null) {
@@ -80,13 +134,11 @@ async function readErrorMessage(response) {
     const payload = await response.json();
     if (typeof payload?.detail === "string") return payload.detail;
     if (payload?.detail) return JSON.stringify(payload.detail);
-  } catch (error) {
-    if (error?.name === "AbortError") throw error;
+  } catch {
     try {
       const message = await response.text();
       if (message) return message;
-    } catch (textError) {
-      if (textError?.name === "AbortError") throw textError;
+    } catch {
       // The status code remains the authoritative classification.
     }
   }
@@ -96,7 +148,7 @@ async function readErrorMessage(response) {
 function directError(response, message) {
   const categories = {
     400: "input_error",
-    422: "validation_error",
+    422: "input_error",
     413: "service_limit",
     429: "service_limit",
     404: "deployment_error"

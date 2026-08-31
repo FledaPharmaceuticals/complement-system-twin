@@ -1,0 +1,62 @@
+{
+  "schemaName": "FledaC3SafeClientVerification",
+  "schemaVersion": "1.0.0",
+  "verifiedAt": "2026-08-31T14:37:44.218Z",
+  "apiBaseUrl": "https://api.twins.fledausa.com",
+  "deployedServerCommit": "b7bb1cccea955a5dd62a54613facfd1b03471e69",
+  "task13AuditCommit": "4732dc3",
+  "pagesBaselineCommit": "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36",
+  "simulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
+  "differential": {
+    "fixed": 6,
+    "boundary": 12,
+    "randomized": 32,
+    "total": 50,
+    "numericTolerance": 1e-9,
+    "maximumAbsoluteDelta": 0
+  },
+  "cors": {
+    "allowed": [
+      {
+        "origin": "https://fledapharmaceuticals.github.io",
+        "status": 200,
+        "allowOrigin": "https://fledapharmaceuticals.github.io"
+      },
+      {
+        "origin": "https://twins.fledausa.com",
+        "status": 200,
+        "allowOrigin": "https://twins.fledausa.com"
+      }
+    ],
+    "denied": {
+      "origin": "https://example.invalid",
+      "allowOrigin": null
+    }
+  },
+  "statusChecks": {
+    "malformedHttp": 400,
+    "validation": 422,
+    "oversized": 413,
+    "missingRoute": 404
+  },
+  "rateLimit": {
+    "status": 429,
+    "retryAfter": "22",
+    "attemptsAfterDifferential": 9
+  },
+  "clientFailureCoverage": {
+    "source": "isolated_node_tests",
+    "cases": [
+      "network_error",
+      "timeout",
+      "server_5xx",
+      "invalid_schema",
+      "invalid_result_hash",
+      "missing_required_fields",
+      "result_mismatch",
+      "full_response_body_timeout",
+      "future_scenario_no_fallback"
+    ],
+    "productionFailureInjectionPerformed": false
+  }
+}

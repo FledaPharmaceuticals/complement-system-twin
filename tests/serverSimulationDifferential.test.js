@@ -11,7 +11,7 @@ const fixture = JSON.parse(await readFile(
 ));
 
 test("pins differential vectors to the reviewed server and JavaScript engine revisions", () => {
-  assert.equal(fixture.serverCommit, "2ba4c188f203836b2a56b475945ffcf51eca70d3");
+  assert.equal(fixture.serverCommit, "b7bb1cccea955a5dd62a54613facfd1b03471e69");
   assert.equal(fixture.javascriptSha256, "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5");
   assert.equal(fixture.numericTolerance, 1e-9);
   assert.ok(fixture.vectors.length >= 30);

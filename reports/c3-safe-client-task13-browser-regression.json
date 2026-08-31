@@ -1,0 +1,54 @@
+{
+  "schemaName": "FledaC3BrowserRegression",
+  "schemaVersion": "1.0.0",
+  "testedAt": "2026-08-31T14:45:14Z",
+  "pagesBaselineCommit": "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36",
+  "simulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
+  "mode": "local_static_pages_with_same_origin_proxy_to_real_https_api",
+  "reproduction": {
+    "serverScript": "scripts/serveC3BrowserRegression.mjs",
+    "procedure": "docs/testing/c3-safe-client-browser-regression.md",
+    "localUrl": "http://127.0.0.1:8766/?fledaApi=trial"
+  },
+  "publicApi": "https://api.twins.fledausa.com",
+  "defaultMode": {
+    "query": "",
+    "resultSource": "Public teaching model · JavaScript",
+    "apiEnabled": false
+  },
+  "trialMode": {
+    "query": "?fledaApi=trial",
+    "resultSource": "API verified · 0.2.0-local-parity · js-v1-parity",
+    "apiEnabled": true,
+    "resultCardCount": 10,
+    "supportedResultFieldCount": 12
+  },
+  "requestControl": {
+    "initialRequestCount": 1,
+    "rapidSliderInputCount": 8,
+    "additionalRequestCountAfterDebounce": 1,
+    "unsupportedTeachingScenario": "IgA nephropathy",
+    "unsupportedScenarioAdditionalRequestCount": 0,
+    "unsupportedScenarioResultSource": "Public teaching model · outside API parity scope"
+  },
+  "desktop": {
+    "viewport": { "width": 1440, "height": 1000 },
+    "horizontalOverflow": false,
+    "simulationLiteratureOverlap": false,
+    "dynamicChartRendered": true,
+    "organOutputRendered": true,
+    "vitals": { "heartRate": "72", "bloodPressure": "120/80", "respiratoryRate": "16" }
+  },
+  "mobile": {
+    "viewport": { "width": 390, "height": 844 },
+    "horizontalOverflow": false,
+    "simulationLiteratureOverlap": false,
+    "dynamicChartWidth": 340,
+    "organPanelWidth": 340,
+    "resultPanelWidth": 282,
+    "vitals": { "heartRate": "72", "bloodPressure": "120/80", "respiratoryRate": "16" }
+  },
+  "consoleErrorOrWarningCount": 0,
+  "productionCorsValidatedSeparately": true,
+  "pagesDeployed": false
+}

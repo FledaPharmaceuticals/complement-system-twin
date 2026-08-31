@@ -4,7 +4,11 @@ import { readFile } from "node:fs/promises";
 
 import { createJcsResultId } from "../src/jcsResultHash.js";
 import { runComplementSimulation } from "../src/simulation.js";
-import { runDualSimulation } from "../src/serverSimulationAdapter.js";
+import {
+  isLegacyParityScenarioId,
+  isPublicTeachingScenarioId,
+  runDualSimulation
+} from "../src/serverSimulationAdapter.js";
 
 const fixture = JSON.parse(await readFile(
   new URL("../fixtures/c3-safe-simulation/normal-response.json", import.meta.url),
@@ -34,7 +38,7 @@ test("runs JavaScript and API together and uses only a fully verified API result
   let requestBody;
   const result = await runDualSimulation(input, {
     apiBaseUrl: "https://model.example",
-    scenarioId: "normal-example",
+    scenarioId: "normal",
     javascriptRunner: (value) => {
       javascriptCalls += 1;
       return runComplementSimulation(value);
@@ -47,7 +51,7 @@ test("runs JavaScript and API together and uses only a fully verified API result
   });
 
   assert.equal(javascriptCalls, 1);
-  assert.deepEqual(requestBody, { scenario_id: "normal-example", inputs: input });
+  assert.deepEqual(requestBody, { scenario_id: "normal", inputs: input });
   assert.equal(result.status, "api_verified");
   assert.equal(result.source, "api");
   assert.deepEqual(result.outputs, fixture.publicResult.outputs);
@@ -72,7 +76,7 @@ test("falls back to JavaScript for invalid schema, hash, and numerical mismatch"
     }
     const result = await runDualSimulation(input, {
       apiBaseUrl: "https://model.example",
-      scenarioId: "normal-example",
+      scenarioId: "normal",
       fetchImpl: async () => jsonResponse(response)
     });
     assert.equal(result.status, "javascript_fallback");
@@ -93,7 +97,7 @@ test("falls back for network errors, timeouts, and server 5xx", async () => {
   for (const [reason, fetchImpl] of cases) {
     const result = await runDualSimulation(input, {
       apiBaseUrl: "https://model.example",
-      scenarioId: "normal-example",
+      scenarioId: "normal",
       timeoutMs: 5,
       fetchImpl
     });
@@ -105,7 +109,7 @@ test("falls back for network errors, timeouts, and server 5xx", async () => {
 test("keeps the timeout active while the response body is being read", async () => {
   const execution = runDualSimulation(input, {
     apiBaseUrl: "https://model.example",
-    scenarioId: "normal-example",
+    scenarioId: "normal",
     timeoutMs: 5,
     fetchImpl: async (_url, { signal }) => ({
       status: 200,
@@ -125,10 +129,28 @@ test("keeps the timeout active while the response body is being read", async () 
   assert.deepEqual(result.outputs, runComplementSimulation(input));
 });
 
-test("falls back on a timeout while reading an HTTP error body", async () => {
+test("cancels a superseded API request without reclassifying it as a timeout", async () => {
+  const controller = new AbortController();
+  const execution = runDualSimulation(input, {
+    apiBaseUrl: "https://model.example",
+    scenarioId: "normal",
+    signal: controller.signal,
+    fetchImpl: async (_url, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => reject(new DOMException("cancelled", "AbortError")));
+    })
+  });
+
+  controller.abort();
+  const result = await execution;
+
+  assert.equal(result.status, "javascript_fallback");
+  assert.equal(result.fallbackReason, "request_cancelled");
+});
+
+test("preserves a known HTTP error when its response body times out", async () => {
   const result = await runDualSimulation(input, {
     apiBaseUrl: "https://model.example",
-    scenarioId: "normal-example",
+    scenarioId: "normal",
     timeoutMs: 5,
     fetchImpl: async (_url, { signal }) => ({
       status: 429,
@@ -141,22 +163,25 @@ test("falls back on a timeout while reading an HTTP error body", async () => {
     })
   });
 
-  assert.equal(result.status, "javascript_fallback");
-  assert.equal(result.fallbackReason, "timeout");
-  assert.deepEqual(result.outputs, runComplementSimulation(input));
+  assert.equal(result.status, "request_error");
+  assert.equal(result.category, "service_limit");
+  assert.equal(result.httpStatus, 429);
+  assert.equal(result.retryAfter, "30");
+  assert.equal(result.message, "Request failed with HTTP 429");
+  assert.equal(result.outputs, null);
 });
 
 test("returns direct typed errors for input, validation, limit, and deployment responses", async () => {
   const cases = [
     [400, "input_error"],
-    [422, "validation_error"],
+    [422, "input_error"],
     [413, "service_limit"],
     [404, "deployment_error"]
   ];
   for (const [status, category] of cases) {
     const result = await runDualSimulation(input, {
       apiBaseUrl: "https://model.example",
-      scenarioId: "normal-example",
+      scenarioId: "normal",
       fetchImpl: async () => jsonResponse({ detail: `status ${status}` }, status)
     });
     assert.equal(result.status, "request_error");
@@ -169,7 +194,7 @@ test("returns direct typed errors for input, validation, limit, and deployment r
 test("reads Retry-After for a 429 without falling back", async () => {
   const result = await runDualSimulation(input, {
     apiBaseUrl: "https://model.example",
-    scenarioId: "normal-example",
+    scenarioId: "normal",
     fetchImpl: async () => jsonResponse({ detail: "rate limited" }, 429, { "Retry-After": "30" })
   });
 
@@ -182,9 +207,53 @@ test("reads Retry-After for a 429 without falling back", async () => {
 test("uses the existing JavaScript engine when no API endpoint is configured", async () => {
   const result = await runDualSimulation(input, { apiBaseUrl: "" });
 
-  assert.equal(result.status, "javascript_fallback");
+  assert.equal(result.status, "javascript_default");
   assert.equal(result.fallbackReason, "api_not_configured");
   assert.deepEqual(result.outputs, runComplementSimulation(input));
+});
+
+test("does not send unsupported or future scenarios to the parity endpoint", async () => {
+  let fetchCalls = 0;
+  const result = await runDualSimulation({ ...input, diseaseContext: "future-mechanism" }, {
+    apiBaseUrl: "https://model.example",
+    scenarioId: "sim-11111111111111111111111111111111",
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("must not be called");
+    }
+  });
+
+  assert.equal(fetchCalls, 0);
+  assert.equal(result.status, "unavailable_no_fallback");
+  assert.equal(result.fallbackReason, "no_equivalent_javascript_fallback");
+  assert.equal(result.outputs, null);
+});
+
+test("recognizes only the six differential-verified parity scenarios", () => {
+  assert.equal(isLegacyParityScenarioId("normal"), true);
+  assert.equal(isLegacyParityScenarioId("AMD"), true);
+  assert.equal(isLegacyParityScenarioId("C3G"), true);
+  assert.equal(isLegacyParityScenarioId("IgA nephropathy"), false);
+  assert.equal(isLegacyParityScenarioId("sim-11111111111111111111111111111111"), false);
+  assert.equal(isPublicTeachingScenarioId("IgA nephropathy"), true);
+  assert.equal(isPublicTeachingScenarioId("future-mechanism"), false);
+});
+
+test("keeps an existing non-parity teaching scenario in JavaScript without an API request", async () => {
+  let fetchCalls = 0;
+  const result = await runDualSimulation({ ...input, diseaseContext: "IgA nephropathy" }, {
+    apiBaseUrl: "https://model.example",
+    scenarioId: "IgA nephropathy",
+    fetchImpl: async () => {
+      fetchCalls += 1;
+      throw new Error("must not be called");
+    }
+  });
+
+  assert.equal(fetchCalls, 0);
+  assert.equal(result.status, "javascript_default");
+  assert.equal(result.fallbackReason, "api_scenario_not_supported");
+  assert.equal(result.outputs.diseaseLabel, "IgA nephropathy");
 });
 
 function jsonResponse(body, status = 200, headers = {}) {

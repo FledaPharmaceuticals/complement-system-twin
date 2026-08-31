@@ -15,17 +15,28 @@ const fixture = JSON.parse(await readFile(
   "utf8"
 ));
 const handoff = JSON.parse(await readFile(
-  new URL("../contracts/c3-safe-simulation-result-1.0.0.json", import.meta.url),
+  new URL("../contracts/c3-api-handoff-1.0.0.json", import.meta.url),
   "utf8"
 ));
 
 test("keeps the client disclosure denylist synchronized with the server handoff", () => {
-  assert.deepEqual([...FORBIDDEN_PUBLIC_FIELDS], handoff.forbiddenPublicFields);
+  for (const field of handoff.publicProjection.forbiddenCategories) {
+    assert.ok(FORBIDDEN_PUBLIC_FIELDS.includes(field), field);
+  }
+  assert.equal(handoff.deployedServer.sourceCommit, "b7bb1cccea955a5dd62a54613facfd1b03471e69");
+  assert.equal(handoff.pagesBaseline.deploymentCommit, "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36");
+  assert.equal(handoff.pagesBaseline.simulationSha256, "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5");
+  assert.deepEqual(handoff.supportedOutputs, [
+    "c3Activation", "c3aSignal", "c3bOpsonization", "c5Activation",
+    "c5aSignal", "macFormation", "hostCellDamageRisk",
+    "pathogenDefenseCompromise", "infectionRisk", "diseaseActivityProxy",
+    "dominantDriver", "diseaseLabel"
+  ]);
 });
 
 test("accepts the safe fixture only when its hash, shape, and JavaScript result agree", async () => {
   const result = await validatePublicSimulationResponse(fixture, {
-    expectedScenarioId: "normal-example",
+    expectedScenarioId: "normal",
     javascriptOutputs: fixture.outputs
   });
 
@@ -40,7 +51,7 @@ test("fails closed on an invalid resultId", async () => {
   response.publicResult.resultId = `sha256:${"0".repeat(64)}`;
 
   const result = await validatePublicSimulationResponse(response, {
-    expectedScenarioId: "normal-example",
+    expectedScenarioId: "normal",
     javascriptOutputs: fixture.outputs
   });
 
@@ -84,14 +95,14 @@ test("accepts numeric parity at 1e-9 and rejects values outside tolerance", asyn
   const within = structuredClone(fixture.outputs);
   within.c3Activation += 1e-9;
   assert.equal((await validatePublicSimulationResponse(fixture, {
-    expectedScenarioId: "normal-example",
+    expectedScenarioId: "normal",
     javascriptOutputs: within
   })).ok, true);
 
   const outside = structuredClone(fixture.outputs);
   outside.c3Activation += 1.0001e-9;
   assert.equal((await validatePublicSimulationResponse(fixture, {
-    expectedScenarioId: "normal-example",
+    expectedScenarioId: "normal",
     javascriptOutputs: outside
   })).reason, "result_mismatch");
 });
@@ -117,15 +128,15 @@ test("requires exact model and validation metadata", async () => {
 
 test("requires all six unstratified C3G warning concepts", async () => {
   const response = structuredClone(fixture);
-  response.scenario_id = "c3g-example";
-  response.publicResult.scenarioId = "c3g-example";
+  response.scenario_id = "C3G";
+  response.publicResult.scenarioId = "C3G";
   response.publicResult.warnings = [C3G_LIMITATION_TERMS.join("; ")];
   const hashPayload = structuredClone(response.publicResult);
   delete hashPayload.resultId;
   response.publicResult.resultId = await createJcsResultId(hashPayload);
 
   assert.equal((await validatePublicSimulationResponse(response, {
-    expectedScenarioId: "c3g-example",
+    expectedScenarioId: "C3G",
     diseaseContext: "C3G",
     javascriptOutputs: fixture.outputs
   })).ok, true);
@@ -135,7 +146,7 @@ test("requires all six unstratified C3G warning concepts", async () => {
   delete invalidPayload.resultId;
   response.publicResult.resultId = await createJcsResultId(invalidPayload);
   assert.equal((await validatePublicSimulationResponse(response, {
-    expectedScenarioId: "c3g-example",
+    expectedScenarioId: "C3G",
     diseaseContext: "C3G",
     javascriptOutputs: fixture.outputs
   })).reason, "invalid_schema");
@@ -143,7 +154,7 @@ test("requires all six unstratified C3G warning concepts", async () => {
 
 function validate(response) {
   return validatePublicSimulationResponse(response, {
-    expectedScenarioId: "normal-example",
+    expectedScenarioId: "normal",
     javascriptOutputs: fixture.outputs
   });
 }
