@@ -6,16 +6,17 @@
   "diagnosticUse": false,
   "deployedServer": {
     "source": "verified_release_attestation",
-    "sourceCommit": "b7bb1cccea955a5dd62a54613facfd1b03471e69"
+    "sourceCommit": "5417dd7bd47d811c30f98c27d11e158c2c81e5b2"
   },
   "pagesBaseline": {
-    "deploymentCommit": "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36",
+    "deploymentCommit": "1367032384dc7e596c33de180925b747cdfff2ff",
     "appResourceVersion": "20260830-amd-cohort-v2-1",
-    "appSha256": "d9c7cb8ce1da346933d60e0e110ac92aa716ce4bef3ee50175348b329e5c3865",
+    "appSha256": "3f59bda1fca4d7ccb87cb9c45b0ebcd2c3bcffc154a12480942196ff26d5f61a",
     "simulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5"
   },
   "pagesOwnership": "c3_digital_twin_only_no_server_task_edits",
   "corsAllowedOrigins": [
+    "https://complementtwin.com",
     "https://fledapharmaceuticals.github.io",
     "https://twins.fledausa.com"
   ],
@@ -144,7 +145,7 @@
   "verification": {
     "schemaName": "FledaPublicApiVerification",
     "schemaVersion": "1.0.0",
-    "verifiedAt": "2026-08-31T13:38:21.287795+00:00",
+    "verifiedAt": "2026-08-31T16:13:26.245Z",
     "apiBaseUrl": "https://api.twins.fledausa.com",
     "onlineSimulationSha256": "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
     "fixedScenarioCount": 6,

@@ -118,9 +118,9 @@ export async function verifyPublicApi({
     schemaVersion: "1.0.0",
     verifiedAt: new Date().toISOString(),
     apiBaseUrl,
-    deployedServerCommit: "b7bb1cccea955a5dd62a54613facfd1b03471e69",
-    task13AuditCommit: "4732dc3",
-    pagesBaselineCommit: "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36",
+    deployedServerCommit: "5417dd7bd47d811c30f98c27d11e158c2c81e5b2",
+    task13AuditCommit: "9ad867a",
+    pagesBaselineCommit: "1367032384dc7e596c33de180925b747cdfff2ff",
     simulationSha256: "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5",
     differential: {
       ...counts,
@@ -145,6 +145,7 @@ export async function verifyPublicApi({
 
 async function verifyCors(apiBaseUrl, fetchImpl) {
   const allowedOrigins = [
+    "https://complementtwin.com",
     "https://fledapharmaceuticals.github.io",
     "https://twins.fledausa.com"
   ];

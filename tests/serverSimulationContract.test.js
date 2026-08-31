@@ -23,8 +23,13 @@ test("keeps the client disclosure denylist synchronized with the server handoff"
   for (const field of handoff.publicProjection.forbiddenCategories) {
     assert.ok(FORBIDDEN_PUBLIC_FIELDS.includes(field), field);
   }
-  assert.equal(handoff.deployedServer.sourceCommit, "b7bb1cccea955a5dd62a54613facfd1b03471e69");
-  assert.equal(handoff.pagesBaseline.deploymentCommit, "e0611aafd69b6125fbd30fd44aeb1f5a10ee1d36");
+  assert.equal(handoff.deployedServer.sourceCommit, "5417dd7bd47d811c30f98c27d11e158c2c81e5b2");
+  assert.equal(handoff.pagesBaseline.deploymentCommit, "1367032384dc7e596c33de180925b747cdfff2ff");
+  assert.deepEqual(handoff.corsAllowedOrigins, [
+    "https://complementtwin.com",
+    "https://fledapharmaceuticals.github.io",
+    "https://twins.fledausa.com"
+  ]);
   assert.equal(handoff.pagesBaseline.simulationSha256, "5ffc2e1ac322e28e68becab0b06078104b4694a914357b7d2886fbf4db7c0fc5");
   assert.deepEqual(handoff.supportedOutputs, [
     "c3Activation", "c3aSignal", "c3bOpsonization", "c5Activation",
