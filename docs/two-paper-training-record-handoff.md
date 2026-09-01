@@ -62,4 +62,7 @@ Screenshots are outside Git in `/private/tmp/fleda-training-record-browser-check
 
 ## Release Hold
 
-This branch is unmerged and undeployed. This handoff performed no push, GitHub Pages deployment, API change, database or worker change, DNS action, persistent-data change, or model activation. Merge and deployment require separate approval.
+At verification time this branch was unmerged and undeployed. The handoff itself
+performed no push, GitHub Pages deployment, API change, database or worker change,
+DNS action, persistent-data change, or model activation. A later merge and Pages
+deployment require separate approval and must preserve every boundary above.
