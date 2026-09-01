@@ -1,0 +1,76 @@
+{
+  "applicability": {
+    "status": "pipeline_feasibility_only",
+    "summary": "Same-publication holdouts only; systemic ex-vivo and local RPE in-vitro evidence remain separate."
+  },
+  "candidateId": "amd-cp40-two-paper-test-v0",
+  "candidateVersion": "sha256:334a5679ffbdd31e7ef715afc3ce803db2b833c0cc4f69e1ee3a44c96adc60d1",
+  "capabilities": [
+    {
+      "label": "Cp40 dose-response estimation",
+      "validationStatus": "tested_not_qualified"
+    },
+    {
+      "label": "local RPE C3b response estimation",
+      "validationStatus": "tested_not_qualified"
+    },
+    {
+      "label": "local RPE C5b-9 response estimation",
+      "validationStatus": "tested_not_qualified"
+    },
+    {
+      "label": "held-out direction checking",
+      "validationStatus": "tested_not_qualified"
+    }
+  ],
+  "conclusion": "rejected",
+  "method": {
+    "formalModelChange": false,
+    "label": "evidence-constrained candidate fitting",
+    "machineLearning": false
+  },
+  "observationCounts": {
+    "contextOnly": 8,
+    "holdout": 49,
+    "train": 13
+  },
+  "parameterCategories": [
+    {
+      "label": "Cp40 concentration-response shape",
+      "status": "candidate_only"
+    },
+    {
+      "label": "local RPE response coupling",
+      "status": "candidate_only"
+    }
+  ],
+  "publications": [
+    {
+      "doi": "10.1002/sctm.20-0211",
+      "doiUrl": "https://doi.org/10.1002/sctm.20-0211",
+      "license": "CC BY 4.0",
+      "publicationYear": 2020,
+      "title": "Complement modulation reverses pathology in Y402H-retinal pigment epithelium cell model of age-related macular degeneration by restoring lysosomal function"
+    },
+    {
+      "doi": "10.1038/s41467-022-33003-7",
+      "doiUrl": "https://doi.org/10.1038/s41467-022-33003-7",
+      "license": "CC BY 4.0",
+      "publicationYear": 2022,
+      "title": "Insight into mode-of-action and structural determinants of the compstatin family of clinical complement inhibitors"
+    }
+  ],
+  "recordId": "sha256:88c547f9d3d014b87a1a7d3d3a5aef21f3107d0b971916c87629510edbb195bf",
+  "schemaName": "FledaPublicTrainingRecord",
+  "schemaVersion": "1.0.0",
+  "trainingDate": "2026-08-31",
+  "uncertainty": {
+    "level": "high",
+    "summary": "Candidate failed the deterministic weighted-fit gate; no cross-study or clinical uncertainty claim is supported."
+  },
+  "warnings": [
+    "Research and education only; no clinical validity.",
+    "The active model was not changed.",
+    "This was evidence-constrained fitting, not machine learning."
+  ]
+}
