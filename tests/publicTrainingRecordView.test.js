@@ -37,6 +37,19 @@ test("view shows the reviewed training record without promoting the candidate", 
   assert.match(html, /rel="noopener noreferrer"/g);
 });
 
+test("view associates each DOI with the correct publication author", () => {
+  const html = renderPublicTrainingRecord(PUBLIC_TRAINING_RECORD);
+
+  assert.match(
+    html,
+    /<li><strong>Cerniauskas et al\.<\/strong>[\s\S]*?10\.1002\/sctm\.20-0211[\s\S]*?<\/li>/
+  );
+  assert.match(
+    html,
+    /<li><strong>Lamers et al\.<\/strong>[\s\S]*?10\.1038\/s41467-022-33003-7[\s\S]*?<\/li>/
+  );
+});
+
 test("view escapes public text and allows only the reviewed DOI URL shape", () => {
   const record = structuredClone(PUBLIC_TRAINING_RECORD);
   record.publications[0].title = '<img src=x onerror="alert(1)">';

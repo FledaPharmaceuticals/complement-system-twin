@@ -1,8 +1,8 @@
 import { PUBLIC_TRAINING_RECORD } from "./publicTrainingRecord.js";
 
 const PUBLICATION_LABELS = Object.freeze({
-  "10.1002/sctm.20-0211": "Lamers et al.",
-  "10.1038/s41467-022-33003-7": "Cerniauskas et al."
+  "10.1002/sctm.20-0211": "Cerniauskas et al.",
+  "10.1038/s41467-022-33003-7": "Lamers et al."
 });
 
 export function renderPublicTrainingRecord(record) {
