@@ -22,6 +22,18 @@ test("advanced research content is collapsed by default", async () => {
   }
 });
 
+test("training record is collapsed directly below the conversational workspace", async () => {
+  const html = await readFile(new URL("index.html", root), "utf8");
+  const workspace = html.indexOf('id="experiment-workspace"');
+  const record = html.indexOf('id="model-training-record"');
+  const advanced = html.indexOf('id="advanced-research-tools"');
+
+  assert.ok(workspace >= 0 && workspace < record && record < advanced);
+  assert.match(html, /<summary id="model-training-record-summary"/);
+  assert.match(html, /<div id="model-training-record-content"/);
+  assert.doesNotMatch(html.slice(record, html.indexOf(">", record)), /\sopen(?:\s|>)/);
+});
+
 test("advanced research area exposes a read-only Model Change Ledger", async () => {
   const html = await readFile(new URL("index.html", root), "utf8");
   for (const id of ["model-change-ledger", "ledger-disease-filter", "ledger-pathway-filter", "ledger-parameter-filter", "ledger-status-filter", "ledger-version-filter", "ledger-date-filter", "model-change-ledger-list", "model-change-ledger-detail"]) {

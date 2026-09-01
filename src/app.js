@@ -41,6 +41,7 @@ import { APPLIED_LITERATURE, rankAppliedLiterature, selectLiteratureForExperimen
 import { buildEvidenceGuidance } from "./evidenceGuidance.js";
 import { summarizeTrainingReadiness } from "./trainingReadiness.js";
 import { buildEndpointComparison, createHeroResetSnapshot, formatSimulationTime, normalizeExperimentDuration, prepareEndpointComparisonInputs, resolvePlaybackResumeTime, resolvePlaybackStartTime, resolveResearchVitalSigns, summarizeOrganImpact } from "./experimentRuntime.js?v=20260829-playback-reset-v2-3";
+import { initPublicTrainingRecord } from "./publicTrainingRecordView.js";
 
 const state = {
   entityFilter: "all",
@@ -102,6 +103,7 @@ renderPublications();
 initDynamicsExplorer();
 initHeroDynamicsChart();
 initExperimentWorkspace();
+initPublicTrainingRecord();
 initMicrostructureInteractions();
 initBiomarkerPanel();
 initDrugComparisonPanel();
