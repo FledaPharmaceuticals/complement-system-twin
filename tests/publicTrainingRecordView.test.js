@@ -1,8 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 
 import { PUBLIC_TRAINING_RECORD } from "../src/publicTrainingRecord.js";
 import { renderPublicTrainingRecord } from "../src/publicTrainingRecordView.js";
+
+test("page cache-busts the app entrypoint for the training record release", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+
+  assert.match(html, /src="\.\/src\/app\.js\?v=20260831-training-record-v1"/);
+});
 
 test("view shows the reviewed training record without promoting the candidate", () => {
   const html = renderPublicTrainingRecord(PUBLIC_TRAINING_RECORD);
