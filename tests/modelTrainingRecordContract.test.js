@@ -29,7 +29,7 @@ const ARTIFACT_HASHES = {
   "contracts/model-training/public-model-training-record-1.1.0.schema.json": "b8e0aac4b4d2799d7f594cb08498469f9223e96bab10a4160c5026ca714f2c35",
   "contracts/model-training/public-model-training-record-summary-1.1.0.schema.json": "59deb36f169e94123530226f3259a74825dbf601af5e28e6dd8482d53ff3580b",
   "contracts/model-training/public-model-training-record-collection-1.1.0.schema.json": "da42bd208f21f1bb3bd7b377fc9dc9179cc832ac692025ef8e8591951e9ac4b6",
-  "contracts/model-training/public-model-training-record-snapshot-1.1.0.schema.json": "3702f95f4f1789d5cad867362fb4363eeef0ba307df61fd64d06ea6a7dee6ded",
+  "contracts/model-training/public-model-training-record-snapshot-1.1.0.schema.json": "f9de84e9ef0eb60d19b73a9db0ee8eac6e69c0310a1b800f19429404dc51b977",
   "contracts/model-training/model-training-snapshot-signature-1.0.0.schema.json": "5deb1006f7d64414b6b0507e11269fd3c317ea6061c8eec8fad7973182a1dd9a",
   "contracts/model-training/public-model-training-statement-registry-1.0.0.schema.json": "a92cfb9fc0abfb917404c5c8fc73f582dea7ff4b26fe47ca2d99b9c6a5e75fff",
   "contracts/model-training/public-model-training-statement-registry-1.0.0.json": "9fd3beadfff5aaa0e0bb28568e53e417942861a156872ea63614c31709c8f708",
@@ -69,6 +69,28 @@ function omit(value, field) {
 
 function dataUrl(raw, type = "application/json") {
   return `data:${type};base64,${Buffer.from(raw).toString("base64")}`;
+}
+
+function p1363Signature(r, s) {
+  const hex = (value) => value.toString(16).padStart(64, "0");
+  return Buffer.from(`${hex(r)}${hex(s)}`, "hex").toString("base64url");
+}
+
+async function pinnedJwkWithCoordinates(template, x, y) {
+  const pinned = clone(template);
+  pinned.jwk.x = x;
+  pinned.jwk.y = y;
+  const fingerprint = await sha256Canonical({
+    crv: pinned.jwk.crv,
+    kty: pinned.jwk.kty,
+    x,
+    y
+  });
+  const keyId = `jwk-sha256:${fingerprint.slice(7)}`;
+  pinned.jwkFingerprint = fingerprint;
+  pinned.keyId = keyId;
+  pinned.jwk.kid = keyId;
+  return pinned;
 }
 
 async function productionRegistry() {
@@ -294,6 +316,50 @@ test("rejects forbidden nested fields, explicit private values, decoded XSS, and
   }
 });
 
+test("rejects numeric HTML entities without semicolons after decoded-XSS inspection", async () => {
+  const { pinned } = await productionRegistry();
+  for (const encodedTitle of [
+    "&#x3cscript&#x3ealert(1)&#x3c/script&#x3e",
+    "&#60script&#62alert(1)&#60/script&#62"
+  ]) {
+    const candidate = await validSnapshot();
+    candidate.records[0].publications[0].title = encodedTitle;
+    await rehashDetail(candidate.records[0]);
+    await rehashSnapshot(candidate);
+    await assert.rejects(
+      validateTrainingRecordSnapshot(candidate, pinned),
+      /forbidden|script/i
+    );
+  }
+});
+
+test("accepts exact SHA-1 or SHA-256 snapshot commit IDs and rejects other lengths", async () => {
+  const { pinned } = await productionRegistry();
+  const sha256Snapshot = await validSnapshot();
+  sha256Snapshot.generatedFromCommit = "a".repeat(64);
+  await rehashSnapshot(sha256Snapshot);
+  await validateTrainingRecordSnapshot(sha256Snapshot, pinned);
+
+  for (const length of [39, 41, 63, 65]) {
+    const candidate = await validSnapshot();
+    candidate.generatedFromCommit = "a".repeat(length);
+    await rehashSnapshot(candidate);
+    await assert.rejects(
+      validateTrainingRecordSnapshot(candidate, pinned),
+      /Git object ID/i
+    );
+  }
+});
+
+test("accepts exact ISO calendar dates for years 0001 through 9999", async () => {
+  const { pinned } = await productionRegistry();
+  const candidate = await validSnapshot();
+  candidate.records[0].trainingDate = "0001-01-01";
+  await rehashDetail(candidate.records[0]);
+  await rehashSnapshot(candidate);
+  await validateTrainingRecordSnapshot(candidate, pinned);
+});
+
 test("rejects wrong category, one-character, NFC/NFD, and unknown public statements before hashes", async () => {
   const { pinned } = await productionRegistry();
   const base = await validSnapshot();
@@ -332,6 +398,75 @@ test("verifies shared and fixture P-256 P1363 low-s signatures and rejects tampe
   const highS = P256_ORDER - s;
   const high = Buffer.concat([raw.subarray(0, 32), Buffer.from(highS.toString(16).padStart(64, "0"), "hex")]).toString("base64url");
   await assert.rejects(verifySnapshotSignature(snapshotBytes, { ...envelope, signature: high }, key), /high-s/i);
+});
+
+test("rejects zero and out-of-range P-256 signature scalars", async () => {
+  const snapshotBytes = await bytes(`${FIXTURE}model-training-records-1.1.0.json`);
+  const envelope = await json(`${FIXTURE}model-training-records-1.1.0.sig.json`);
+  const key = await json(`${FIXTURE}test-public-key.jwk.json`);
+  const raw = Buffer.from(envelope.signature, "base64url");
+  const r = BigInt(`0x${raw.subarray(0, 32).toString("hex")}`);
+  const s = BigInt(`0x${raw.subarray(32).toString("hex")}`);
+
+  for (const [name, signature] of [
+    ["zero r", p1363Signature(0n, s)],
+    ["zero s", p1363Signature(r, 0n)],
+    ["out-of-range r", p1363Signature(P256_ORDER, s)],
+    ["out-of-range s", p1363Signature(r, P256_ORDER)]
+  ]) {
+    await assert.rejects(
+      verifySnapshotSignature(snapshotBytes, { ...envelope, signature }, key),
+      /zero|out of range/i,
+      name
+    );
+  }
+});
+
+test("rejects coherent wrong keys, malformed coordinates, and invalid P-256 points", async () => {
+  const snapshotBytes = await bytes(`${FIXTURE}model-training-records-1.1.0.json`);
+  const envelope = await json(`${FIXTURE}model-training-records-1.1.0.sig.json`);
+  const key = await json(`${FIXTURE}test-public-key.jwk.json`);
+  const keyPair = await globalThis.crypto.subtle.generateKey(
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["sign", "verify"]
+  );
+  const wrongCoordinates = await globalThis.crypto.subtle.exportKey("jwk", keyPair.publicKey);
+  const coherentWrongKey = await pinnedJwkWithCoordinates(
+    key,
+    wrongCoordinates.x,
+    wrongCoordinates.y
+  );
+  await assert.rejects(
+    verifySnapshotSignature(
+      snapshotBytes,
+      { ...envelope, keyId: coherentWrongKey.keyId },
+      coherentWrongKey
+    ),
+    /verification/i
+  );
+
+  const malformedCoordinates = clone(key);
+  malformedCoordinates.jwk.x = "AA";
+  await assert.rejects(
+    verifySnapshotSignature(snapshotBytes, envelope, malformedCoordinates),
+    /coordinates/i
+  );
+
+  const zeroCoordinate = Buffer.alloc(32).toString("base64url");
+  const invalidPoint = await pinnedJwkWithCoordinates(
+    key,
+    zeroCoordinate,
+    zeroCoordinate
+  );
+  await assert.rejects(
+    verifySnapshotSignature(
+      snapshotBytes,
+      { ...envelope, keyId: invalidPoint.keyId },
+      invalidPoint
+    ),
+    /point is invalid/i
+  );
 });
 
 test("verifies signatures in a browser runtime without Node Buffer", async () => {

@@ -965,7 +965,7 @@
       "type": "array"
     },
     "generatedFromCommit": {
-      "pattern": "^[0-9a-f]{40}$",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
       "title": "Generatedfromcommit",
       "type": "string"
     },

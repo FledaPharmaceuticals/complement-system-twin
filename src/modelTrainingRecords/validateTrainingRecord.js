@@ -134,8 +134,9 @@ function choice(value, allowed, path) {
 function date(value, path) {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) fail(path, "must be an ISO calendar date");
   const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-  if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (year < 1 || year > 9999 || month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]) {
     fail(path, "must be an exact ISO calendar date");
   }
 }
@@ -279,7 +280,7 @@ function validateSummaryShape(value, path = "$") {
 }
 
 function decodeHtml(value) {
-  return value.replace(/&(#x[0-9a-f]+|#\d+|lt|gt|amp|quot|apos);/gi, (match, entity) => {
+  return value.replace(/&(#x[0-9a-f]+|#\d+|lt|gt|amp|quot|apos);?/gi, (match, entity) => {
     const lowered = entity.toLowerCase();
     if (lowered === "lt") return "<";
     if (lowered === "gt") return ">";
@@ -487,7 +488,7 @@ export async function validateTrainingRecordSnapshot(payload, registry) {
   if (value.schemaVersion !== "1.1.0") fail("$.schemaVersion", "has the wrong literal");
   array(value.records, "$.records", { max: MAX_COUNT });
   for (const [index, record] of value.records.entries()) await validateDetail(record, registry, `$.records[${index}]`);
-  if (typeof value.generatedFromCommit !== "string" || !/^[0-9a-f]{40}$/.test(value.generatedFromCommit)) fail("$.generatedFromCommit", "must be a Git SHA-1 commit");
+  if (typeof value.generatedFromCommit !== "string" || !GIT_OBJECT_ID.test(value.generatedFromCommit)) fail("$.generatedFromCommit", "must be a Git object ID");
   hash(value.snapshotHash, "$.snapshotHash");
   rejectForbidden(value);
   if (await sha256Canonical(without(value, "snapshotHash")) !== value.snapshotHash) fail("$.snapshotHash", "does not match canonical snapshot");
