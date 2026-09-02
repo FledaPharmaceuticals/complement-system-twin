@@ -20,7 +20,7 @@ export function statusMessageFor(status) {
 export function renderModelTrainingRecordHistory(view = UNAVAILABLE_TRAINING_RECORD_VIEW) {
   if (!isValidatedTrainingRecordView(view)) return renderUnavailableTrainingRecord();
 
-  const records = [...view.snapshot.records].sort(compareRecords);
+  const records = view.snapshot.records;
   return `
     <div class="model-training-record-heading">
       <div>
@@ -121,11 +121,6 @@ function renderUnavailableTrainingRecord() {
       </div>
     </div>
     <p class="model-training-record-unavailable" role="status">Training record unavailable. A verified public-safe training snapshot is required.</p>`;
-}
-
-function compareRecords(left, right) {
-  if (left.trainingDate !== right.trainingDate) return right.trainingDate.localeCompare(left.trainingDate);
-  return String(left.recordId).localeCompare(String(right.recordId));
 }
 
 function isValidatedDoi(value) {

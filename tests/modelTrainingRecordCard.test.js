@@ -12,6 +12,7 @@ import {
   validatePublicStatementRegistry,
   validateTrainingRecordSnapshot
 } from "../src/modelTrainingRecords/validateTrainingRecord.js";
+import { sha256Canonical } from "../src/modelTrainingRecords/canonicalHash.js";
 
 const ROOT = new URL("../", import.meta.url);
 
@@ -37,6 +38,30 @@ async function validatedSnapshot() {
   };
 }
 
+function without(value, key) {
+  return Object.fromEntries(Object.entries(value).filter(([name]) => name !== key));
+}
+
+async function validatedSameDayAuthoritativeOrder() {
+  const [{ pinnedRegistry }, rawSnapshot] = await Promise.all([
+    validatedSnapshot(),
+    json("fixtures/model-training-snapshot/model-training-records-1.1.0.json")
+  ]);
+  const authoritative = structuredClone(rawSnapshot);
+  authoritative.records[0].trainingDate = "2026-08-31";
+  authoritative.records[0].recordId = `sha256:${"f".repeat(64)}`;
+  authoritative.records[1].trainingDate = "2026-08-31";
+  authoritative.records[1].recordId = `sha256:${"0".repeat(64)}`;
+  for (const record of authoritative.records) {
+    record.projectionHash = await sha256Canonical(without(record, "projectionHash"));
+  }
+  authoritative.snapshotHash = await sha256Canonical(without(authoritative, "snapshotHash"));
+  return {
+    pinnedRegistry,
+    snapshot: await validateTrainingRecordSnapshot(authoritative, pinnedRegistry)
+  };
+}
+
 test("renders only a validated frozen snapshot as a descending collapsed history", async () => {
   const { snapshot, pinnedRegistry } = await validatedSnapshot();
   const html = renderModelTrainingRecordHistory(await createValidatedTrainingRecordView(snapshot, pinnedRegistry));
@@ -51,6 +76,15 @@ test("renders only a validated frozen snapshot as a descending collapsed history
   assert.match(html, /Formal model unchanged/);
   assert.match(html, /Candidate did not pass; model knowledge and falsification results were retained\./);
   assert.doesNotMatch(html, /candidateId|candidateVersion|sourceCommit|coefficient|formula|internalId|human_review/i);
+});
+
+test("preserves the server-authoritative order of same-day validated records", async () => {
+  const { snapshot, pinnedRegistry } = await validatedSameDayAuthoritativeOrder();
+  const html = renderModelTrainingRecordHistory(
+    await createValidatedTrainingRecordView(snapshot, pinnedRegistry)
+  );
+
+  assert.ok(html.indexOf("98 observations") < html.indexOf("70 observations"));
 });
 
 test("renders full public-safe record detail with validated DOI links and exact status copy", async () => {
