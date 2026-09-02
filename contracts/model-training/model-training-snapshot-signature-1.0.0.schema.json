@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.twins.fledausa.com/contracts/model-training-snapshot-signature-1.0.0.schema.json",
+  "title": "FledaModelTrainingSnapshotSignature 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaName",
+    "schemaVersion",
+    "keyId",
+    "algorithm",
+    "snapshotSha256",
+    "signature"
+  ],
+  "properties": {
+    "schemaName": {
+      "const": "FledaModelTrainingSnapshotSignature"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "keyId": {
+      "type": "string",
+      "pattern": "^jwk-sha256:[0-9a-f]{64}$"
+    },
+    "algorithm": {
+      "const": "ECDSA-P256-SHA256-P1363"
+    },
+    "snapshotSha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{86}$"
+    }
+  }
+}

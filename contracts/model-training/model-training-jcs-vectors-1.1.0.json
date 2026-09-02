@@ -1,0 +1,97 @@
+{
+  "artifactName": "FledaModelTrainingJcsVectors",
+  "artifactVersion": "1.1.0",
+  "canonicalization": "RFC8785-JCS",
+  "hashAlgorithm": "SHA-256",
+  "hashPrefix": "sha256:",
+  "vectors": [
+    {
+      "name": "unicode-and-escaping",
+      "operation": "canonical_sha256",
+      "payload": {
+        "value": "€ snowman ☃",
+        "escaped": "line\nfeed"
+      },
+      "expectedCanonical": "{\"escaped\":\"line\\nfeed\",\"value\":\"€ snowman ☃\"}",
+      "expectedHash": "sha256:6001cdf6e3bb3a626ca14031b423e0bd2cb75448e30686f74a6718da0cb246f1"
+    },
+    {
+      "name": "number-rendering",
+      "operation": "canonical_sha256",
+      "payload": {
+        "numbers": [333333333.3333333, 1e+30, 4.5, 0.002, 1e-27]
+      },
+      "expectedCanonical": "{\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27]}",
+      "expectedHash": "sha256:7c892d3452ad85ad65857a43e8dcac93b79475d2334fc3e85bac5c599142c158"
+    },
+    {
+      "name": "utf16-key-order",
+      "operation": "canonical_sha256",
+      "payload": {
+        "z": 0,
+        "a": 1,
+        "m": 2
+      },
+      "expectedCanonical": "{\"a\":1,\"m\":2,\"z\":0}",
+      "expectedHash": "sha256:c36d3015784a7163bca85c476e0454d16c6b34df33d45d28cdffb3da02251e73"
+    },
+    {
+      "name": "array-order-preserved",
+      "operation": "canonical_sha256",
+      "payload": {
+        "values": ["third", "first", "second"]
+      },
+      "expectedCanonical": "{\"values\":[\"third\",\"first\",\"second\"]}",
+      "expectedHash": "sha256:4f98baa009f8ce001e1b057cfdfd965f5447d29ab232656ebc247afa1c94470d"
+    },
+    {
+      "name": "null-value",
+      "operation": "canonical_sha256",
+      "payload": {
+        "value": null
+      },
+      "expectedCanonical": "{\"value\":null}",
+      "expectedHash": "sha256:1c197daef20de3f47eec5e2f735ec6669869d3180cc29f35be4788511e0af0f8"
+    },
+    {
+      "name": "malformed-unicode",
+      "operation": "canonical_sha256_error",
+      "payload": {
+        "bad": "\ud800"
+      },
+      "expectedError": "lone Unicode surrogates"
+    },
+    {
+      "name": "record-id-omission",
+      "operation": "derive_record_id",
+      "omittedField": "recordId",
+      "payload": {
+        "recordId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "schemaName": "FledaModelTrainingRecord",
+        "value": 1
+      },
+      "expectedCanonical": "{\"schemaName\":\"FledaModelTrainingRecord\",\"value\":1}",
+      "expectedHash": "sha256:9101705ced5d5606adb1f930ab23ac1ff1a8700183523a51f23d2082aad8e547"
+    },
+    {
+      "name": "finding-id-omission",
+      "operation": "derive_finding_id",
+      "omittedField": "findingId",
+      "payload": {
+        "findingId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "findingType": "confirmed_measurement",
+        "statement": "Cp40 binds C3.",
+        "applicableDrugs": ["Cp40"],
+        "mechanisms": ["c3_binding"],
+        "compartments": ["purified_human_c3"],
+        "evidenceDois": ["10.1021/acs.jmedchem.6c00832"],
+        "confidenceStatus": "candidate_observation",
+        "supportingObservationCount": 1,
+        "calibrationStatus": "context_only",
+        "formalKnowledge": false
+      },
+      "expectedCanonical": "{\"applicableDrugs\":[\"Cp40\"],\"calibrationStatus\":\"context_only\",\"compartments\":[\"purified_human_c3\"],\"confidenceStatus\":\"candidate_observation\",\"evidenceDois\":[\"10.1021/acs.jmedchem.6c00832\"],\"findingType\":\"confirmed_measurement\",\"formalKnowledge\":false,\"mechanisms\":[\"c3_binding\"],\"statement\":\"Cp40 binds C3.\",\"supportingObservationCount\":1}",
+      "expectedHash": "sha256:eadc3e62a3c569b2c0eccbf4ac25584e064b028998d00d3c249b10509b030991"
+    }
+  ]
+}

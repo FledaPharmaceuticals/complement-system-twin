@@ -1,0 +1,391 @@
+{
+  "schemaName": "FledaPublicStatementRegistryVectors",
+  "schemaVersion": "1.0.0",
+  "registryRelease": {
+    "artifactPath": "contracts/public-model-training-statement-registry-1.0.0.json",
+    "expectedSchemaVersion": "1.0.0",
+    "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+    "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+    "expectedBlobId": "d2012ccd60707676540dd1cbd27b860fe08f3f66"
+  },
+  "validRegistryVector": {
+    "registryBytesBase64": "ewogICJzY2hlbWFOYW1lIjogIkZsZWRhUHVibGljU3RhdGVtZW50UmVnaXN0cnkiLAogICJzY2hlbWFWZXJzaW9uIjogIjEuMC4wIiwKICAic3RhdGVtZW50cyI6IFsKICAgIHsKICAgICAgInN0YXRlbWVudElkIjogIkEuMSIsCiAgICAgICJjYXRlZ29yeSI6ICJ1bmNlcnRhaW50eSIsCiAgICAgICJ0ZXh0IjogIkNhZsOpIGV2aWRlbmNlIHJlbWFpbnMgdW5jZXJ0YWluLiIsCiAgICAgICJzdGF0ZW1lbnRIYXNoIjogInNoYTI1Njo1MzFkN2ZmZmUyZWJkMzhjYjg2ZDY1OGI5MGI2NjgyMTMxNGViMzVhNjY1MTJmNTYyZGQ5OWY5MTU0OGIxZDEyIiwKICAgICAgImFwcHJvdmFsU3RhdHVzIjogImFwcHJvdmVkX2Zvcl9wdWJsaWNfcmVsZWFzZSIKICAgIH0KICBdLAogICJyZWdpc3RyeUhhc2giOiAic2hhMjU2OjM4YTg5NDM5ZDExMDllNDFmNDBmZWM1NGIxNmIwNjVkYWVmNWMwODNmMTA2MWE2NGRjYjM3MDc3NjEzYTkxNmUiCn0K",
+    "byteLength": 471,
+    "expectedRegistryHash": "sha256:38a89439d1109e41f40fec54b16b065daef5c083f1061a64dcb37077613a916e",
+    "expectedStatementHash": "sha256:531d7fffe2ebd38cb86d658b90b66821314eb35a66512f562dd99f91548b1d12"
+  },
+  "statementHashVectors": [
+    {
+      "name": "category_and_text_only",
+      "value": {
+        "category": "uncertainty",
+        "text": "Café evidence remains uncertain."
+      },
+      "expectedStatementHash": "sha256:531d7fffe2ebd38cb86d658b90b66821314eb35a66512f562dd99f91548b1d12"
+    }
+  ],
+  "membershipCases": [
+    {
+      "name": "approved_exact_pair",
+      "approvedCategory": "uncertainty",
+      "approvedText": "Café evidence remains uncertain.",
+      "queryCategory": "uncertainty",
+      "queryText": "Café evidence remains uncertain.",
+      "expectedApproved": true
+    },
+    {
+      "name": "wrong_category",
+      "approvedCategory": "uncertainty",
+      "approvedText": "Café evidence remains uncertain.",
+      "queryCategory": "limitation",
+      "queryText": "Café evidence remains uncertain.",
+      "expectedApproved": false
+    },
+    {
+      "name": "one_character_mutation",
+      "approvedCategory": "uncertainty",
+      "approvedText": "Café evidence remains uncertain.",
+      "queryCategory": "uncertainty",
+      "queryText": "Café evidence remains uncertain!",
+      "expectedApproved": false
+    },
+    {
+      "name": "nfc_to_nfd_mutation",
+      "approvedCategory": "uncertainty",
+      "approvedText": "Café evidence remains uncertain.",
+      "queryCategory": "uncertainty",
+      "queryText": "Café evidence remains uncertain.",
+      "expectedApproved": false
+    },
+    {
+      "name": "unknown_statement",
+      "approvedCategory": "uncertainty",
+      "approvedText": "Café evidence remains uncertain.",
+      "queryCategory": "uncertainty",
+      "queryText": "Unknown evidence statement.",
+      "expectedApproved": false
+    }
+  ],
+  "statementIdOrderingVectors": [
+    {
+      "name": "shorter_exact_prefix_first",
+      "input": [
+        "A.1",
+        "A",
+        "A.",
+        "A.0"
+      ],
+      "expected": [
+        "A",
+        "A.",
+        "A.0",
+        "A.1"
+      ]
+    },
+    {
+      "name": "mixed_case_and_punctuation",
+      "input": [
+        "a_",
+        "A_",
+        "a.",
+        "A.",
+        "a-",
+        "A-",
+        "a0",
+        "A0"
+      ],
+      "expected": [
+        "A-",
+        "A.",
+        "A0",
+        "A_",
+        "a-",
+        "a.",
+        "a0",
+        "a_"
+      ]
+    }
+  ],
+  "jcsVectors": [
+    {
+      "name": "object_order",
+      "value": {
+        "z": 1,
+        "a": [
+          3,
+          2,
+          1
+        ]
+      },
+      "expectedCanonicalJson": "{\"a\":[3,2,1],\"z\":1}",
+      "expectedSha256": "sha256:317f7ae9e3098f1b542ecc1a158a50d46d4e5c2fb63753274e0f9c2a4a221f90"
+    },
+    {
+      "name": "array_order_and_null",
+      "value": {
+        "items": [
+          "b",
+          "a",
+          null
+        ]
+      },
+      "expectedCanonicalJson": "{\"items\":[\"b\",\"a\",null]}",
+      "expectedSha256": "sha256:746d0439a70247ae2d003ae02b59e9bb2d167a5c23ba5321f7637168cf8e79d6"
+    },
+    {
+      "name": "number_rendering",
+      "value": {
+        "one": 1.0,
+        "fraction": 1.5,
+        "small": 1e-06
+      },
+      "expectedCanonicalJson": "{\"fraction\":1.5,\"one\":1,\"small\":0.000001}",
+      "expectedSha256": "sha256:96a75ff98f75e4d1362c6deaa863022a1de94d064879eb2b92d189fff8180270"
+    },
+    {
+      "name": "nfc_unicode",
+      "value": {
+        "text": "Café"
+      },
+      "expectedCanonicalJson": "{\"text\":\"Café\"}",
+      "expectedSha256": "sha256:85094b1744c1c9ef3c01c1157f7857d26080e4b1d73c279cb84bccbf550b1a47"
+    },
+    {
+      "name": "nfd_unicode",
+      "value": {
+        "text": "Café"
+      },
+      "expectedCanonicalJson": "{\"text\":\"Café\"}",
+      "expectedSha256": "sha256:0ad6cf895e4ae786b1142e955c1dae69ad30676b8324edd6c5771dc346336d4f"
+    }
+  ],
+  "invalidJcsCases": [
+    {
+      "name": "negative_zero",
+      "inputLiteral": "-0.0",
+      "expected": "reject"
+    },
+    {
+      "name": "non_finite_number",
+      "inputLiteral": "NaN",
+      "expected": "reject"
+    },
+    {
+      "name": "lone_surrogate",
+      "inputLiteral": "\\ud800",
+      "expected": "reject"
+    }
+  ],
+  "registryMutationBase": {
+    "schemaName": "FledaPublicStatementRegistry",
+    "schemaVersion": "1.0.0",
+    "statements": [
+      {
+        "statementId": "A.1",
+        "category": "uncertainty",
+        "text": "Café evidence remains uncertain.",
+        "statementHash": "sha256:531d7fffe2ebd38cb86d658b90b66821314eb35a66512f562dd99f91548b1d12",
+        "approvalStatus": "approved_for_public_release"
+      },
+      {
+        "statementId": "B.1",
+        "category": "limitation",
+        "text": "A limitation.",
+        "statementHash": "sha256:2d987a450e1e1378e62e1c76090c2d67c305aff782559e4ab5ae0ba1eb26f465",
+        "approvalStatus": "approved_for_public_release"
+      }
+    ],
+    "registryHash": "sha256:a7c1627f205bd2964b918992c5ad79dc03045864132f118083ab05c3e8dd2143",
+    "registryBytesBase64": "ewogICJzY2hlbWFOYW1lIjogIkZsZWRhUHVibGljU3RhdGVtZW50UmVnaXN0cnkiLAogICJzY2hlbWFWZXJzaW9uIjogIjEuMC4wIiwKICAic3RhdGVtZW50cyI6IFsKICAgIHsKICAgICAgInN0YXRlbWVudElkIjogIkEuMSIsCiAgICAgICJjYXRlZ29yeSI6ICJ1bmNlcnRhaW50eSIsCiAgICAgICJ0ZXh0IjogIkNhZsOpIGV2aWRlbmNlIHJlbWFpbnMgdW5jZXJ0YWluLiIsCiAgICAgICJzdGF0ZW1lbnRIYXNoIjogInNoYTI1Njo1MzFkN2ZmZmUyZWJkMzhjYjg2ZDY1OGI5MGI2NjgyMTMxNGViMzVhNjY1MTJmNTYyZGQ5OWY5MTU0OGIxZDEyIiwKICAgICAgImFwcHJvdmFsU3RhdHVzIjogImFwcHJvdmVkX2Zvcl9wdWJsaWNfcmVsZWFzZSIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZW1lbnRJZCI6ICJCLjEiLAogICAgICAiY2F0ZWdvcnkiOiAibGltaXRhdGlvbiIsCiAgICAgICJ0ZXh0IjogIkEgbGltaXRhdGlvbi4iLAogICAgICAic3RhdGVtZW50SGFzaCI6ICJzaGEyNTY6MmQ5ODdhNDUwZTFlMTM3OGU2MmUxYzc2MDkwYzJkNjdjMzA1YWZmNzgyNTU5ZTRhYjVhZTBiYTFlYjI2ZjQ2NSIsCiAgICAgICJhcHByb3ZhbFN0YXR1cyI6ICJhcHByb3ZlZF9mb3JfcHVibGljX3JlbGVhc2UiCiAgICB9CiAgXSwKICAicmVnaXN0cnlIYXNoIjogInNoYTI1NjphN2MxNjI3ZjIwNWJkMjk2NGI5MTg5OTJjNWFkNzlkYzAzMDQ1ODY0MTMyZjExODA4M2FiMDVjM2U4ZGQyMTQzIgp9Cg=="
+  },
+  "registryMutationCases": [
+    {
+      "name": "duplicate_statement_id",
+      "operation": "copy_field",
+      "sourceIndex": 0,
+      "targetIndex": 1,
+      "field": "statementId",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements[1].statementId"
+    },
+    {
+      "name": "duplicate_statement_hash",
+      "operation": "duplicate_entry_content_under_new_id",
+      "sourceIndex": 0,
+      "newStatementId": "B.1",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements[2]"
+    },
+    {
+      "name": "reordered_entries",
+      "operation": "reverse_statements",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements"
+    },
+    {
+      "name": "malformed_entry",
+      "operation": "remove_field",
+      "statementIndex": 0,
+      "field": "approvalStatus",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements[0].approvalStatus"
+    },
+    {
+      "name": "damaged_statement_hash",
+      "operation": "replace_field",
+      "statementIndex": 0,
+      "field": "statementHash",
+      "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements[0].statementHash"
+    },
+    {
+      "name": "damaged_registry_hash",
+      "operation": "replace_top_level_field",
+      "field": "registryHash",
+      "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.registryHash"
+    },
+    {
+      "name": "unapproved_statement",
+      "operation": "replace_field",
+      "statementIndex": 0,
+      "field": "approvalStatus",
+      "value": "draft",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.statements[0].approvalStatus"
+    },
+    {
+      "name": "registry_hash_omission",
+      "operation": "remove_top_level_field",
+      "field": "registryHash",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.registryHash"
+    }
+  ],
+  "releasePinCases": [
+    {
+      "name": "valid_release_pin",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "expected": "accept"
+    },
+    {
+      "name": "missing_release_commit",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": null,
+      "omittedField": "expectedReleaseCommit",
+      "expected": "reject",
+      "expectedException": "ValidationError",
+      "expectedPath": "$.expectedReleaseCommit"
+    },
+    {
+      "name": "missing_schema_version",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "omittedField": "expectedSchemaVersion",
+      "expected": "reject",
+      "expectedException": "ValidationError",
+      "expectedPath": "$.expectedSchemaVersion"
+    },
+    {
+      "name": "missing_registry_hash",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "omittedField": "expectedRegistryHash",
+      "expected": "reject",
+      "expectedException": "ValidationError",
+      "expectedPath": "$.expectedRegistryHash"
+    },
+    {
+      "name": "wrong_schema_version",
+      "expectedSchemaVersion": "9.9.9",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.expectedSchemaVersion"
+    },
+    {
+      "name": "wrong_registry_hash",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.expectedRegistryHash"
+    },
+    {
+      "name": "wrong_release_commit",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "0000000000000000000000000000000000000000",
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.expectedReleaseCommit"
+    },
+    {
+      "name": "raw_bytes_differ_from_committed_blob",
+      "expectedSchemaVersion": "1.0.0",
+      "expectedRegistryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62",
+      "expectedReleaseCommit": "f5240d329f30ca7fd18bdee113fe65d9a2bed00d",
+      "rawBytesMutation": {
+        "operation": "append_bytes_base64",
+        "value": "IA=="
+      },
+      "expected": "reject",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.rawRegistry"
+    }
+  ],
+  "resolvedArtifactCases": [
+    {
+      "name": "wrong_resolved_commit",
+      "attribute": "resolved_commit",
+      "replacement": "0000000000000000000000000000000000000000",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.resolvedRegistryArtifact.resolved_commit"
+    },
+    {
+      "name": "wrong_artifact_path",
+      "attribute": "artifact_path",
+      "replacement": "contracts/wrong-registry.json",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.resolvedRegistryArtifact.artifact_path"
+    },
+    {
+      "name": "wrong_blob_id",
+      "attribute": "blob_id",
+      "replacement": "0000000000000000000000000000000000000000",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.resolvedRegistryArtifact.blob_id"
+    },
+    {
+      "name": "wrong_object_format",
+      "attribute": "object_format",
+      "replacement": "sha512",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.resolvedRegistryArtifact.object_format"
+    },
+    {
+      "name": "wrong_blob_bytes",
+      "attribute": "blob_bytes",
+      "replacement": "dGFtcGVyZWQ=",
+      "expectedException": "InvalidPublicStatementRegistry",
+      "expectedPath": "$.resolvedRegistryArtifact.blob_bytes"
+    }
+  ]
+}

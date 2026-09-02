@@ -1,0 +1,45 @@
+{
+  "schemaName": "FledaModelTrainingSignatureVectors",
+  "schemaVersion": "1.0.0",
+  "algorithm": "ECDSA-P256-SHA256-P1363",
+  "signatureEncoding": "IEEE-P1363 r||s, 32-byte unsigned big-endian components",
+  "signatureCanonicalization": "low-s: 1 <= s <= floor(P-256-order/2)",
+  "crossRuntimeEncoding": {
+    "pythonCryptography": "DER converted only at cryptography API boundary",
+    "webCrypto": "64-byte IEEE-P1363 r||s"
+  },
+  "messageEncoding": "base64url_without_padding",
+  "vectors": [
+    {
+      "name": "test-only-p256-sha256-p1363",
+      "message": "RmxlZGEgbW9kZWwgdHJhaW5pbmcgc2lnbmF0dXJlIHZlY3RvciAxLjAuMAo",
+      "signatureEnvelope": {
+        "schemaName": "FledaModelTrainingSnapshotSignature",
+        "schemaVersion": "1.0.0",
+        "keyId": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+        "algorithm": "ECDSA-P256-SHA256-P1363",
+        "snapshotSha256": "sha256:bda1dff887120bed77ca6fa0b60f66cf98e6241509fa3cd3a4bc92b3fa4f4000",
+        "signature": "hexeTi8XadEiRyDUDye8HnHTS_rQfSyHKWQH_M-mAfcj-viRv175naNuU2AiHNQNgjDOiP5dg04LE7UCGS8q0Q"
+      },
+      "pinnedPublicJwk": {
+        "schemaName": "FledaPinnedSnapshotPublicJwk",
+        "schemaVersion": "1.0.0",
+        "purpose": "test_only_conformance",
+        "keyId": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+        "jwkFingerprint": "sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+        "jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "lA9pzr8JCb1SSbnkIxDaqDDnb-4PAGQl8bKMdGfWHJ4",
+          "y": "iAwuS4gSXsDNcyGcg_mZgdoaHrDEOkx4to5D105gQ5c",
+          "alg": "ES256",
+          "key_ops": [
+            "verify"
+          ],
+          "kid": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+          "use": "sig"
+        }
+      }
+    }
+  ]
+}
