@@ -14,3 +14,4 @@ data/candidates/
 data/snapshots/
 *.sqlite
 *.sqlite3
+test-output/model-training-record-card/
