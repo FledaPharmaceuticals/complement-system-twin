@@ -1,0 +1,19 @@
+{
+  "schemaName": "FledaPinnedSnapshotPublicJwk",
+  "schemaVersion": "1.0.0",
+  "purpose": "test_only_conformance",
+  "keyId": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+  "jwkFingerprint": "sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+  "jwk": {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "lA9pzr8JCb1SSbnkIxDaqDDnb-4PAGQl8bKMdGfWHJ4",
+    "y": "iAwuS4gSXsDNcyGcg_mZgdoaHrDEOkx4to5D105gQ5c",
+    "alg": "ES256",
+    "key_ops": [
+      "verify"
+    ],
+    "kid": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+    "use": "sig"
+  }
+}

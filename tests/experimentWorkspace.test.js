@@ -22,16 +22,16 @@ test("advanced research content is collapsed by default", async () => {
   }
 });
 
-test("training record is collapsed directly below the conversational workspace", async () => {
+test("training record history is directly below the conversational workspace with collapsed rows", async () => {
   const html = await readFile(new URL("index.html", root), "utf8");
   const workspace = html.indexOf('id="experiment-workspace"');
   const record = html.indexOf('id="model-training-record"');
   const advanced = html.indexOf('id="advanced-research-tools"');
 
   assert.ok(workspace >= 0 && workspace < record && record < advanced);
-  assert.match(html, /<summary id="model-training-record-summary"/);
+  assert.match(html, /<section id="model-training-record"[^>]*aria-label="Model Training Record"/);
   assert.match(html, /<div id="model-training-record-content"/);
-  assert.doesNotMatch(html.slice(record, html.indexOf(">", record)), /\sopen(?:\s|>)/);
+  assert.doesNotMatch(html.slice(record, advanced), /<details class="model-training-record-row"[^>]*\sopen(?:\s|>)/);
 });
 
 test("advanced research area exposes a read-only Model Change Ledger", async () => {

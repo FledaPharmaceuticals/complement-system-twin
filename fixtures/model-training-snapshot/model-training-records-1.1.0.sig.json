@@ -1,0 +1,8 @@
+{
+  "schemaName": "FledaModelTrainingSnapshotSignature",
+  "schemaVersion": "1.0.0",
+  "keyId": "jwk-sha256:159deb1a681b135f14b94d3e610f725b1cf82e931e027ac22e0cf03363ac2b1d",
+  "algorithm": "ECDSA-P256-SHA256-P1363",
+  "snapshotSha256": "sha256:70388a53cb682663fc819046d5bbdf2ef79bdd3fa2821f744014fe4445626ce2",
+  "signature": "0TZMF6dhBjn6Kc9FgAkgcQzf5rAxS_aIW5inG8OZ1Dob-Fa8AzXrJm7PkxiDxz0J0a-zNiOatz9eJhLaMELfww"
+}

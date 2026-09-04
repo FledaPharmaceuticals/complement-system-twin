@@ -1585,77 +1585,59 @@ h3 { letter-spacing: 0; }
 }
 
 .model-training-record {
-  width: min(1180px, calc(100% - 32px));
+  width: 100%;
   margin: 0 auto 28px;
   border: 1px solid rgba(125, 185, 214, .28);
   border-radius: 8px;
   background: rgba(7, 20, 36, .86);
 }
 
-.model-training-record > summary {
-  min-height: 44px;
-  padding: 16px 18px;
+.model-training-record-content {
+  padding: 18px;
+}
+
+.model-training-record-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  margin-bottom: 14px;
+}
+
+.model-training-record-heading h2 { margin: 4px 0 0; font-size: 20px; letter-spacing: 0; }
+.model-training-record-heading > p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.model-training-record-list { display: grid; gap: 8px; }
+
+.model-training-record-row {
+  border: 1px solid rgba(125, 185, 214, .2);
+  background: rgba(11, 27, 46, .72);
+}
+
+.model-training-record-row > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 56px;
+  padding: 13px 14px;
   cursor: pointer;
   list-style: none;
 }
 
-.model-training-record > summary::-webkit-details-marker { display: none; }
-.model-training-record > summary > span:first-child { display: grid; gap: 4px; }
-.model-training-record > summary strong { color: var(--text); font-size: 18px; }
-.model-training-record > summary:focus-visible { outline: 2px solid #69d3ff; outline-offset: 3px; }
-
-.model-training-record-action {
-  color: #8edfff;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.model-training-record[open] .model-training-record-action { font-size: 0; }
-.model-training-record[open] .model-training-record-action::after { content: "Close record"; font-size: 13px; }
-
-.model-training-record-content {
-  padding: 0 18px 20px;
-  border-top: 1px solid rgba(125, 185, 214, .2);
-}
-
-.model-training-record:not([open]) > .model-training-record-content { display: none; }
-.model-training-record-intro { padding-top: 18px; }
-.model-training-record-intro h3 { margin: 4px 0 8px; font-size: 20px; letter-spacing: 0; }
-.model-training-record-intro p:last-child { margin-bottom: 0; color: var(--muted); }
-
-.model-training-record-facts,
-.model-training-record-counts {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  margin: 18px 0;
-  background: rgba(125, 185, 214, .2);
-}
-
-.model-training-record-facts > div,
-.model-training-record-counts > div {
-  min-width: 0;
-  padding: 12px;
-  background: #0b1b2e;
-}
-
-.model-training-record-facts dt,
-.model-training-record-counts dt {
-  margin-bottom: 4px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.model-training-record-facts dd,
-.model-training-record-counts dd { margin: 0; overflow-wrap: anywhere; }
-.model-training-record-counts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.model-training-record-row > summary::-webkit-details-marker { display: none; }
+.model-training-record-row > summary:focus-visible { outline: 2px solid #69d3ff; outline-offset: -2px; }
+.model-training-record-row-main,
+.model-training-record-row-meta { display: grid; gap: 4px; min-width: 0; }
+.model-training-record-row-main strong { color: var(--text); }
+.model-training-record-row-main span,
+.model-training-record-row-meta { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.model-training-record-row-meta { grid-auto-flow: column; grid-auto-columns: max-content; text-align: right; }
+.model-training-record-row-content { padding: 0 14px 16px; border-top: 1px solid rgba(125, 185, 214, .16); }
+.model-training-record-status { margin: 14px 0 0; color: var(--muted); }
+.model-training-record-unavailable { margin: 0; color: var(--muted); }
 
 .model-training-record-section { margin-top: 18px; }
-.model-training-record-section h4 { margin: 0 0 10px; font-size: 15px; letter-spacing: 0; }
+.model-training-record-section h3 { margin: 0 0 10px; font-size: 15px; letter-spacing: 0; }
 .model-training-record-section ul { margin: 0; padding-left: 20px; }
 .model-training-record-section li { margin: 8px 0; }
 .model-training-record-section li > span { display: block; }
@@ -1668,25 +1650,10 @@ h3 { letter-spacing: 0; }
 .model-training-record-doi,
 .model-training-record-doi a { overflow-wrap: anywhere; word-break: break-word; }
 
-.model-training-record-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.model-training-record-boundary {
-  padding: 14px 0 0;
-  border-top: 1px solid rgba(125, 185, 214, .2);
-}
-
-.model-training-record-boundary p { margin: 6px 0; color: var(--muted); }
-
 @media (max-width: 720px) {
-  .model-training-record { width: min(100% - 20px, 1180px); }
-  .model-training-record > summary { align-items: flex-start; }
-  .model-training-record-facts,
-  .model-training-record-counts,
-  .model-training-record-columns { grid-template-columns: minmax(0, 1fr); }
+  .model-training-record-heading,
+  .model-training-record-row > summary { grid-template-columns: minmax(0, 1fr); }
+  .model-training-record-row-meta { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); text-align: left; }
 }
 
 .advanced-research-tools > summary {

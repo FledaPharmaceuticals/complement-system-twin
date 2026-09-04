@@ -1,0 +1,161 @@
+{
+  "schemaName": "FledaPublicStatementRegistry",
+  "schemaVersion": "1.0.0",
+  "statements": [
+    {
+      "statementId": "architecture_implication.001",
+      "category": "architecture_implication",
+      "text": "Future candidate evaluations must preserve systemic ex-vivo and local RPE in-vitro evidence as separate compartments and assays.",
+      "statementHash": "sha256:4fe7b4bbda3861469708a836381563b674e7e2340adbf5d65d89499468f4a327",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "architecture_implication.002",
+      "category": "architecture_implication",
+      "text": "Future model evaluations must preserve drug identity and must not transfer affinity fold changes across functional assays.",
+      "statementHash": "sha256:7b0eb7d887c7ef8b3afff1a0d5a0ce7e252557130d838d3371fa531e7bf09be0",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "knowledge.001",
+      "category": "knowledge",
+      "text": "The deterministic two-publication pipeline assembled 70 contract-valid observations for candidate evaluation.",
+      "statementHash": "sha256:338b823a8145fcb5c7aca02c27122e4924352650be697a857033f2e446e61bf2",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "knowledge.002",
+      "category": "knowledge",
+      "text": "The independent Vogt biochemical evidence established cross-study consistency with the prior Cp40 affinity observations.",
+      "statementHash": "sha256:64581cddbc060a0159aee4f8e3a6116a3aeea12b92ef9ea4140d079555f5611f",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "knowledge.003",
+      "category": "knowledge",
+      "text": "The three-publication assessment retained 70 inherited observations and added 28 new Vogt observations.",
+      "statementHash": "sha256:171e5e48d56a17491b9a9e50f39dea040a8f1aba035c687e64ba48224e51ea17",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.001",
+      "category": "limitation",
+      "text": "Affinity and serum inhibition potency are nonlinear in the source, and no fold-change transfer is allowed.",
+      "statementHash": "sha256:4bc9eb08377ddc9754cb5d6f7bbc5b387fe8a765c8d95bcc2c2c9501bc06bdd0",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.002",
+      "category": "limitation",
+      "text": "Cp60 remains a distinct intervention, and its values are not substituted for Cp40, tissue-response, or disease parameters.",
+      "statementHash": "sha256:b4d56a65e170fcf0da0b968efe1e815233bccb77e99beb92f987ca73985388cc",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.003",
+      "category": "limitation",
+      "text": "No clinical validity is claimed.",
+      "statementHash": "sha256:2a5ec9c1d2655ca10ae69a94641556d85feb9bc80a57010058c55e1b27360847",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.004",
+      "category": "limitation",
+      "text": "The evidence is ex-vivo systemic material and in-vitro local RPE data, and those compartments remain separate.",
+      "statementHash": "sha256:bcfa3a43b9978e600ca4f89a46b0e56a35261b26261ebbcf5024cdd92aeb3eff",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.005",
+      "category": "limitation",
+      "text": "This deterministic test uses same-publication holdout observations; it does not provide independent external validation.",
+      "statementHash": "sha256:41d803d1f30d632677475db3e816d877ab0563e4ffc1dd6bd5acc820bc391862",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "limitation.006",
+      "category": "limitation",
+      "text": "Vogt et al. 2026 supplies an independent biochemical mechanism check, not an AMD clinical calibration.",
+      "statementHash": "sha256:c7528a9798e0125b32ff89aaa8aead796d82a1c7a277ee4512cbd6d7b3be694e",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "method_label.001",
+      "category": "method_label",
+      "text": "evidence-constrained candidate fitting",
+      "statementHash": "sha256:6e483de1e5621bf3b3547fde84194292041ca0ffdce7f064c5c24683e9b5c68d",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "method_label.002",
+      "category": "method_label",
+      "text": "evidence-constrained candidate fitting and independent biochemical compatibility check",
+      "statementHash": "sha256:36986719c9db33e486ebd3f46ea590cf8859948b42518f716e8baf976001ad20",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "missing_mechanism.001",
+      "category": "missing_mechanism",
+      "text": "The biochemical evidence does not establish a direct mapping from affinity to functional potency or AMD tissue response.",
+      "statementHash": "sha256:9da71ad034381b5cdc2eaf300a16fd61798105e191575e2a242a4c0eabe3db91",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "missing_mechanism.002",
+      "category": "missing_mechanism",
+      "text": "The evidence does not establish a transferable mechanism between systemic ex-vivo Cp40 activity and local RPE responses.",
+      "statementHash": "sha256:5f12a86ffacfa51c01030ac01cee0629fde74073f921003b0c1fd864e1844c76",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "modeling_constraint.001",
+      "category": "modeling_constraint",
+      "text": "Cp60 is a distinct intervention identity and cannot be relabeled as Cp40 or substituted for Cp40 or AMD model parameters.",
+      "statementHash": "sha256:1b5cd8c778868f46fefd9de3d304a55ae46c52e67aa38cc04176885729a0d553",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "modeling_constraint.002",
+      "category": "modeling_constraint",
+      "text": "Systemic ex-vivo evidence and local RPE in-vitro evidence must remain separated by compartment and assay context.",
+      "statementHash": "sha256:45ab791215327e376674fde22d106bda1ef000653996d594b45122d139aa6a88",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "modeling_constraint.003",
+      "category": "modeling_constraint",
+      "text": "The evidence-constrained candidate failed the deterministic absolute weighted lack-of-fit rule.",
+      "statementHash": "sha256:cfe7a2a0d3fd146eab5950258e1a42373687d99039208880618db0b5c4ddd14c",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "modeling_constraint.004",
+      "category": "modeling_constraint",
+      "text": "The reported 8.75-fold affinity change cannot be transferred directly into a functional model parameter because the source functional potency change is not equivalent.",
+      "statementHash": "sha256:cd69c1f4512c7b8fad72eeff91c771d8e624c73e87dab3f0118d088d782d2f9f",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "rejection_reason.001",
+      "category": "rejection_reason",
+      "text": "The candidate failed the deterministic absolute weighted lack-of-fit gate and was not activated.",
+      "statementHash": "sha256:551d79f821abbe05a9463e18e9bbaa904bacafb4f590022273089c8bc91eba6c",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "uncertainty.001",
+      "category": "uncertainty",
+      "text": "The assessment retains mechanistic constraints without qualifying or activating the candidate model.",
+      "statementHash": "sha256:d4d77ddf43062b6f5b7c5d362240148e6f4d94a68781630cda21de6658153872",
+      "approvalStatus": "approved_for_public_release"
+    },
+    {
+      "statementId": "uncertainty.002",
+      "category": "uncertainty",
+      "text": "The result establishes pipeline feasibility only and does not establish cross-study or clinical validity.",
+      "statementHash": "sha256:fcab04558374f6cc806c05648f3652cc5a11e7a74a3a7532c320efc623252e59",
+      "approvalStatus": "approved_for_public_release"
+    }
+  ],
+  "registryHash": "sha256:2b8d3789432c512c1d4498685ad00ffe83354a6d22b28d41b0d513d9c0b82e62"
+}

@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.twins.fledausa.com/contracts/public-model-training-record-summary-1.1.0.schema.json",
+  "title": "FledaPublicModelTrainingRecordSummary 1.1.0",
+  "additionalProperties": false,
+  "properties": {
+    "recordId": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Recordid",
+      "type": "string"
+    },
+    "trainingDate": {
+      "format": "date",
+      "title": "Trainingdate",
+      "type": "string"
+    },
+    "trainingRunType": {
+      "enum": [
+        "evidence_constrained_candidate_fit",
+        "independent_evidence_compatibility_check",
+        "mechanism_scenario_candidate_evaluation",
+        "regression_and_invariance_validation"
+      ],
+      "title": "Trainingruntype",
+      "type": "string"
+    },
+    "candidateStatus": {
+      "enum": [
+        "rejected",
+        "candidate_only",
+        "supported_exploratory",
+        "formally_approved"
+      ],
+      "title": "Candidatestatus",
+      "type": "string"
+    },
+    "publicationCount": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Publicationcount",
+      "type": "integer"
+    },
+    "observationCount": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Observationcount",
+      "type": "integer"
+    },
+    "methodLabel": {
+      "allOf": [
+        {
+          "not": {
+            "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+          }
+        },
+        {
+          "not": {
+            "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+          }
+        }
+      ],
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Methodlabel",
+      "type": "string",
+      "x-fleda-runtimeConstraints": [
+        "public_safe_text_after_html_entity_decoding",
+        "trimmed_nonempty_text",
+        "valid_unicode_without_lone_surrogates",
+        "max_utf8_bytes_2000"
+      ]
+    },
+    "formalModelChanged": {
+      "title": "Formalmodelchanged",
+      "type": "boolean"
+    },
+    "supersedesRecordId": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Supersedesrecordid"
+    },
+    "statusMessage": {
+      "allOf": [
+        {
+          "not": {
+            "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+          }
+        },
+        {
+          "not": {
+            "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+          }
+        }
+      ],
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Statusmessage",
+      "type": "string",
+      "x-fleda-runtimeConstraints": [
+        "public_safe_text_after_html_entity_decoding",
+        "trimmed_nonempty_text",
+        "valid_unicode_without_lone_surrogates",
+        "max_utf8_bytes_2000"
+      ]
+    }
+  },
+  "required": [
+    "recordId",
+    "trainingDate",
+    "trainingRunType",
+    "candidateStatus",
+    "publicationCount",
+    "observationCount",
+    "methodLabel",
+    "formalModelChanged",
+    "supersedesRecordId",
+    "statusMessage"
+  ],
+  "type": "object"
+}

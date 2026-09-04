@@ -1,0 +1,945 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.twins.fledausa.com/contracts/public-model-training-record-1.1.0.schema.json",
+  "title": "FledaPublicModelTrainingRecord 1.1.0",
+  "$defs": {
+    "PublicArchitectureImplication": {
+      "additionalProperties": false,
+      "properties": {
+        "statement": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "linkedFindingIds": {
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Linkedfindingids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evidenceDois": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "pattern": "^\\b10\\.\\d{4,9}/[^\\s\\\"'<>]+$",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Evidencedois",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "statement",
+        "linkedFindingIds",
+        "evidenceDois"
+      ],
+      "title": "PublicArchitectureImplication",
+      "type": "object"
+    },
+    "PublicGateCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "passed": {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "failed": {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "warning": {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Warning",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "passed",
+        "failed",
+        "warning"
+      ],
+      "title": "PublicGateCounts",
+      "type": "object"
+    },
+    "PublicKnowledgeGap": {
+      "additionalProperties": false,
+      "properties": {
+        "statement": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "linkedFindingIds": {
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Linkedfindingids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evidenceDois": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "pattern": "^\\b10\\.\\d{4,9}/[^\\s\\\"'<>]+$",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Evidencedois",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "statement",
+        "linkedFindingIds",
+        "evidenceDois"
+      ],
+      "title": "PublicKnowledgeGap",
+      "type": "object"
+    },
+    "PublicRejectionReason": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[\\x00-\\x7f]+$",
+          "title": "Code",
+          "type": "string"
+        },
+        "statement": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "blockingScope": {
+          "enum": [
+            "candidate_support",
+            "formal_activation",
+            "both"
+          ],
+          "title": "Blockingscope",
+          "type": "string"
+        },
+        "evidenceDois": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "pattern": "^\\b10\\.\\d{4,9}/[^\\s\\\"'<>]+$",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Evidencedois",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "code",
+        "statement",
+        "blockingScope",
+        "evidenceDois"
+      ],
+      "title": "PublicRejectionReason",
+      "type": "object"
+    },
+    "PublicTrainingFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "findingId": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Findingid",
+          "type": "string"
+        },
+        "findingType": {
+          "enum": [
+            "confirmed_measurement",
+            "cross_study_consistency",
+            "drug_specific_constraint",
+            "invalid_parameter_transfer",
+            "failed_model_assumption",
+            "missing_mechanism",
+            "compartment_separation_required",
+            "assay_separation_required",
+            "future_model_requirement"
+          ],
+          "title": "Findingtype",
+          "type": "string"
+        },
+        "statement": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "applicableDrugs": {
+          "items": {
+            "enum": [
+              "Cp40",
+              "Cp60",
+              "scrambled_peptide_control",
+              "none"
+            ],
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Applicabledrugs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "mechanisms": {
+          "items": {
+            "enum": [
+              "c3_binding",
+              "classical_pathway_inhibition",
+              "terminal_pathway_activity",
+              "cp40_concentration_response",
+              "rpe_c3b_response",
+              "rpe_c5b9_response",
+              "affinity_potency_relationship",
+              "compartment_transfer",
+              "assay_transfer"
+            ],
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Mechanisms",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "compartments": {
+          "items": {
+            "enum": [
+              "purified_human_c3",
+              "human_serum_systemic",
+              "human_plasma_systemic",
+              "retina_rpe_local",
+              "not_applicable"
+            ],
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Compartments",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evidenceDois": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "pattern": "^\\b10\\.\\d{4,9}/[^\\s\\\"'<>]+$",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Evidencedois",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "confidenceStatus": {
+          "enum": [
+            "candidate_observation",
+            "cross_study_supported",
+            "conflicted",
+            "not_qualified"
+          ],
+          "title": "Confidencestatus",
+          "type": "string"
+        },
+        "supportingObservationCount": {
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Supportingobservationcount",
+          "type": "integer"
+        },
+        "calibrationStatus": {
+          "enum": [
+            "context_only",
+            "candidate_calibration",
+            "rejected_for_calibration",
+            "not_applicable"
+          ],
+          "title": "Calibrationstatus",
+          "type": "string"
+        }
+      },
+      "required": [
+        "findingId",
+        "findingType",
+        "statement",
+        "applicableDrugs",
+        "mechanisms",
+        "compartments",
+        "evidenceDois",
+        "confidenceStatus",
+        "supportingObservationCount",
+        "calibrationStatus"
+      ],
+      "title": "PublicTrainingFinding",
+      "type": "object"
+    },
+    "PublicTrainingMethod": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "machineLearning": {
+          "title": "Machinelearning",
+          "type": "boolean"
+        },
+        "aiExtractionUsed": {
+          "title": "Aiextractionused",
+          "type": "boolean"
+        },
+        "formalModelChanged": {
+          "title": "Formalmodelchanged",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "machineLearning",
+        "aiExtractionUsed",
+        "formalModelChanged"
+      ],
+      "title": "PublicTrainingMethod",
+      "type": "object"
+    },
+    "PublicTrainingPublication": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "doi": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "pattern": "^\\b10\\.\\d{4,9}/[^\\s\\\"'<>]+$",
+          "title": "Doi",
+          "type": "string"
+        },
+        "doiUrl": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Doiurl",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        },
+        "publicationYear": {
+          "maximum": 2147483647,
+          "minimum": 1600,
+          "title": "Publicationyear",
+          "type": "integer"
+        },
+        "accessStatement": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Accessstatement",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "doi",
+        "doiUrl",
+        "publicationYear",
+        "accessStatement"
+      ],
+      "title": "PublicTrainingPublication",
+      "type": "object"
+    },
+    "PublicUncertaintySummary": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "low",
+            "moderate",
+            "high",
+            "unknown"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "summary": {
+          "allOf": [
+            {
+              "not": {
+                "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+              }
+            },
+            {
+              "not": {
+                "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+              }
+            },
+            {
+              "not": {
+                "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+              }
+            }
+          ],
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string",
+          "x-fleda-runtimeConstraints": [
+            "public_safe_text_after_html_entity_decoding",
+            "trimmed_nonempty_text",
+            "valid_unicode_without_lone_surrogates",
+            "max_utf8_bytes_2000"
+          ]
+        }
+      },
+      "required": [
+        "level",
+        "summary"
+      ],
+      "title": "PublicUncertaintySummary",
+      "type": "object"
+    },
+    "PublicValidationSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "gateCounts": {
+          "$ref": "#/$defs/PublicGateCounts"
+        },
+        "failedGateCodes": {
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[\\x00-\\x7f]+$",
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Failedgatecodes",
+          "type": "array"
+        },
+        "deterministic": {
+          "title": "Deterministic",
+          "type": "boolean"
+        },
+        "sixBaselinesUnchanged": {
+          "title": "Sixbaselinesunchanged",
+          "type": "boolean"
+        },
+        "publicApiOutputsUnchanged": {
+          "title": "Publicapioutputsunchanged",
+          "type": "boolean"
+        },
+        "activeModelUnchanged": {
+          "title": "Activemodelunchanged",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "gateCounts",
+        "failedGateCodes",
+        "deterministic",
+        "sixBaselinesUnchanged",
+        "publicApiOutputsUnchanged",
+        "activeModelUnchanged"
+      ],
+      "title": "PublicValidationSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaName": {
+      "const": "FledaPublicModelTrainingRecord",
+      "title": "Schemaname",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.1.0",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "recordId": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Recordid",
+      "type": "string"
+    },
+    "trainingDate": {
+      "format": "date",
+      "title": "Trainingdate",
+      "type": "string"
+    },
+    "trainingRunType": {
+      "enum": [
+        "evidence_constrained_candidate_fit",
+        "independent_evidence_compatibility_check",
+        "mechanism_scenario_candidate_evaluation",
+        "regression_and_invariance_validation"
+      ],
+      "title": "Trainingruntype",
+      "type": "string"
+    },
+    "candidateStatus": {
+      "enum": [
+        "rejected",
+        "candidate_only",
+        "supported_exploratory",
+        "formally_approved"
+      ],
+      "title": "Candidatestatus",
+      "type": "string"
+    },
+    "publicationCount": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Publicationcount",
+      "type": "integer"
+    },
+    "observationCount": {
+      "maximum": 2147483647,
+      "minimum": 0,
+      "title": "Observationcount",
+      "type": "integer"
+    },
+    "publications": {
+      "items": {
+        "$ref": "#/$defs/PublicTrainingPublication"
+      },
+      "maxItems": 200,
+      "title": "Publications",
+      "type": "array"
+    },
+    "method": {
+      "$ref": "#/$defs/PublicTrainingMethod"
+    },
+    "validationSummary": {
+      "$ref": "#/$defs/PublicValidationSummary"
+    },
+    "rejectionReasons": {
+      "items": {
+        "$ref": "#/$defs/PublicRejectionReason"
+      },
+      "maxItems": 200,
+      "title": "Rejectionreasons",
+      "type": "array"
+    },
+    "knowledgeAcquired": {
+      "items": {
+        "$ref": "#/$defs/PublicTrainingFinding"
+      },
+      "maxItems": 200,
+      "title": "Knowledgeacquired",
+      "type": "array"
+    },
+    "modelingConstraints": {
+      "items": {
+        "$ref": "#/$defs/PublicTrainingFinding"
+      },
+      "maxItems": 200,
+      "title": "Modelingconstraints",
+      "type": "array"
+    },
+    "missingMechanisms": {
+      "items": {
+        "$ref": "#/$defs/PublicKnowledgeGap"
+      },
+      "maxItems": 200,
+      "title": "Missingmechanisms",
+      "type": "array"
+    },
+    "architectureImplications": {
+      "items": {
+        "$ref": "#/$defs/PublicArchitectureImplication"
+      },
+      "maxItems": 200,
+      "title": "Architectureimplications",
+      "type": "array"
+    },
+    "uncertaintySummary": {
+      "$ref": "#/$defs/PublicUncertaintySummary"
+    },
+    "limitations": {
+      "items": {
+        "allOf": [
+          {
+            "not": {
+              "pattern": "<(?:/?[a-zA-Z][a-zA-Z0-9:-]*(?:[\\s/]+[^<>]*)?|!--[^<>]*--|![dD][oO][cC][tT][yY][pP][eE]\\s+[^<>]+|\\?[^<>]+)>"
+            }
+          },
+          {
+            "not": {
+              "pattern": "[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:"
+            }
+          },
+          {
+            "not": {
+              "pattern": "[vV][bB][sS][cC][rR][iI][pP][tT]:"
+            }
+          },
+          {
+            "not": {
+              "pattern": "[dD][aA][tT][aA]:[tT][eE][xX][tT]/[hH][tT][mM][lL]"
+            }
+          },
+          {
+            "not": {
+              "pattern": "\\b[oO][nN][a-zA-Z]+\\s*="
+            }
+          }
+        ],
+        "maxLength": 2000,
+        "minLength": 1,
+        "type": "string",
+        "x-fleda-runtimeConstraints": [
+          "public_safe_text_after_html_entity_decoding",
+          "trimmed_nonempty_text",
+          "valid_unicode_without_lone_surrogates",
+          "max_utf8_bytes_2000"
+        ]
+      },
+      "maxItems": 200,
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "formalModelChanged": {
+      "title": "Formalmodelchanged",
+      "type": "boolean"
+    },
+    "supersedesRecordId": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Supersedesrecordid"
+    },
+    "projectionHash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Projectionhash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaName",
+    "schemaVersion",
+    "recordId",
+    "trainingDate",
+    "trainingRunType",
+    "candidateStatus",
+    "publicationCount",
+    "observationCount",
+    "publications",
+    "method",
+    "validationSummary",
+    "rejectionReasons",
+    "knowledgeAcquired",
+    "modelingConstraints",
+    "missingMechanisms",
+    "architectureImplications",
+    "uncertaintySummary",
+    "limitations",
+    "formalModelChanged",
+    "supersedesRecordId",
+    "projectionHash"
+  ],
+  "type": "object"
+}

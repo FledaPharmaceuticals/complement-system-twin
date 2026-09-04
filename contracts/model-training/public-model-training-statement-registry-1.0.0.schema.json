@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.twins.fledausa.com/contracts/public-model-training-statement-registry-1.0.0.schema.json",
+  "title": "FledaPublicStatementRegistry 1.0.0",
+  "$defs": {
+    "PublicStatementEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "statementId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "title": "Statementid",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "method_label",
+            "rejection_reason",
+            "knowledge",
+            "modeling_constraint",
+            "missing_mechanism",
+            "architecture_implication",
+            "uncertainty",
+            "limitation"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "statementHash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Statementhash",
+          "type": "string"
+        },
+        "approvalStatus": {
+          "const": "approved_for_public_release",
+          "title": "Approvalstatus",
+          "type": "string"
+        }
+      },
+      "required": [
+        "statementId",
+        "category",
+        "text",
+        "statementHash",
+        "approvalStatus"
+      ],
+      "title": "PublicStatementEntry",
+      "type": "object",
+      "x-fleda-runtimeConstraints": [
+        "trimmed_nonempty_text",
+        "valid_unicode_without_lone_surrogates",
+        "max_utf8_bytes_2000",
+        "statement_hash_matches_category_and_text"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaName": {
+      "const": "FledaPublicStatementRegistry",
+      "title": "Schemaname",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "statements": {
+      "items": {
+        "$ref": "#/$defs/PublicStatementEntry"
+      },
+      "title": "Statements",
+      "type": "array"
+    },
+    "registryHash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Registryhash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaName",
+    "schemaVersion",
+    "statements",
+    "registryHash"
+  ],
+  "type": "object",
+  "x-fleda-runtimeConstraints": [
+    "unique_statement_ids",
+    "unique_statement_hashes",
+    "statement_ids_sorted_by_unsigned_ascii_bytes",
+    "registry_hash_omits_only_registry_hash",
+    "explicit_private_value_and_decoded_xss_checks"
+  ]
+}
